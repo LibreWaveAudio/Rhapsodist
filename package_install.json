@@ -1,0 +1,15 @@
+{
+  "PositiveWildcard": [
+    "Scripts/Rhapsodist",
+    "Scripts/App",
+    "Images/Fonts"
+  ],
+  "InfoText": "# Rhapsodist\n\n## A toolkit of modules, processors, and script libraries for creating instruments for Rhapsody\n\nThe majority of the code is released under the GNU GPLv3 but check the headers of individual source files for more details.\n\nThe core should be included before any other toolkit includes.\n\n`include(\"Core/Core.js\");`\n\nFiles in the processors folder should be loaded as separate MIDI processors. Scripts in the includes and widgets folders should be included at `on init`.",
+  "NegativeWildcard": [],
+  "UseFileTypeFilter": false,
+  "UsePreprocessors": true,
+  "FileTypeFilter": [
+    "Scripts",
+    "Images"
+  ]
+}
