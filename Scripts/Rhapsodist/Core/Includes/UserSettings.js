@@ -17,29 +17,33 @@
 
 namespace UserSettings
 {
+	const style = CoreLookAndFeel.style;
+	const fonts = CoreLookAndFeel.fonts;
+
 	reg settingsLoaded = false; // Flag to make sure settings are loaded before broadcaster triggers
 	
-	//! lafMidiSettings
+	//! Look and Feel
 	const lafMidiSettings = Content.createLocalLookAndFeel();
 	
 	lafMidiSettings.registerFunction("drawToggleButton", function(g, obj)
 	{
 		var a = obj.area;
 		var size = 14;
-		var font = fltMidiSources.get("Font");
-		var fontSize = fltMidiSources.get("FontSize");
-		var disc = Rectangle(a[0] + 1, a[3] / 2 - size / 2, size, size);
-
+		var font = fonts.medium;
+		var fontSize = 16 + fonts.size;
+		var thickness = 2;
+		var disc = Rectangle(a[0] + thickness / 2, a[3] / 2 - size / 2, size, size);
+	
 		g.setColour(Colours.withAlpha(obj.textColour, obj.value ? 1.0 : 0.8));
-		g.drawEllipse(disc, 1);
+		g.drawEllipse(disc, thickness);
 		
 		var alpha = (obj.value ? 0.9 : 0.2) + (0.2 * obj.over) - (0.2 * obj.down);
 		g.setColour(Colours.withAlpha(obj.textColour, alpha));
-		g.fillEllipse(disc.reduced(3));
-
+		g.fillEllipse(disc.reduced(thickness * 1.5));
+	
 		if (obj.text == "")
 			return;
-
+	
 		g.setFont(font, fontSize);
 		g.setColour(Colours.withAlpha(obj.textColour, obj.value ? 1.0 : 0.8));
 		g.drawFittedText(obj.text, [a[0] + 25, a[1], a[2], a[3]], "left", 1, 1.0);
@@ -53,30 +57,25 @@ namespace UserSettings
 			parent = pnlMidiSettings;
 
 		if (!isDefined(parent))
-			return CoreLookAndFeel.drawScrollbar({});
+			return CoreLookAndFeel.drawScrollbar();
 
-		var properties = {
-			bgColour: Colours.withAlpha(parent.get("itemColour"), 0.5),
-			itemColour: parent.get("textColour"),
-			radius: Style.userSettings.scrollbarRadius
-		};		
+		obj.bgColour = Colours.withAlpha(parent.get("itemColour"), 0.5);
+		obj.itemColour = parent.get("textColour");
 
-		CoreLookAndFeel.drawScrollbar(properties);
+		CoreLookAndFeel.drawScrollbar();
 	});
-	
+
 	//! lafAudioSettings
 	const lafAudioSettings = Content.createLocalLookAndFeel();
 
 	lafAudioSettings.registerFunction("drawComboBox", function(g, obj)
 	{
-		var lafOptions = {
-			bgColour: cmbStreamingMode.get("bgColour"),
-			textColour: cmbStreamingMode.get("textColour")
-		};
+		obj.bgColour = cmbStreamingMode.get("bgColour");
+		obj.textColour = cmbStreamingMode.get("textColour");
 
-		CoreLookAndFeel.drawComboBox(lafOptions);
+		CoreLookAndFeel.drawComboBox();
 	});
-	
+
 	lafAudioSettings.registerFunction("getIdealPopupMenuItemSize", function(obj)
 	{
 		return CoreLookAndFeel.getIdealPopupMenuItemSize();
@@ -84,12 +83,12 @@ namespace UserSettings
 	
 	lafAudioSettings.registerFunction("drawPopupMenuBackground", function(g, obj)
 	{
-		CoreLookAndFeel.drawPopupMenuBackground({});
+		CoreLookAndFeel.drawPopupMenuBackground();
 	});
 	
 	lafAudioSettings.registerFunction("drawPopupMenuItem", function(g, obj)
 	{
-		CoreLookAndFeel.drawPopupMenuItem({});
+		CoreLookAndFeel.drawPopupMenuItem();
 	});
 	
 	//! All Settings Panels
@@ -104,7 +103,7 @@ namespace UserSettings
 	{
 		if (!value)
 			show();
-	}	
+	}
 	
 	//! pnlSettingsContainer
 	const pnlSettingsContainer = Content.getComponent("pnlSettingsContainer");
@@ -116,31 +115,49 @@ namespace UserSettings
 		g.fillAll(Colours.withAlpha(Colours.black, 0.5));
 		g.drawDropShadow(a, Colours.withAlpha(Colours.black, 0.6), 20);
 	});
+	
+	pnlSettingsContainer.setMouseCallback(function()
+	{
+		hide();
+	});
 
 	//! pnlSettings
 	const pnlSettings = SwitcherPanel.create("pnlSettings", "pnlSettingsMenu", "ScriptPanel", {});
-	
+
 	pnlSettings.setPaintRoutine(function(g)
 	{
+		if (isDefined(LookAndFeel.drawSettingsPanel))
+			return LookAndFeel.drawSettingsPanel();
+
 		var a = this.getLocalBounds(0);
 		var radius = this.get("borderRadius");
+		var borderSize = this.get("borderSize");
 		var menuWidth = vptSettingsMenu.getWidth() + vptSettingsMenu.get("x");
+		var font = fonts.semibold;
+		var fontSize = 18 + fonts.size;
 
-		g.setColour(this.get("bgColour"));
-		g.fillRoundedRectangle(a, radius);
-		
-		g.setColour(this.get("itemColour2"));
-		g.drawRoundedRectangle(a, radius, 1);
-		
-		g.setFont(Style.userSettings.titleFont, Style.userSettings.titleFontSize);
+		if (isDefined(LookAndFeel.drawSettingsPanelBackground))
+		{
+			LookAndFeel.drawSettingsPanelBackground();
+		}
+		else
+		{
+			g.setColour(this.get("bgColour"));
+			g.fillRoundedRectangle(a, radius);
+
+			g.setColour(this.get("itemColour2"));
+			g.drawRoundedRectangle(a.reduced(borderSize / 2), radius, borderSize);
+		}
+
+		g.setFont(font, fontSize);
 		g.setColour(this.get("textColour"));
 		g.drawAlignedText(this.get("text"), [a[0], a[1] + 10, menuWidth, 25], "centred");
 
 		g.setColour(Colours.withAlpha(this.get("textColour"), 0.2));
-		g.drawVerticalLine(menuWidth, 0, a[3]);
+		g.drawVerticalLine(menuWidth, 0 + borderSize, a[3] - borderSize);
 
-		if (isDefined(Style.useNoise) && Style.useNoise)
-			g.addNoise({alpha: 0.025, scaleFactor: 1.5, area: a.toArray(), monochromatic: true});
+		if (!isDefined(style.useNoise) || style.useNoise)
+			g.addNoise({alpha: 0.025, scaleFactor: 1.5, area: a, monochromatic: true});
 	});
 	
 	pnlSettings.setConsumedKeyPresses({"keyCode": 27});
@@ -159,15 +176,18 @@ namespace UserSettings
 	const pnlSettingsMenu = Content.getComponent("pnlSettingsMenu");
 	pnlSettingsMenu.data.hover = -1;
 	pnlSettingsMenu.data.rowHeight = 40;
-	pnlSettingsMenu.data.icons = {"ENGINE": "\uea80", "AUDIO": "\ue2a6", "MIDI I/O": "\ue9c8", "INSTRUMENT": "\ue434", "AUTOMATION": "\ueb56", "ABOUT": "\ue2ce"};
+	pnlSettingsMenu.data.icons = {"ENGINE": "\uea80", "AUDIO": "\ue2a6", "MIDI I/O": "\ue956", "INSTRUMENT": "\ue9c8", "AUTOMATION": "\ue6D4", "ABOUT": "\ue2ce"};
 
 	pnlSettingsMenu.setPaintRoutine(function(g)
 	{
 		var a = this.getLocalBounds(0);
-		var items = this.get("popupMenuItems").split("\n");
+		var items = this.data.items;
 		var icons = this.data.icons;
 		var rowHeight = this.data.rowHeight;
 		var radius = this.get("borderRadius");
+		var font = fonts.semibold;
+		var fontSize = 16 + fonts.size;
+		var featureColour = (isDefined(style.featureColour) && this.get("itemColour2") == 0x0) ? style.featureColour : this.get("itemColour2");
 
 		for (i = 0; i < items.length; i++)
 		{
@@ -177,12 +197,18 @@ namespace UserSettings
 			{
 				g.setColour(Colours.withMultipliedAlpha(this.get("itemColour"), this.data.hover == i && !(this.getValue() == i) ? 0.6 : 1.0));
 				g.fillRoundedRectangle([a[0], y, a[2], rowHeight - 10], radius);
+				
+				if (!isDefined(style.useNoise) || style.useNoise)
+					g.addNoise({alpha: 0.025, scaleFactor: 1.5, area: [a[0], y, a[2], rowHeight - 10], monochromatic: true});
 			}
 
 			if (this.getValue() == i)
 			{
-				g.setColour(this.get("textColour"));
+				g.setColour(featureColour);
 				g.fillRoundedRectangle([a[0], y, 5, rowHeight - 10], {CornerSize: radius, Rounded:[1, 0, 1, 0]});
+				
+				if (!isDefined(style.useNoise) || style.useNoise)
+					g.addNoise({alpha: 0.025, scaleFactor: 1.5, area: [a[0], y, 5, rowHeight - 10], monochromatic: true});
 			}
 
 			g.setColour(Colours.withAlpha(this.get("textColour"), 0.8 + 0.2 * (this.getValue() == i)));
@@ -195,24 +221,20 @@ namespace UserSettings
 			g.setFont("phosphorFill", 18);
 			g.drawAlignedText(icon, [a[0] + 10, y, a[2], rowHeight - 10], "left");
 			
-			g.setFont(Style.userSettings.menuFont, Style.userSettings.menuFontSize);
+			g.setFont(font, fontSize);
 			g.drawAlignedText(items[i], [a[0] + 38, y, a[2], rowHeight - 10], "left");
 		}
 	});
-	
+
 	pnlSettingsMenu.setMouseCallback(function(event)
 	{
-		var items = this.get("popupMenuItems").split("\n");
+		var items = this.data.items;
 		var value = Math.floor(event.y / this.data.rowHeight);
 
 		this.data.hover = event.hover ? value : -1;
 
 		if (event.clicked && !event.rightClick)
-		{
-			this.setValue(value);
-			this.changed();
-			return;
-		}
+			return this.setValue(value);
 
 		this.repaint();
 	});
@@ -221,13 +243,13 @@ namespace UserSettings
 	const btnSettingsClose = Content.getComponent("btnSettingsClose");
 	btnSettingsClose.setLocalLookAndFeel(CoreLookAndFeel.iconButton);
 	btnSettingsClose.setControlCallback(onbtnSettingsCloseControl);
-
+	
 	inline function onbtnSettingsCloseControl(component, value)
 	{
 		if (!value)
 			hide();
 	}
-		
+
 	//! pnlEngineSettingsContainer
 	const pnlEngineSettingsContainer = Content.getComponent("pnlEngineSettingsContainer");
 	pnlEngineSettingsContainer.setPaintRoutine(function(g){});
@@ -237,7 +259,7 @@ namespace UserSettings
 	vptEngineSettings.setLocalLookAndFeel(CoreLookAndFeel.viewport);
 
 	//! pnlEngineSettings
-	const pnlEngineSettings = SettingsPanel.create("pnlEngineSettings", 40, {font: Style.userSettings.font, fontSize: Style.userSettings.fontSize});
+	const pnlEngineSettings = SettingsPanel.create("pnlEngineSettings", 40, {});
 
 	//! cmbStreamingMode
 	const cmbStreamingMode = Content.getComponent("cmbStreamingMode");
@@ -245,7 +267,7 @@ namespace UserSettings
 
 	inline function oncmbStreamingModeControl(component, value)
 	{
-		Settings.setDiskMode(value);
+		Settings.setDiskMode(value - 1);
 	}
 
 	//! cmbMaxVoices
@@ -256,10 +278,7 @@ namespace UserSettings
 	{
 		Settings.setVoiceMultiplier(value);
 	}
-
-	//! cmbZoom
-	const cmbZoom = Content.getComponent("cmbZoom");
-
+	
 	//! knbGlobalBpm
 	const knbGlobalBpm = Content.getComponent("knbGlobalBpm");
 	knbGlobalBpm.set("enabled", !Engine.isPlugin());
@@ -270,19 +289,21 @@ namespace UserSettings
 		if (!Engine.isPlugin())
 			Engine.setHostBpm(value);
 	}
-		
+
 	//! pnlAudioSettings
 	const pnlAudioSettings = Content.getComponent("pnlAudioSettings");
-	
+
 	pnlAudioSettings.setPaintRoutine(function(g)
 	{
-		var a = this.getLocalBounds(0);
-
 		if (!Engine.isPlugin())
 			return;
 
+		var a = this.getLocalBounds(0);
+		var font = fonts.medium;
+		var fontSize = 16 + fonts.size;
+
 		g.setColour(this.get("textColour"));
-		g.setFont(Style.userSettings.font, Style.userSettings.fontSize);
+		g.setFont(font, fontSize);
 		g.drawAlignedText("Disabled in Plugin", [a[0] - 15, a[1], a[2], a[3] - 50], "centred");
 	});	
 
@@ -297,8 +318,10 @@ namespace UserSettings
 	pnlMidiSettings.setPaintRoutine(function(g)
 	{
 		var a = this.getLocalBounds(0);
+		var font = fonts.medium;
+		var fontSize = 16 + fonts.size;
 
-		g.setFont(Style.userSettings.font, Style.userSettings.fontSize);
+		g.setFont(font, fontSize);
 		g.setColour(this.get("textColour"));
 		g.drawAlignedText("INPUT CHANNELS", [a[0], a[1], a[2], 25], "left");
 
@@ -323,9 +346,10 @@ namespace UserSettings
 	pnlMidiChannels.setPaintRoutine(function(g)
 	{
 		var a = this.getLocalBounds(0);
-		var font = fltMidiSources.get("Font");
-		var fontSize = fltMidiSources.get("FontSize");
+		var font = fonts.medium;
+		var fontSize = 16 + fonts.size;
 		var size = 14;
+		var thickness = 2;
 
 		for (i = 0; i < 16; i++)
 		{
@@ -340,11 +364,11 @@ namespace UserSettings
 			var down = this.data.down == i;
 
 			g.setColour(Colours.withAlpha(this.get("textColour"), isEnabled ? 1.0 : 0.8));
-			g.drawEllipse(disc, 1);
+			g.drawEllipse(disc, thickness);
 
 			var alpha = (isEnabled ? 0.9 : 0.2) + (0.2 * over) - (0.2 * down);
 			g.setColour(Colours.withAlpha(this.get("textColour"), alpha));
-			g.fillEllipse(disc.reduced(3));
+			g.fillEllipse(disc.reduced(thickness * 1.5));
 
 			g.setFont(font, fontSize);
 			g.setColour(Colours.withAlpha(this.get("textColour"), isEnabled ? 1.0 : 0.8));
@@ -385,102 +409,16 @@ namespace UserSettings
 	vptInstrumentSettings.setLocalLookAndFeel(CoreLookAndFeel.viewport);
 
 	//! pnlInstrumentSettings
-	const pnlInstrumentSettings = SettingsPanel.create("pnlInstrumentSettings", 40, {font: Style.userSettings.font, fontSize: Style.userSettings.fontSize});
-
-	//! pnlMidiAutomation
-	const pnlMidiAutomation = Content.getComponent("pnlMidiAutomation");
-	pnlMidiAutomation.setPaintRoutine(function(g){});
-
-	//! fltMidiAutomation
-	const fltMidiAutomation = Content.getComponent("fltMidiAutomation");
-	const laffltMidiAutomation = Content.createLocalLookAndFeel();
-	fltMidiAutomation.setLocalLookAndFeel(laffltMidiAutomation);
-	
-	laffltMidiAutomation.registerFunction("drawToggleButton", function(g, obj)
-	{
-		var a = obj.area;
-		var size = 12;
-		var disc = Rectangle(a[2] / 2 - size / 2, a[3] / 2 - size / 2, size, size);
-
-		g.setColour(Colours.withAlpha(obj.textColour, obj.value ? 1.0 : 0.8));
-		g.drawEllipse(disc, 1);
-
-		var alpha = (obj.value ? 0.9 : 0.2) + (0.2 * obj.over) - (0.2 * obj.down);
-		g.setColour(Colours.withAlpha(obj.textColour, alpha));
-		g.fillEllipse(disc.reduced(3));
-	});
-	
-	laffltMidiAutomation.registerFunction("drawTableCell", function(g, obj)
-	{
-		var a = obj.area;
-		var font = isDefined(Style.userSettings.automationRowFont) ? Style.userSettings.automationRowFont : obj.font;
-		var fontSize = isDefined(Style.userSettings.automationRowFontSize) ? Style.userSettings.automationRowFontSize : obj.fontSize;
-		
-		g.setFont(font, fontSize);
-		g.setColour(obj.textColour);
-		g.drawAlignedText(obj.text, a.translated(10, 0), "left");
-	});
-
-	laffltMidiAutomation.registerFunction("drawTableHeaderBackground", function(g, obj)
-	{
-		var a = obj.area;
-		g.setColour(obj.itemColour);
-		g.fillRoundedRectangle(a, {CornerSize: 5, Rounded:[1, 1, 0, 0]});
-	});
-	
-	laffltMidiAutomation.registerFunction("drawTableHeaderColumn", function(g, obj)
-	{
-		var a = obj.area;
-
-		g.setColour(obj.textColour);
-		g.setFont(obj.font, obj.fontSize);
-		g.drawAlignedText(obj.text, a.translated(10), "left");
-
-	});
-	
-	laffltMidiAutomation.registerFunction("drawTableRowBackground", function(g, obj)
-	{
-		var a = obj.area;
-		var c = Colours.withMultipliedBrightness(obj.itemColour2, obj.selected ? 2.0 : 1.0);
-
-		g.setColour(Colours.withAlpha(c, obj.selected ? 1.0 : (obj.rowIndex % 2 == 0 ? 0.2 : 0.5)));
-		g.fillRect(a);
-	});
-
-	laffltMidiAutomation.registerFunction("drawLinearSlider", function(g, obj)
-	{
-		var a = obj.area;
-		var font = isDefined(Style.userSettings.automationRowFont) ? Style.userSettings.automationRowFont : obj.font;
-		var fontSize = isDefined(Style.userSettings.automationRowFontSize) ? Style.userSettings.automationRowFontSize : obj.fontSize;
-
-		g.setColour(obj.itemColour3);
-		g.fillRoundedRectangle(a.reduced(2, 3), 2);
-
-		g.setColour(Colours.withAlpha(obj.textColour, 0.5));
-		g.fillRoundedRectangle(a.scaled(obj.valueNormalized, 1).reduced(2, 3), 2);
-		
-		g.setFont(font, fontSize - 2);
-		g.setColour(obj.textColour);
-		g.drawAlignedText(parseInt(obj.value), a, "centred");
-	});
-
-	laffltMidiAutomation.registerFunction("drawScrollbar", function(g, obj)
-	{
-		var properties = {
-			bgColour: Colours.withMultipliedBrightness(obj.itemColour1, 0.5),
-			itemColour: obj.textColour,
-			radius: Style.presets.scrollbarRadius
-		};
-
-		CoreLookAndFeel.drawScrollbar(properties);
-	});
+	const pnlInstrumentSettings = SettingsPanel.create("pnlInstrumentSettings", 40, {});
 	
 	//! pnlSettingsAbout
 	const pnlSettingsAbout = Content.getComponent("pnlSettingsAbout");
-	
+
 	pnlSettingsAbout.setPaintRoutine(function(g)
 	{
 		var a = this.getLocalBounds(0);
+		var font = fonts.medium;
+		var fontSize = 16 + fonts.size;
 		var info = getAboutInfo();
 	
 		// Product/Company info
@@ -490,7 +428,7 @@ namespace UserSettings
 		text += info.CompanyURL + "\r\n";		
 		text += info.CompanyCopyright.replace("(c)", "\u00a9");
 
-		g.setFont(Style.userSettings.font, Style.userSettings.fontSize);
+		g.setFont(font, fontSize);
 		g.setColour(this.get("textColour"));
 		g.drawMultiLineText(text, [a[0], a[1] + 20], a[2] - 50, "left", 10.0);
 	});
@@ -540,7 +478,7 @@ namespace UserSettings
 		}
 
 		pnlSettingsMenu.set("height", items.length * pnlSettingsMenu.data.rowHeight);		
-		pnlSettingsMenu.set("popupMenuItems", items.join("\n"));
+		pnlSettingsMenu.data.items = items;
 	}
 	
 	inline function setMenuIcon(menuItem: string, iconCodePoint: string)
@@ -601,8 +539,7 @@ namespace UserSettings
 	inline function: ComplexType getScopedPropertiesFromFile(scope: string)
 	{
 		local obj = {};
-		local dir = FileSystem.getFolder(FileSystem.AppData).getParentDirectory().getParentDirectory().createDirectory("Libre Wave").createDirectory("Rhapsody");
-		local f = dir.getChildFile("UserSettings.json");
+		local f = FileSystem.getFolder(FileSystem.AppData).getChildFile("UserSettings.json");
 
 		if (isDefined(f) && f.isFile())
 			obj = f.loadAsObject();
@@ -625,19 +562,21 @@ namespace UserSettings
 
 	inline function restoreEngineSettings()
 	{
-		local obj = getScopedPropertiesFromFile("rhapsody");
-
+		local defaults = {"Max Voices": 4.0, "Disk Mode": 1.0, "BPM": 120};
+		local scope = Engine.getName().replace(" ", "_").toLowerCase();
+		local obj = getScopedPropertiesFromFile(scope);
+			
 		for (x in Content.getAllComponents(""))
 		{
-			if (x.get("parentComponent") != "pnlEngineSettings")
+			local id = x.get("text");
+
+			if (!isDefined(obj[id]) && !isDefined(defaults[id]))
 				continue;
 
-			local value = obj[x.get("text")];
+			local value = isDefined(obj[id]) ? obj[id] : defaults[id];
 
-			if (!isDefined(value))
-				continue;
-
-			x.setValue(value);
+			if (isDefined(value))
+				x.setValue(value);			
 		}
 
 		settingsLoaded = true;
@@ -657,7 +596,7 @@ namespace UserSettings
 	//! Broadcasters
 
 	//! Engine setting changed broadcaster
-	const bcEngineSettingChanged = Engine.createBroadcaster({"id": "UserSettings", "args": ["component", "value"]});	
+	const bcEngineSettingChanged = Engine.createBroadcaster({id: "UserSettings", args: ["component", "value"]});
 	
 	bcEngineSettingChanged.attachToComponentValue(["cmbStreamingMode", "cmbMaxVoices", "knbGlobalBpm", "btnTooltips"], "");
 	bcEngineSettingChanged.addListener(0, "Engine Setting Changed", function(component, value)
@@ -665,13 +604,12 @@ namespace UserSettings
 		if (!settingsLoaded)
 			return restoreEngineSettings();
 
-		if (component.get("parentComponent") != "pnlEngineSettings")
+		if (component.get("parentComponent") != "pnlEngineSettings" && component.getId() != "knbGlobalBpm")
 			return;
 
-		setProperty("rhapsody", component.get("text"), value);
+		setProperty(Engine.getName().replace(" ", "_").toLowerCase(), component.get("text"), value);
 	});
 
 	//! Function Calls
-	restoreEngineSettings();
 	populateMenuItems();
 }

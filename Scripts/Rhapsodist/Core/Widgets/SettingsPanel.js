@@ -16,19 +16,22 @@
 */
 
 namespace SettingsPanel
-{	
+{
+	const style = CoreLookAndFeel.style;
+	const fonts = CoreLookAndFeel.fonts;
+
 	inline function create(panelId: string, rowHeight: number, options: JSON)
 	{
 		local panel = Content.getComponent(panelId);
-		panel.data.rowHeight = rowHeight;
+		panel.data.rowHeight = rowHeight;		
 		
 		for (x in options)
 			panel.data[x] = options[x];
 
 		panel.setPaintRoutine(function(g)
 		{
-			var font = isDefined(this.data.font) ? this.data.font : "Default";
-			var fontSize = isDefined(this.data.fontSize) ? this.data.fontSize : 14;
+			var font = fonts.medium;
+			var fontSize = 16 + fonts.size;
 
 			var count = 0;
 
@@ -71,7 +74,8 @@ namespace SettingsPanel
 			switch (x.get("type"))
 			{
 				case "ScriptPanel":
-					ValueEdit.create(x.getId(), {useNoise: parent.data.useNoise});
+					if (isValueEdit(x))
+						ValueEdit.create(x.getId(), {useNoise: parent.data.useNoise});
 					break;
 
 				case "ScriptButton":
@@ -91,5 +95,18 @@ namespace SettingsPanel
 		}
 
 		parent.set("height", count * rowHeight);
+	}
+	
+	inline function: number isValueEdit(component: ScriptObject)
+	{
+		if (component.get("type") != "ScriptPanel")
+			return false;
+
+		local children = component.getChildComponents();
+
+		if (children.length != 1)
+			return false;
+
+		return children[0].get("type") == "ScriptSlider";
 	}
 }

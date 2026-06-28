@@ -17,8 +17,13 @@
 
 namespace ValueEdit
 {
+	const style = CoreLookAndFeel.style;
+	const fonts = CoreLookAndFeel.fonts;
+
 	inline function create(panelId: string, options: JSON)
 	{
+		local styleSheetPrefix = isDefined(options.styleSheetPrefix) ? (options.styleSheetPrefix + "_") : "";
+
 		local panel = Content.getComponent(panelId);
 		
 		for (x in options)
@@ -27,14 +32,14 @@ namespace ValueEdit
 		panel.setPaintRoutine(function(g)
 		{
 			var a = this.getLocalBounds(0);
-			var radius = Style.inputBox.borderRadius;
-			var borderSize = Style.inputBox.borderSize;
+			var radius = isDefined(style.inputBox.borderRadius) ? style.inputBox.borderRadius : 2;
+			var borderSize = isDefined(style.inputBox.borderSize) ? style.inputBox.borderSize : 0;
 
 			g.setColour(Colours.withAlpha(this.get("bgColour"), this.get("enabled") ? 1.0 : 0.5));
 			g.fillRoundedRectangle(a, radius);
 
-			if (isDefined(Style.useNoise) && Style.useNoise)
-				g.addNoise({alpha: 0.025, scaleFactor: 1.5, area: a.toArray(), monochromatic: true});
+			if (!isDefined(style.useNoise) || !style.useNoise)
+				g.addNoise({alpha: 0.025, scaleFactor: 1.5, area: a, monochromatic: true});
 
 			if (borderSize == 0)
 				return;
@@ -43,22 +48,22 @@ namespace ValueEdit
 			g.drawRoundedRectangle(a, radius, borderSize);
 		});
 
-		local slider = Content.addKnob("knb" + panelId.replace("pnl"), 0, 0);
-		slider.set("parentComponent", panelId);
-		slider.setPosition(panel.getWidth() / 6, 0, panel.getWidth() / 1.5, panel.getHeight());
-		slider.set("style", "Knob");
-		slider.set("dragDirection", "Vertical");
-		slider.set("bgColour", 0x0);
-		slider.set("itemColour", 0x0);
-		slider.set("showTextBox", false);
+		local knob = Content.addKnob("knb" + panelId.replace("pnl"), 0, 0);
+		knob.set("parentComponent", panelId);
+		knob.setPosition(panel.getWidth() / 6, 0, panel.getWidth() / 1.5, panel.getHeight());
+		knob.set("style", "Knob");
+		knob.set("dragDirection", "Vertical");
+		knob.set("bgColour", 0x0);
+		knob.set("itemColour", 0x0);
+		knob.set("showTextBox", false);
 
-		local sliderLaf = Content.createLocalLookAndFeel();
-		slider.setLocalLookAndFeel(sliderLaf);
+		local knobLaf = Content.createLocalLookAndFeel();
+		knob.setLocalLookAndFeel(knobLaf);
 
-		sliderLaf.registerFunction("drawRotarySlider", function(g, obj)
+		knobLaf.registerFunction("drawRotarySlider", function(g, obj)
 		{
-			var font = Style.inputBox.font;
-			var fontSize = Style.inputBox.fontSize;
+			var font = fonts.regular;
+			var fontSize = 16 + fonts.size;
 
 			g.setFont(font, fontSize);
 
@@ -68,13 +73,13 @@ namespace ValueEdit
 			g.drawAlignedText(obj.valueAsText, obj.area, "centred");
 		});
 
-		panel.data.slider = slider;
+		panel.data.knob = knob;
 
 		for (c in panel.getChildPanelList())
 			c.removeFromParent();
 
 		panel.data.bc = Engine.createBroadcaster({id: "Panel enabled", args: ["component", "property", "value"]});
-		panel.data.bc.attachToComponentProperties([panel, slider], "enabled", "Parent enabled watcher");
+		panel.data.bc.attachToComponentProperties([panel, knob], "enabled", "Parent enabled watcher");
 		panel.data.buttons = createButtons(panel);
 		
 		return panel;
@@ -112,7 +117,7 @@ namespace ValueEdit
 			b.setMouseCallback(function(event)
 			{
 				var index = this.getParentPanel().data.buttons.indexOf(this);
-				var slider = this.getParentPanel().data.slider;
+				var knob = this.getParentPanel().data.knob;
 
 				if (event.rightClick)
 					return;
@@ -124,14 +129,14 @@ namespace ValueEdit
 				if (!event.clicked || event.mouseUp)
 					return;
 		
-				var stepSize = parseFloat(slider.get("stepSize"));
-				var newValue = index == 0 ? (slider.getValue() + stepSize) : slider.getValue() - stepSize;
+				var stepSize = parseFloat(knob.get("stepSize"));
+				var newValue = index == 0 ? (knob.getValue() + stepSize) : knob.getValue() - stepSize;
 		
-				if (newValue < slider.get("min") || newValue > slider.get("max"))
+				if (newValue < knob.get("min") || newValue > knob.get("max"))
 					return;
 		
-				slider.setValue(newValue);
-				slider.changed();
+				knob.setValue(newValue);
+				knob.changed();
 			});
 			
 			panel.data.bc.addListener(b, "button " + i + " update enabled",	function(component, property, value)

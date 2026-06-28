@@ -1,5 +1,5 @@
 /*
-    Copyright 2024 David Healey
+    Copyright 2026 David Healey
 
     This file is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 Content.setWidth(730);
 Content.setHeight(50);
+
+const lastTranspose = Engine.createMidiList();
 
 //! knbFine
 const knbFine = Content.addKnob("FineTune", 10, 0);
@@ -67,19 +69,23 @@ inline function updateTuning()
 }
 function onNoteOn()
 {
-	if (!knbOctave.getValue() && !knbSemi.getValue())
-		return;
+	local n = Message.getNoteNumber();
+	local transpose = 12 * knbOctave.getValue() + knbSemi.getValue();
+	
+	lastTranspose.setValue(n, transpose);
 
-	local value = 12 * knbOctave.getValue() + knbSemi.getValue();
-	Message.setTransposeAmount(value);
+	if (transpose != 0)
+		Message.setTransposeAmount(transpose);
 }
 function onNoteOff()
 {
-	if (!knbOctave.getValue() && !knbSemi.getValue())
-		return;
+	local n = Message.getNoteNumber();
+	local transpose = (12 * knbOctave.getValue() + knbSemi.getValue());
 	
-	local value = 12 * knbOctave.getValue() + knbSemi.getValue();
-	Message.setTransposeAmount(value);
+	transpose += (lastTranspose.getValue(n) - transpose);
+
+	if (transpose != 0)
+		Message.setTransposeAmount(transpose);
 }
 function onController()
 {

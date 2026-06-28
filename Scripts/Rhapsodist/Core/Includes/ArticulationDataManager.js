@@ -48,6 +48,12 @@ namespace ArticulationDataManager
 	    {
 	        for (x in patch.articulations)
 	        {
+				if (x.id.toLowerCase() == "defaults")
+				{
+				    defaults = x;
+				    continue;
+				}
+
 	            local obj = map[x.id];
 	
 	            if (isDefined(obj))
@@ -98,24 +104,24 @@ namespace ArticulationDataManager
 	    if (!isDefined(source) || !isObject(source))
 	        return base;
 	
-	    var keys = Object.keys(source);
+	    var adm_keys = Object.keys(source);
 	
-	    for (i = 0; i < keys.length; i++)
+	    for (i = 0; i < adm_keys.length; i++)
 	    {
-	        var k = keys[i];
-	
-	        if (k == "id")
+	        var adm_k = adm_keys[i];
+
+	        if (adm_k == "id")
 	            continue;
-	
-	        var s = source[k];
-	        var b = base[k];
-	
-	        if (Array.isArray(b) && Array.isArray(s))
-	            base[k] = mergeArray(b, s, allowOverride);
-	        else if (isObject(b) && isObject(s))
-	            merge(b, s, allowOverride);
-	        else if (allowOverride || !isDefined(b))
-	            base[k] = s;
+
+	        var adm_s = source[adm_k];
+	        var adm_b = base[adm_k];
+
+	        if (Array.isArray(adm_b) && Array.isArray(adm_s))
+	            base[adm_k] = mergeArray(adm_b, adm_s, allowOverride);
+	        else if (isObject(adm_b) && isObject(adm_s))
+	            merge(adm_b, adm_s, allowOverride);
+	        else if (allowOverride || !isDefined(adm_b))
+	            base[adm_k] = adm_s;
 		}
 	
 		return base;
@@ -165,6 +171,11 @@ namespace ArticulationDataManager
 	inline function getAllArticulations()
 	{
 		return articulations;
+	}
+
+	inline function: number getNumArticulations()
+	{
+		return articulations.length;
 	}
 
 	inline function: number getArticulationIndexForKeyswitch(noteNumber: number)

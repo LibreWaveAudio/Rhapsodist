@@ -19,7 +19,7 @@ namespace PreloadBar
 {
 	//! pnlPreload
 	const pnlPreload = Content.getComponent("pnlPreload");
-	
+
 	pnlPreload.setPaintRoutine(function(g)
 	{
 		var a = this.getLocalBounds(2);

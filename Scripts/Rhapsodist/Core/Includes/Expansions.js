@@ -19,6 +19,34 @@ namespace Expansions
 {
 	const eh = Engine.createExpansionHandler();
 
+	//! btnRhapsody
+	const btnRhapsody = Content.getComponent("btnRhapsody");
+	btnRhapsody.setLocalLookAndFeel(CoreLookAndFeel.iconButton);
+	btnRhapsody.setControlCallback(onbtnRhapsodyControl);		
+
+	inline function onbtnRhapsodyControl(component, value)
+	{
+		if (value)
+			return;
+
+		Engine.showYesNoWindow("Exit", "Do you want to unload " + getCurrentExpansionName() + "?", function(response)
+		{
+			if (response && !Engine.isHISE())
+				eh.setCurrentExpansion("");
+		});		
+	}
+
+	//! Functions
+	inline function getCurrentExpansionName()
+	{
+		local e = eh.getCurrentExpansion();
+		
+		if (!isDefined(e))
+			return Engine.getName();
+
+		return e.getProperties().Name;
+	}	
+	
 	inline function getCurrentExpansion()
 	{
 		return eh.getCurrentExpansion();
@@ -35,5 +63,28 @@ namespace Expansions
 		}
 		
 		return result;
+	}
+	
+	inline function: number getNumberOfExpansions()
+	{
+		return eh.getExpansionList().length;
+	}
+
+	inline function getCurrentUserPresetsFolder()
+	{
+		if (Engine.isHISE())
+			return FileSystem.getFolder(FileSystem.UserPresets);
+
+		local e = eh.getCurrentExpansion();
+
+		if (!isDefined(e))
+			return undefined;
+
+		local rootDir = e.getRootFolder();
+	
+		if (!isDefined(rootDir) || !rootDir.isDirectory())
+			return undefined;
+
+		return rootDir.getChildFile("UserPresets");
 	}
 }

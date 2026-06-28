@@ -1,5 +1,5 @@
 /*
-    Copyright 2024 David Healey
+    Copyright 2024, 2026 David Healey
 
     This file is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 
 namespace ComponentPack
 {
-	inline function: ScriptObject create(panelId: string, switcherId: string, componentTypes: Array, numGroups: int, options: JSON)
+	inline function: object create(panelId: string, switcherId: string, componentTypes: Array, numGroups: int, options: JSON)
 	{
 		local panel = Content.getComponent(panelId);
 		local components = [];
@@ -50,36 +50,54 @@ namespace ComponentPack
 		if (!components.length)
 			return panel;
 		
-		local sliderPack = Content.addSliderPack(panelId.replace("pnl", "slp"), 0, 0);
-		sliderPack.set("parentComponent", panelId);
-		sliderPack.set("saveInPreset", true);
-		sliderPack.set("min", min);
-		sliderPack.set("max", max);
-		sliderPack.set("sliderAmount", components.length * numGroups);
-		sliderPack.showControl(false);
+		local sliderPackId = panelId.replace("pnl", "slp");
+		local componentExists = Content.componentExists(sliderPackId);
+		local sliderPack = Content.addSliderPack(sliderPackId);	
+
+		if (!componentExists)
+		{
+			sliderPack.set("parentComponent", panelId);
+			sliderPack.set("saveInPreset", true);
+			sliderPack.showControl(false);
+
+			if (!isDefined(options.sliderPack.processorId))
+			{
+				sliderPack.set("min", min);
+				sliderPack.set("max", max);
+				sliderPack.set("sliderAmount", components.length * numGroups);
+			}
+
+			if (isDefined(options.sliderPack) && typeof(options.sliderPack) == "object")
+			{
+				for (x in options.sliderPack)
+					sliderPack.set(x, options.sliderPack[x]);
+			}
+		}
 		
 		panel.data.sliderPack = sliderPack;
 		panel.data.components = components;
 		panel.data.switcherIndex = 0;
-		
-		//! Bc switcher value
-		panel.data.bcSwitcherValue = Engine.createBroadcaster({"id": "switcherValue", "args": ["component", "value"]});
-		panel.data.bcSwitcherValue.attachToComponentValue(switcherId, "");
-
-		panel.data.bcSwitcherValue.addListener(panel, "Switcher listener", function(component, value)
-		{
-			this.data.switcherIndex = value;
-			restoreComponentValuesFromSliderPack(this.data.components, this.data.sliderPack, value);
-		});
 
 		//! Bc component value
-		panel.data.bcComponentValue = Engine.createBroadcaster({"id": "componentValue", "args": ["component", "value"]});
+		panel.data.bcComponentValue = Engine.createBroadcaster({id: "componentValue", args: ["component", "value"]});
 		panel.data.bcComponentValue.attachToComponentValue(components, "");
 
 		panel.data.bcComponentValue.addListener(panel, "Component Value listener", function(component, value)
 		{
-			var index = this.data.components.indexOf(component);
-			this.data.sliderPack.setSliderAtIndex(this.data.switcherIndex * this.data.components.length + index, value);
+			var index = this.data.switcherIndex * this.data.components.length + this.data.components.indexOf(component);
+			this.data.sliderPack.setSliderAtIndex(index, value);
+		});
+		
+		//! Bc switcher value
+		panel.data.bcSwitcherValue = Engine.createBroadcaster({id: "switcherValue", args: ["component", "value"]});
+		panel.data.bcSwitcherValue.attachToComponentValue(switcherId, "");
+		
+		panel.data.bcSwitcherValue.addListener(panel, "Switcher listener", function(component, value)
+		{
+			this.data.switcherIndex = value;
+
+			var triggerChange = isDefined(this.data.shouldTriggerChange) ? this.data.shouldTriggerChange : true;
+			restoreComponentValuesFromSliderPack(this, this.data.components, this.data.sliderPack, value, triggerChange);
 		});
 		
 		//! Bc panel mouse click
@@ -98,16 +116,28 @@ namespace ComponentPack
 			}
 		});
 
+		Presets.broadcasters.postLoad.addListener(panel, "Preset has been loaded", function(isInternal)
+		{
+			var index = isDefined(this.data.switcherIndex) ? this.data.switcherIndex : 0;
+			restoreComponentValuesFromSliderPack(this, this.data.components, this.data.sliderPack, index, true);
+		});
+
 		return panel;
 	}
 
-	inline function restoreComponentValuesFromSliderPack(components: Array, sliderPack: ScriptObject, index: number)
+	inline function restoreComponentValuesFromSliderPack(panel: ScriptObject, components: Array, sliderPack: ScriptObject, index: number, shouldTriggerChange: number)
 	{
+		panel.data.bcComponentValue.setBypassed(!shouldTriggerChange, false, false);
+
 		for (i = 0; i < components.length; i++)
 		{
 			local value = sliderPack.getSliderValueAt(components.length * index + i);
 			components[i].setValue(value);
-			components[i].changed();
+
+			if (shouldTriggerChange)
+				components[i].changed();
 		}
+		
+		panel.data.bcComponentValue.setBypassed(false, false, false);
 	}
 }

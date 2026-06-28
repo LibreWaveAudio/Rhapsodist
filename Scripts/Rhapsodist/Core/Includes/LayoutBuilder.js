@@ -10,11 +10,15 @@ namespace LayoutBuilder
 
 	inline function add(arr: Array)
 	{
-		data.concat(arr);
+		if (Engine.isHISE())
+			data.concat(arr);
 	}
 
 	inline function process()
 	{
+		if (!Engine.isHISE())
+			return;
+
 		if (isDefined(freezeUi) && freezeUi)
 			return;
 
@@ -65,6 +69,9 @@ namespace LayoutBuilder
 			}
 		}
 
+		if (!exists)
+			clearComponentColours(c);
+
 		local allProperties = c.getAllProperties();
 
 		for (x in properties)
@@ -72,12 +79,26 @@ namespace LayoutBuilder
 			if (!allProperties.contains(x) || x == "id")
 				continue;
 
-			if (exists && (x.contains("Colour") || x.contains("Font") || x == "text"))
+			if (exists && x.contains("Colour"))
+				continue;
+
+			if (exists && (x == "text" || x.contains("border")))
 				continue;
 
 			c.set(x, properties[x]);
 		}
 
 		return c;
+	}
+	
+	inline function clearComponentColours(component: ScriptObject)
+	{		
+		component.set("bgColour", 0x0);
+		component.set("itemColour", 0x0);
+		component.set("itemColour2", 0x0);
+		component.set("textColour", 0x0);
+		
+		if (component.get("type") == "ScriptFloatingTile")
+			component.set("itemColour3", 0x0);
 	}
 }

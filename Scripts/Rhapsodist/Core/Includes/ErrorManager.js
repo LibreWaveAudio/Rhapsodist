@@ -23,10 +23,6 @@ namespace ErrorManager
 	{
 		switch (state)
 		{
-			case eh.SamplesNotFound:
-				Engine.showMessageBox("Missing Samples", "Some samples could not be found. Please return to the library screen and relocate the samples folder.", 3);
-				break;
-
 			case eh.IllegalBufferSize:
 				Engine.showMessageBox("Invalid Buffer Size", message + ".", 3);
 				break;

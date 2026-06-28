@@ -30,8 +30,17 @@ knbArticulation.setControlCallback(onknbArticulationControl);
 
 inline function onknbArticulationControl(component, value)
 {
+	changeArticulation(value);
+}
+
+//! btnLink
+const btnLink = Content.addButton("Link", 280, 75);
+btnLink.setControlCallback(onbtnLinkControl);
+
+inline function onbtnLinkControl(component, value)
+{
 	for (i = 0; i < tblVelocity.length; i++)
-		tblVelocity[i].showControl(i == value);
+		tblVelocity[i].referToData(value ? data[0] : data[i]);
 }
 
 //! Functions
@@ -52,14 +61,24 @@ inline function createVelocityTables()
 	return result;
 }
 
-//! Broadcasters
-const bcArticulation = Engine.createBroadcaster({id: "bcArticulation", args: ["processor", "parameter", "value"]});
-bcArticulation.attachToModuleParameter("Interface", "knbArticulation", "");
+inline function changeArticulation(index: number)
+{	
+	for (i = 0; i < tblVelocity.length; i++)
+		tblVelocity[i].showControl(i == index);
+		
+	knbArticulation.setValue(index);
+}
 
-bcArticulation.addComponentValueListener("Articulation", "Listen for changes from Interface's articulation knob", function(index, processor, parameter, value)
-{
-	return value;
-});
+//! Global Cables
+const gm = Engine.getGlobalRoutingManager();
+
+const gcPatch = gm.getCable("patch");
+gcPatch.setRange(-1, 100);
+
+const gcArticulation = gm.getCable("articulation");
+gcArticulation.setRange(-1, 100);
+
+gcArticulation.registerCallback(changeArticulation, SyncNotification);
 function onNoteOn()
 {
 	local input = Message.getVelocity() / 127;

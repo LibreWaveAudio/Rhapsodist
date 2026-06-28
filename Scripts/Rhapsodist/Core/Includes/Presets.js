@@ -17,15 +17,21 @@
 
 namespace Presets
 {
+	const style = CoreLookAndFeel.style;
+	const fonts = CoreLookAndFeel.fonts;
+
 	reg favouriteButtonState = false;
 	reg currentPresetFile;
 	reg isInternal = true;
-		
+
 	//! User Preset Handler
 	const uph = Engine.createUserPresetHandler();
 
 	uph.setPreCallback(function(presetData)
 	{
+		if (isDefined(UserPresetProcessor.process) && uph.isOldVersion(presetData.version))
+			UserPresetProcessor.process(presetData);
+
 		isInternal = uph.isInternalPresetLoad();
 		broadcasters.preLoad.sendAsyncMessage(isInternal);
 	});
@@ -42,6 +48,9 @@ namespace Presets
 		currentPresetFile = presetFile;
 		updatePresetLabel(true);
 	});
+	
+	if (isDefined(UserPresetProcessor.process))
+		uph.setEnableUserPresetPreprocessing(true, true);
 
 	//! pnlPresetDisplay
 	const pnlPresetDisplay = Content.getComponent("pnlPresetDisplay");
@@ -58,8 +67,8 @@ namespace Presets
 		g.setColour(Colours.withAlpha(Colours.black, 0.5));
 		g.drawRoundedRectangle([a[0] + border / 2, a[1] + border / 2, a[2] - border, a[3] - border], radius, border);
 		
-		if (isDefined(Style.useNoise) && Style.useNoise)
-			g.addNoise({alpha: 0.025, scaleFactor: 1.5, area: a.toArray(), monochromatic: true});
+		if (!isDefined(style.useNoise) || style.useNoise)
+			g.addNoise({alpha: 0.025, scaleFactor: 1.5, area: a, monochromatic: true});
 	});
 	
 	//! btnPresetBrowser
@@ -82,15 +91,15 @@ namespace Presets
 		g.setColour(Colours.withMultipliedBrightness(obj.textColour, obj.over ? 1.0 - 0.2 * obj.down : 0.8));
 		g.drawAlignedText(obj.value ? "\ue13c" : "\ue136", [a[0] + 7, a[1], a[2], a[3]], "left");
 
-		var font = isDefined(Style.presets.displayFont) ? Style.presets.displayFont : "medium";
-		var fontSize = isDefined(Style.presets.displayFontSize) ? Style.presets.displayFontSize : 16;
-		var textOffsetY = isDefined(Style.presets.displayTextOffsetY) ? Style.presets.displayTextOffsetY : -0.5;
+		var font = fonts.regular;
+		var fontSize = 18 + fonts.size;
+		var textOffsetY = isDefined(style.presets.displayTextOffsetY) ? style.presets.displayTextOffsetY : 0;
 
 		g.setFont(font, fontSize);
 		g.setColour(Colours.withMultipliedBrightness(obj.textColour, obj.over ? 1.0 - 0.2 * obj.down : 0.9));
 		g.drawAlignedText(obj.text, [a[0] + 25, a[1] + textOffsetY, a[2], a[3]], "centred");
 	});
-	
+		
 	//! btnPreset
 	const btnPreset = Content.getAllComponents("btnPreset\\d");
 	const lafbtnPreset = Content.createLocalLookAndFeel();
@@ -141,7 +150,7 @@ namespace Presets
 		g.setFont("phosphor", 18);
 		g.setColour(Colours.withMultipliedBrightness(obj.textColour, obj.over ? 1.0 - 0.2 * obj.value : 0.8));
 		g.drawText(String.fromCharCode(obj.text), a);
-	});	
+	});
 	
 	//! pnlPresetBrowserContainer
 	const pnlPresetBrowserContainer = Content.getComponent("pnlPresetBrowserContainer");
@@ -170,14 +179,19 @@ namespace Presets
 		var radius = this.get("borderRadius");
 		var borderSize = this.get("borderSize");
 
+		if (isDefined(LookAndFeel.drawPresetBrowserPanel))
+			return LookAndFeel.drawPresetBrowserPanel();
+
 		g.setColour(this.get("bgColour"));
 		g.fillRoundedRectangle(a, radius);
 
-		if (isDefined(Style.useNoise) && Style.useNoise)
-			g.addNoise({alpha: 0.025, scaleFactor: 1.5, area: a.toArray(), monochromatic: true});
+		if (!isDefined(style.useNoise) || style.useNoise)
+			g.addNoise({alpha: 0.025, scaleFactor: 1.5, area: a, monochromatic: true});
 
-		g.setColour(this.get("itemColour"));
-		g.drawRoundedRectangle(a.reduced(borderSize / 2), radius, borderSize);
+		g.setColour(this.get("itemColour2"));
+
+		if (borderSize > 0)
+			g.drawRoundedRectangle(a.reduced(borderSize / 2), radius, borderSize);
 	});
 	
 	pnlPresetBrowser.setConsumedKeyPresses({"keyCode": 27});
@@ -195,112 +209,105 @@ namespace Presets
 	
 	laffltPresetBrowser.registerFunction("drawPresetBrowserBackground", function(g, obj)
 	{
+		var a = obj.area;
+		var bgColour = pnlPresetBrowser.get("bgColour");
+
 		if (isDefined(LookAndFeel.drawPresetBrowserBackground))
 			return LookAndFeel.drawPresetBrowserBackground();
 
-		var a = obj.area;
-
-		g.setColour(obj.bgColour);
-		g.fillRect(a);
+		g.fillAll(bgColour);
 		
-		if (isDefined(Style.useNoise) && Style.useNoise)
-			g.addNoise({alpha: 0.025, scaleFactor: 1.5, area: a.toArray(), monochromatic: true});
+		if (!isDefined(style.useNoise) || style.useNoise)
+			g.addNoise({alpha: 0.025, scaleFactor: 1.5, area: a, monochromatic: true});
 	});
-			
+
 	laffltPresetBrowser.registerFunction("drawPresetBrowserColumnBackground", function(g, obj)
 	{
+		drawPresetBrowserColumnBackground();
+	});
+	
+	inline function drawPresetBrowserColumnBackground()
+	{
+		local a = obj.area;
+		local itemColour2 = pnlPresetBrowser.get("itemColour2");
+		local radius = isDefined(style.presets.columnBorderRadius) ? style.presets.columnBorderRadius : 1;
+		local borderSize = isDefined(style.presets.columnBorderSize) ? style.presets.columnBorderSize : 1;
+		local font = fonts.semibold;
+		local fontSize = 18 + fonts.size;
+		local text = obj.text;
+
+		if (obj.text == "Add a Bank" || obj.text == "Select a Nothing")
+			text = "Select a Library";
+		if (obj.text == "Select a Column")
+			text = "Select a Category";
+
+		if (a[2] > 400 && obj.text != "")
+			text = "No Results";
+
 		if (isDefined(LookAndFeel.drawPresetBrowserColumnBackground))
 			return LookAndFeel.drawPresetBrowserColumnBackground();
 
-		var a = obj.area;
-		var radius = isDefined(Style.presets.columnBorderRadius) ? Style.presets.columnBorderRadius : 0;
-		var borderSize = isDefined(Style.presets.columnBorderSize) ? Style.presets.columnBorderSize : 0;
-		var font = isDefined(Style.presets.columnFont) ? Style.presets.columnFont : "medium";
-		var fontSize = isDefined(Style.presets.columnFontSize) ? Style.presets.columnFontSize : 18;
-
-		if (obj.text == "Add a Bank" || obj.text == "Select a Nothing")
-			obj.text = "Select a Library";
-
-		if (obj.text == "Select a Column")
-	    	obj.text = "Select a Category";
-
-		if (a[2] > 400 && obj.text != "" && !favouriteButtonState)
-			obj.text = "No Results";
-
-		g.setColour(obj.itemColour);
+		g.setColour(obj.bgColour);
 		g.fillRoundedRectangle(a, radius);
 
+		g.setColour(itemColour2);
+		g.drawRoundedRectangle(a.reduced(borderSize / 2), radius, borderSize);
+
+		if (isDefined(LookAndFeel.drawPresetBrowserColumnAfterFill))
+			LookAndFeel.drawPresetBrowserColumnAfterFill();
+
 		g.setColour(obj.textColour);
-		g.setFont(font, fontSize + 2);
-		g.drawAlignedText(obj.text, [a[0], a[1] - 10, a[2], a[3]], "centred");
+		g.setFont(font, fontSize);
+		g.drawFittedText(text, a.reduced(20).translated(0, -10), "centred", 3, 1.0);
 
-		g.setColour(obj.itemColour2);
-
-		if (borderSize)
-			g.drawRoundedRectangle(a.reduced(borderSize / 2), radius, 1);
-
-		if (isDefined(Style.useNoise) && Style.useNoise)
-			g.addNoise({alpha: 0.025, scaleFactor: 1.5, area: a.toArray(), monochromatic: true});
-	});
+		if (!isDefined(style.useNoise) || style.useNoise)
+			g.addNoise({alpha: 0.025, scaleFactor: 1.5, area: a, monochromatic: true});
+	}
 
 	laffltPresetBrowser.registerFunction("drawPresetBrowserListItem", function(g, obj)
 	{
 		if (isDefined(LookAndFeel.drawPresetBrowserListItem))
 			return LookAndFeel.drawPresetBrowserListItem();
 
-	    var a = obj.area.reduced(3, 1);
-		var font = isDefined(Style.presets.itemFont) ? Style.presets.itemFont : "medium";
-		var fontSize = isDefined(Style.presets.itemFontSize) ? Style.presets.itemFontSize : 14;
-		var textOffsetY = isDefined(Style.presets.itemTextOffsetY) ? Style.presets.itemTextOffsetY : -3;
-		var radius = isDefined(Style.presets.itemRadius) ? Style.presets.itemRadius : 5;
-		var bgColour = isDefined(Style.presets.itemBgColour) ? Style.presets.itemBgColour : 0x0;
-		var hoverColour = isDefined(Style.presets.itemHoverColour) ? Style.presets.itemHoverColour : 0xff323344;
-		var textColour = obj.textColour;
-
-		if (obj.columnIndex == -1)
-			return drawExpansionColumnListItem();
-
-		if (isDefined(bgColour))
-		{
-			g.setColour(bgColour);
-			g.fillRoundedRectangle(a, radius);
-		}
-
-		g.setColour(Colours.withMultipliedAlpha(hoverColour, obj.hover && !obj.selected ? 0.6 : 1.0));
-
-		if (obj.selected || obj.hover)
-			g.fillRoundedRectangle(a, radius);
-
-		g.setColour(textColour);
-
-		if (obj.selected)
-			g.fillRoundedRectangle(a.withWidth(5), {CornerSize: radius, Rounded:[1, 0, 1, 0]});
-
-		g.setFont(font, fontSize);
-		g.setColour(Colours.withMultipliedBrightness(textColour, obj.hover || obj.selected ? 1.0 : 0.8));
-
-		g.drawFittedText(obj.text.replace(".preset"), [a[0] + 12 + (22 * (obj.columnIndex == 2)), a[1] + textOffsetY, a[2] - 16, a[3]], "left", 1, 1.0);
-		
+		drawPresetBrowserListItem();
 	});
-	
-	inline function drawExpansionColumnListItem()
-	{
-		var a = obj.area.reduced(3, 3);
 
-		g.setColour(Style.presets.expansionBgColour);
+	inline function drawPresetBrowserListItem()
+	{
+		local a = obj.area.reduced(3, 1);
+		local font = fonts.regular;
+		local fontSize = 18 + fonts.size;
+		local textOffsetY = isDefined(style.presets.itemTextOffsetY) ? style.presets.itemTextOffsetY : 0;
+		local radius = isDefined(style.presets.itemRadius) ? style.presets.itemRadius : 2;
+		local featureColour = (isDefined(style.featureColour) && pnlPresetBrowser.get("itemColour") == 0x0) ? style.featureColour : pnlPresetBrowser.get("itemColour");
+		
+		g.setColour(obj.itemColour);
 		g.fillRoundedRectangle(a, radius);
 		
-		g.setColour(Colours.withAlpha(Style.presets.expansionHoverColour, obj.hover && !obj.selected ? 0.7 : 1.0));
+		g.setColour(Colours.withMultipliedAlpha(obj.itemColour2, obj.hover && !obj.selected ? 0.6 : 1.0));
 		
 		if (obj.selected || obj.hover)
+		{
 			g.fillRoundedRectangle(a, radius);
 
-		g.setColour(Colours.white);
-		g.drawImage(obj.text, [a[0] + 5, a[1] + a[3] / 2 - 40 / 2, 40, 40], 0, 0);
+			if (!isDefined(style.useNoise) || style.useNoise)
+				g.addNoise({alpha: 0.025, scaleFactor: 1.5, area: a, monochromatic: true});
+		}
 
-		g.setFont(Style.presets.expansionFont, Style.presets.expansionFontSize);
-		g.setColour(Colours.withMultipliedBrightness(textColour, obj.hover || obj.selected ? 1.0 : 0.8));
-		g.drawFittedText(obj.text, a.reduced(0, 5).translated(56).withWidth(a[2] - 80), "left", 3, 1.0);
+		g.setColour(featureColour);
+
+		if (obj.selected)
+		{
+			g.fillRoundedRectangle(a.withWidth(5), {CornerSize: radius, Rounded:[1, 0, 1, 0]});
+
+			if (!isDefined(style.useNoise) || style.useNoise)
+				g.addNoise({alpha: 0.025, scaleFactor: 1.5, area: a.withWidth(5), monochromatic: true});
+		}
+		
+		g.setFont(font, fontSize);
+		g.setColour(Colours.withMultipliedBrightness(obj.textColour, obj.hover || obj.selected ? 1.0 : 0.8));
+		
+		g.drawFittedText(obj.text.replace(".preset"), [a[0] + 12 + (22 * (obj.columnIndex == 2)), a[1] + textOffsetY, a[2] - 16, a[3]], "left", 1, 1.0);
 	}
 
 	laffltPresetBrowser.registerFunction("drawPresetBrowserDialog", function(g, obj)
@@ -319,6 +326,9 @@ namespace Presets
 	
 	inline function drawEditButton()
 	{
+		if (isDefined(LookAndFeel.drawPresetBrowserEditButton))
+			return LookAndFeel.drawPresetBrowserEditButton();
+
 		local a = obj.area;
 		local editButtons = ["Add", "Rename", "Delete"];
 		local editIcons = ["\ue3d4", "\ue3b4", "\ue4a8"];
@@ -338,24 +348,32 @@ namespace Presets
 	
 	laffltPresetBrowser.registerFunction("drawPresetBrowserSearchBar", function(g, obj)
 	{
-		var a = obj.area;
-		var wh = a[3] / 2.0;
-		var border = Style.presets.searchBarBorder;
-		var radius = Style.presets.searchBarRadius;
+		drawPresetBrowserSearchBar();
+	});
+	
+	inline function drawPresetBrowserSearchBar()
+	{
+		if (isDefined(LookAndFeel.drawPresetBrowserSearchBar))
+			return LookAndFeel.drawPresetBrowserSearchBar();
 
+		local a = obj.area;
+		local wh = a[3] / 2.0;
+		local border = isDefined(style.presets.searchBarBorder) ? style.presets.searchBarBorder : 1;
+		local radius = isDefined(style.presets.searchBarRadius) ? style.presets.searchBarRadius : 2;
+		
 		g.setColour(obj.itemColour3);
 		g.fillRoundedRectangle([a[0] + 20, a[1], a[2] - 20, a[3]], radius);
-
+		
 		g.setColour(Colours.withAlpha(Colours.black, 0.5));
 		g.drawRoundedRectangle([a[0] + 20 + border / 2, a[1] + border / 2, a[2] - border - 20, a[3] - border], radius, border);
-
-		if (isDefined(Style.useNoise) && Style.useNoise)
-			g.addNoise({alpha: 0.02, scaleFactor: 1.5, area: a.toArray(), monochromatic: true});
-
+		
+		if (!isDefined(style.useNoise) || style.useNoise)
+			g.addNoise({alpha: 0.02, scaleFactor: 1.5, area: a, monochromatic: true});
+		
 		g.setFont("phosphor", 18);
 		g.setColour(Colours.withAlpha(fltPresetBrowser.get("textColour"), 0.8));
 		g.drawAlignedText("\ue30c", [a[0], a[1], a[2] - 5, a[3]], "right");
-	});
+	}
 
 	laffltPresetBrowser.registerFunction("createPresetBrowserIcons", function(id)
 	{
@@ -377,29 +395,39 @@ namespace Presets
 
 	laffltPresetBrowser.registerFunction("drawPopupMenuBackground", function(g, obj)
 	{
-		CoreLookAndFeel.drawPopupMenuBackground({});
+		CoreLookAndFeel.drawPopupMenuBackground();
 	});
-
+	
 	laffltPresetBrowser.registerFunction("drawPopupMenuItem", function(g, obj)
 	{
-		var text = obj.text.toLowerCase();
-		var icon = "";
-
-		if (text.contains("import") && text.contains("clipboard"))
-			icon = "\ue196";
-		else if (text.contains("import") && text.contains("collection"))
-			icon = "\ue61e";
-		else if (text.contains("export") && text.contains("clipboard"))
-			icon = "\ue1ca";
-		else if (text.contains("export") && text.contains("collection"))
-			icon = "\ue232";
-		else
-			icon = "\ue256";
-			
-		obj.text = obj.text.replace("all ");
-			
-		CoreLookAndFeel.drawPopupMenuItem({icon: icon});
+		drawPopupMenuItem();
 	});
+
+	inline function drawPopupMenuItem()
+	{
+		local text = obj.text.toLowerCase();
+		local icon = "";
+		
+		if (text.contains("import") && text.contains("clipboard"))
+			icon = "e196";
+		else if (text.contains("import") && text.contains("collection"))
+			icon = "e61e";
+		else if (text.contains("export") && text.contains("clipboard"))
+			icon = "e1ca";
+		else if (text.contains("export") && text.contains("collection"))
+			icon = "e232";
+		else
+			icon = "e256";
+		
+		local regex = Engine.getRegexMatches(obj.text, "\\bin\\s+\\w+ ")[0];
+		
+		if (isDefined(regex))
+			obj.text = obj.text.replace(regex);
+
+		obj.text = icon + "-" + obj.text.replace("all ");
+
+		CoreLookAndFeel.drawPopupMenuItem();
+	}
 
 	laffltPresetBrowser.registerFunction("getIdealPopupMenuItemSize", function(obj)
 	{
@@ -410,14 +438,11 @@ namespace Presets
 	{
 		if (isDefined(LookAndFeel.drawPresetBrowserScrollbar))
 			return LookAndFeel.drawPresetBrowserScrollbar();
+		
+		obj.bgColour = Colours.withMultipliedBrightness(obj.itemColour1, 0.5);
+		obj.itemColour = obj.textColour;
 
-		var properties = {
-			bgColour: Colours.withMultipliedBrightness(obj.itemColour1, 0.5),
-			itemColour: obj.textColour,
-			radius: Style.presets.scrollbarRadius
-		};
-
-		CoreLookAndFeel.drawScrollbar(properties);
+		CoreLookAndFeel.drawScrollbar();
 	});
 
 	const bcMouseClick = Engine.createBroadcaster({id: "mouseClick", args: [component, obj]});	
@@ -469,10 +494,10 @@ namespace Presets
 	{
 		local presetName = Engine.getCurrentUserPresetName();
 		local isReadOnly = false;
-	
+
 		if (isDefined(currentPresetFile))
 			isReadOnly = Engine.isUserPresetReadOnly(currentPresetFile);
-	
+
 		if (isDefined(presetName) && presetName != "" && !isReadOnly)
 			overwriteCurrentPreset(presetName);
 		else
@@ -494,11 +519,11 @@ namespace Presets
 	{
 		local userPresetsFolder = Expansions.getCurrentUserPresetsFolder();
 
-		if (!isDefined(userPresetsFolder))
-			return;
-
 		FileSystem.browse(userPresetsFolder, true, "*.preset", function[userPresetsFolder](f)
 		{
+			if (!isDefined(f) || !f.isFile())
+				return;
+
 			var grandparent = f.getParentDirectory().getParentDirectory().getParentDirectory();
 
 			if (!userPresetsFolder.isSameFileAs(grandparent))
@@ -528,13 +553,19 @@ namespace Presets
 
 		fltPresetBrowser.set("Data", trace(data));		
 	}
-
-	inline function loadExpansionImages()
+	
+	inline function setStyleDataProperties()
 	{
-		local images = Expansions.getAllExpansionIcons();
+		if (!isDefined(LookAndFeel.style))
+			return;
 
-		for (x in images)
-			laffltPresetBrowser.loadImage(x[1], x[0]);
+		local style = LookAndFeel.style;
+
+		if (!isDefined(style.presets.dataProperties) || typeof(style.presets.dataProperties) != "object")
+			return;
+
+		for (x in style.presets.dataProperties)
+			setDataProperty(x, style.presets.dataProperties[x]);
 	}
 	
 	//! Broadcasters
@@ -545,10 +576,8 @@ namespace Presets
 
 	broadcasters.postLoad = Engine.createBroadcaster({id: "presetPostLoad", args: ["isInternal"], tags: ["preset browser"]});
 	broadcasters.postLoad.setEnableQueue(true);
-	
-	//! Function Calls
-	loadExpansionImages();
 
-	if (isDefined(Style.presets.numColumns))
-		setDataProperty("NumColumns", Style.presets.numColumns);
+	//! Function Calls
+	setStyleDataProperties();
+
 }

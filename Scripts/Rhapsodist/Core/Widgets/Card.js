@@ -17,6 +17,8 @@
 
 namespace Card
 {
+	const style = CoreLookAndFeel.style;
+	const fonts = CoreLookAndFeel.fonts;
 	const allCards = [];
 	const cards = {};
 
@@ -44,16 +46,41 @@ namespace Card
 			local colWidth  = (totalWidth  - gutter * (numColumns + 1)) / numColumns;
 			local rowHeight = (totalHeight - gutter * (numRows + 1)) / numRows;
 
-			c.set("parentComponent", parentPanel.getId());
-			c.set("x", gutter + column * (colWidth + gutter));
-			c.set("y", gutter + row * (rowHeight + gutter));
-			c.set("width", colWidth * columnSpan + gutter * (columnSpan - 1));
-			c.set("height", rowHeight * rowSpan + gutter * (rowSpan - 1));
+			Content.setPropertiesFromJSON(id, {
+				x: gutter + column * (colWidth + gutter),
+				y: gutter + row * (rowHeight + gutter),
+				width: colWidth * columnSpan + gutter * (columnSpan - 1),
+				height: rowHeight * rowSpan + gutter * (rowSpan - 1),
+				parentComponent: parentPanel.getId()
+			});
+		}
+	}
+	
+	inline function createCardsFromPanels()
+	{
+		for (x in Content.getAllComponents("pnlCard\\d"))
+		{
+			local parent = x.get("parentComponent");
+	
+			if (!isDefined(cards[parent]))
+				cards[parent] = [];
+	
+			local c = create(x.getId(), {tabWidth: 95});
+	
+			if (isDefined(style.card.font))
+				c.data.font = style.card.font;
+	
+			if (isDefined(style.card.fontSize))
+				c.data.fontSize = style.card.fontSize;				
+	
+			cards[parent].push(c);
 		}
 	}
 	
 	inline function: ScriptObject create(panelId: string, options: JSON)
 	{
+		local isNewPanel = !Content.componentExists(panelId);	
+
 		local panel = SwitcherPanel.create(panelId, panelId, "ScriptPanel", {});
 		panel.data.hover = -1;
 
@@ -87,11 +114,24 @@ namespace Card
 		panel.setPaintRoutine(function(g)
 		{
 			if (isDefined(LookAndFeel.drawCard))
-				LookAndFeel.drawCard();
-			else
-				paintRoutine();
+				return LookAndFeel.drawCard();
+
+			paintRoutine();
 		});
 
+		if (isNewpanel)
+		{
+			Content.setPropertiesFromJSON(panelId, {
+				borderSize: 0,			
+				borderRadius: 3,
+				bgColour: 0xff313244,
+				itemColour: 0x0,
+				itemColour2: 0x0,
+				textColour: 0xffcdd6f4
+			});
+		}
+
+		panel.data.cardIndex = allCards.length;
 		allCards.push(panel);
 
 		return panel;
@@ -102,8 +142,9 @@ namespace Card
 		local a = this.getLocalBounds(0);
 		local radius = this.get("borderRadius");
 		local w = this.data.labels.length > 1 ? this.data.tabWidth : a[2];
-		local font = isDefined(this.data.font) ? this.data.font : "medium";
-		local fontSize = isDefined(this.data.fontSize) ? this.data.fontSize : 16;
+		local font = isDefined(this.data.font) ? this.data.font : fonts.semibold;
+		local fontSize = isDefined(this.data.fontSize) ? this.data.fontSize : 16 + fonts.size;
+		local borderSize = this.get("borderSize");
 
 		if (isDefined(LookAndFeel.drawCard))
 			return LookAndFeel.drawCard();
@@ -119,10 +160,10 @@ namespace Card
 		if (isDefined(LookAndFeel.drawCardBorder))
 			LookAndFeel.drawCardBorder();		
 		else
-			g.drawRoundedRectangle(a.reduced(this.get("borderSize") / 2), radius, this.get("borderSize"));
+			g.drawRoundedRectangle(a.reduced(borderSize / 2), radius, borderSize);
 
-		if (isDefined(Style.useNoise) && Style.useNoise)
-			g.addNoise({alpha: 0.03, scaleFactor: 2.0, area: a.toArray(), monochromatic: true});
+		if (!isDefined(style.useNoise) || style.useNoise)
+			g.addNoise({alpha: 0.03, scaleFactor: 2.0, area: a, monochromatic: true});
 
 		g.setFont(font, fontSize);
 
@@ -164,21 +205,6 @@ namespace Card
 		this.setValue(value);
 
 		this.changed();
-	}
-
-	inline function createCardsFromPanels()
-	{
-		for (x in Content.getAllComponents("pnlCard\\d"))
-		{
-			local parent = x.get("parentComponent");
-
-			if (!isDefined(cards[parent]))
-				cards[parent] = [];
-
-			local c = create(x.getId(), {tabWidth: 95});
-
-			cards[parent].push(c);
-		}
 	}
 	
 	//! Function Calls

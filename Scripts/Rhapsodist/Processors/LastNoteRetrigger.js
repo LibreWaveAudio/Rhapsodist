@@ -1,5 +1,5 @@
 /*
-    Copyright 2024 David Healey
+    Copyright 2026 David Healey
 
     This file is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,8 +15,35 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
-namespace Macros
+reg lastNote;
+
+//! knbTrigger
+const knbTrigger = Content.addKnob("Trigger", 0, 0);
+knbTrigger.setRange(0, 127, 1);
+knbTrigger.set("tooltip", "MIDI note used to retrigger last note.");
+function onNoteOn()
 {
-	//! pnlMacros
-	//const pnlMacros = Content.getComponent("pnlMacros");
+	local n = Message.getNoteNumber();
+
+	if (n == knbTrigger.getValue())
+		return Message.setNoteNumber(lastNote);
+
+	lastNote = n;
 }
+function onNoteOff()
+{
+	
+}
+ function onController()
+{
+	
+}
+ function onTimer()
+{
+	
+}
+ function onControl(number, value)
+{
+	
+}
+ 

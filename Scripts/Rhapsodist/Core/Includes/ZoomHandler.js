@@ -16,25 +16,32 @@
 */
 
 namespace ZoomHandler
-{
-	const zoomLevels = [0.75, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0];
-	const MIN_ZOOM = 0.75;
-	const MAX_ZOOM = 4.0;
-	const ZOOM_STEP = 0.10;
+{	
 	const interfaceSize = Content.getInterfaceSize();
+	const screenBounds = Content.getScreenBounds(false);
+	const minZoom = 0.5;
+	const maxZoom = Math.floor(screenBounds[3] / interfaceSize[1] * 4) / 4;
+	const zoomStep = 0.05;
+	const zoomLevels = getZoomLevels();
+
+	//! cmbZoom
+	const cmbZoom = Content.getComponent("cmbZoom");
+	cmbZoom.set("items", zoomLevels.join("\n"));
 
 	//! pnlZoom
 	const pnlZoom = Content.addPanel("pnlZoom", 0, 0);
 	pnlZoom.set("parentComponent", "pnlMain");
-	pnlZoom.setPosition(interfaceSize[0] - 12, interfaceSize[1] - 12, 12, 12);
 	pnlZoom.set("allowCallbacks", "All Callbacks");
+	pnlZoom.setMouseCursor("BottomRightCornerResizeCursor", Colours.white, [0, 0]);
+	pnlZoom.setPosition(interfaceSize[0] - 12, interfaceSize[1] - 12, 12, 12);	
 	pnlZoom.setControlCallback(onpnlZoomControl);	
-	
+
 	inline function onpnlZoomControl(component, value)
 	{
-		Settings.setZoomLevel(value);
+		if (value <= maxZoom)
+			Settings.setZoomLevel(value);
 	}
-	
+
 	pnlZoom.setPaintRoutine(function(g)
 	{
 		g.setFont("phosphor", 12);
@@ -55,9 +62,6 @@ namespace ZoomHandler
 		if (!event.drag)
 			return this.repaint();
 	
-		if (!this.data.allowDrag)
-			return;
-
 		var diagonal = Math.sqrt(interfaceSize[0] * interfaceSize[0] + interfaceSize[1] * interfaceSize[1]);
 		var currentZoom = Settings.getZoomLevel();
 		var dragPixel = 0;
@@ -67,15 +71,15 @@ namespace ZoomHandler
 		else
 			dragPixel = (event.dragY * currentZoom) / interfaceSize[1];
 		
-		var maxScaleFactor = Content.getScreenBounds(false)[3] / interfaceSize[1];
+		var maxScaleFactor = screenBounds[3] / interfaceSize[1];
 		var diagonalDrag = this.data.zoomStart + dragPixel;
 		
-		diagonalDrag += (ZOOM_STEP / 2);
+		diagonalDrag += (zoomStep / 2);
 		
 		diagonalDrag = Math.min(diagonalDrag, maxScaleFactor);
 		
-		diagonalDrag -= Math.fmod(diagonalDrag, ZOOM_STEP);
-		diagonalDrag = Math.range(diagonalDrag, MIN_ZOOM, MAX_ZOOM);
+		diagonalDrag -= Math.fmod(diagonalDrag, zoomStep);
+		diagonalDrag = Math.range(diagonalDrag, minZoom, maxZoom);
 		
 		var zoomToUse = diagonalDrag;
 
@@ -87,36 +91,46 @@ namespace ZoomHandler
 	});
 	
 	//! Functions
-	inline function allowZoom(panel: ScriptObject, on: number)
+	inline function: Array getZoomLevels()
 	{
-		panel.data.allowDrag = on;
-		panel.setMouseCursor(on ? "BottomRightCornerResizeCursor" : "NormalCursor", Colours.white, [0, 0]);
-		panel.repaint();
+		local result = [];
+		local level = 0.5;
+
+		while(level <= maxZoom || level >= 4)
+		{
+			result.push(level);
+			level += 0.25;
+		}
+
+		result.push("Custom");
+
+		return result;
 	}
 
 	//! Broadcasters
-	const bcZoomPanelValue = Engine.createBroadcaster({"id": "bcZoomPanelValue", "args": ["component", "value"]});
-	bcZoomPanelValue.attachToComponentValue("pnlZoom", "");
+	const bcZoomPanelValue = Engine.createBroadcaster({id: "bcZoomPanelValue", args: ["component", "value"]});
+	bcZoomPanelValue.attachToComponentValue(pnlZoom, "");
 
-	bcZoomPanelValue.addComponentValueListener("cmbZoom", "If the zoom panel is used, set the zoom combo box to custom", function(index, component, value)
+	bcZoomPanelValue.addComponentValueListener(cmbZoom, "If the zoom panel is used, set the zoom combo box to custom", function(index, component, value)
 	{
 		if (zoomLevels.contains(value))
 			return zoomLevels.indexOf(value) + 1;
 
-		return zoomLevels.length + 1;
+		return zoomLevels.length;
 	});
-	
-	//! bccmbZoomValue
-	const var bccmbZoomValue = Engine.createBroadcaster({"id": "bccmbZoomValue", "args": ["component", "value"]});
-	bccmbZoomValue.attachToComponentValue("cmbZoom", "");
 
-	bccmbZoomValue.addComponentValueListener("pnlZoom", "pnlZoom will follow changes to cmbZoom", function(index, component, value)
+	//! bccmbZoomValue
+	const var bccmbZoomValue = Engine.createBroadcaster({id: "bccmbZoomValue", args: ["component", "value"]});
+	bccmbZoomValue.attachToComponentValue(cmbZoom, "");
+	bccmbZoomValue.setBypassed(true, false, false);
+
+	bccmbZoomValue.addComponentValueListener(pnlZoom, "pnlZoom will follow changes to cmbZoom", function(index, component, value)
 	{
 		return value - 1 < zoomLevels.length ? zoomLevels[value - 1] : this.getValue();
-	});	
+	});
+	
+	bccmbZoomValue.setBypassed(false, false, false); 
 
 	//! Calls
-	allowZoom(pnlZoom, true);
 	pnlZoom.setValue(Settings.getZoomLevel());
-	pnlZoom.changed();
 }

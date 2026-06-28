@@ -1,5 +1,5 @@
 /*
-    Copyright 2024 David Healey
+    Copyright 2024, 2026 David Healey
 
     This file is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -47,15 +47,22 @@ inline function getArticulationGain(index)
 	return knbGain.getValue() + (v * 24 + -24);
 }
 
-//! Broadcasters
-const bcArticulation = Engine.createBroadcaster({id: "bcArticulation", args: ["processor", "parameter", "value"]});
-bcArticulation.attachToModuleParameter("Interface", "knbArticulation", "");
-
-bcArticulation.addComponentValueListener("Articulation", "Listen for changes from Interface's articulation knob", function(index, processor, parameter, value)
+inline function changeArticulation(index: number)
 {
-	return value;
-});
+	knbArticulation.setValue(index);
+	knbArticulation.changed();
+}
 
+//! Global Cables
+const gm = Engine.getGlobalRoutingManager();
+
+const gcPatch = gm.getCable("patch");
+gcPatch.setRange(-1, 100);
+
+const gcArticulation = gm.getCable("articulation");
+gcArticulation.setRange(-1, 100);
+
+gcArticulation.registerCallback(changeArticulation, SyncNotification);
 function onNoteOn()
 {
 	local gain = getArticulationGain(knbArticulation.getValue());

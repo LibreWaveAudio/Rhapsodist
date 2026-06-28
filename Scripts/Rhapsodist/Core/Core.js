@@ -25,8 +25,27 @@ namespace Core
 	Engine.loadAudioFilesIntoPool();
 	Engine.loadImageIntoPool("Icon.png");
 	Content.setUseHighResolutionForPanels(true);
-	
+
 	const samplers = getSamplers();
+
+	//! pnlBody
+	if (Content.componentExists("pnlBody"))
+	{
+		const pnlBody = Content.getComponent("pnlBody");
+	
+		pnlBody.setPaintRoutine(function(g)
+		{
+			if (isDefined(LookAndFeel.drawBody))
+				return LookAndFeel.drawBody();
+	
+			var a = this.getLocalBounds(0);
+
+			g.fillAll(this.get("bgColour"));
+	
+			if (!isDefined(LookAndFeel.style.useNoise) || LookAndFeel.style.useNoise)
+				g.addNoise({alpha: 0.025, scaleFactor: 2.0, area: obj.area, monochromatic: true});
+		});
+	}
 	
 	//! Functions
 	inline function getSamplers()
@@ -43,13 +62,14 @@ namespace Core
 //! Includes
 include("Rhapsodist/Core/Includes/CoreLookAndFeel.js");
 include("Rhapsodist/Core/Includes/ErrorManager.js");
-include("Rhapsodist/Core/Includes/Expansions.js");
+include("Rhapsodist/Core/Widgets/Container.js");
 include("Rhapsodist/Core/Widgets/SwitcherPanel.js");
 include("Rhapsodist/Core/Widgets/SettingsPanel.js");
 include("Rhapsodist/Core/Widgets/ValueEdit.js");
 include("Rhapsodist/Core/Widgets/Card.js");
 include("Rhapsodist/Core/Includes/LayoutBuilder.js");
 include("Rhapsodist/Core/Includes/ShellLayout.js");
+include("Rhapsodist/Core/Includes/Expansions.js");
 include("Rhapsodist/Core/Includes/ArticulationDataManager.js");
 include("Rhapsodist/Core/Includes/ComponentHandler.js");
 include("Rhapsodist/Core/Includes/Presets.js");
@@ -58,5 +78,6 @@ include("Rhapsodist/Core/Includes/Footer.js");
 include("Rhapsodist/Core/Widgets/Keyboard.js");
 include("Rhapsodist/Core/Includes/PreloadBar.js");
 include("Rhapsodist/Core/Includes/UserSettings.js");
+include("Rhapsodist/Core/Includes/Automation.js");
 include("Rhapsodist/Core/Includes/Tooltips.js");
 include("Rhapsodist/Core/Includes/ZoomHandler.js");

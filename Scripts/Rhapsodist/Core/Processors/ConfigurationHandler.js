@@ -25,6 +25,13 @@ include("Rhapsodist/Core/Includes/ArticulationDataManager.js");
 
 const useUacc = isDefined(Manifest.useUacc) ? Manifest.useUacc : true;
 
+const gm = Engine.getGlobalRoutingManager();
+const gcPatch = gm.getCable("patch");
+gcPatch.setRange(-1, 100);
+
+const gcArticulation = gm.getCable("articulation");
+gcArticulation.setRange(-1, 100);
+
 //! Scripts
 const scriptIds = Synth.getIdList("Script Processor");
 scriptIds.concat(Synth.getIdList("Legato with Retrigger"));
@@ -94,10 +101,10 @@ inline function changePatch(index: number)
 
 	if (!isDefined(patch))
 		return;
+		
+	gcPatch.setValue(index);
 
-	resetKeyColours();
 	loadManifestConfiguration();
-	setKeyRanges(patch.keyranges);
 	setAttributes(scripts, scriptIds, scriptAttributeIds, patch.scripts);
 	setAttributes(modulators, modulatorIds, modulatorAttributeIds, patch.modulators);
 	setAttributes(effects, effectIds, effectAttributeIds, patch.effects);
@@ -117,7 +124,7 @@ inline function changePatch(index: number)
 		return;
 
 	local patchGain = effects[effectIds.indexOf("patchGain")];
-	local gain = isDefined(patch.gain) == 1 ? patch.gain : 0;
+	local gain = isDefined(patch.gain) ? patch.gain : 0;
 	patchGain.setAttribute(patchGain.Gain, gain);
 }
 
@@ -131,12 +138,27 @@ inline function changeArticulation(index: number)
 	if (!isDefined(articulation))
 		return;
 
-	setKeyRanges(isDefined(articulation.keyranges) ? articulation.keyranges : []);
+	gcArticulation.setValue(index);
+
 	setAttributes(scripts, scriptIds, scriptAttributeIds, articulation.scripts);
 	setAttributes(modulators, modulatorIds, modulatorAttributeIds, articulation.modulators);
 	setAttributes(effects, effectIds, effectAttributeIds, articulation.effects);
 	setAttributes(samplers, samplerIds, samplerAttributeIds, articulation.samplers);
-	enableMuters(articulation.muters);
+	setArticulationGain(isDefined(articulation.gain) ? articulation.gain : 0);
+
+	if (isDefined(articulation.muters))
+		enableMuters(articulation.muters);
+}
+
+inline function setArticulationGain(gain: number)
+{
+	local scriptIndex = scriptIds.indexOf("articulationGain");
+
+	if (scriptIndex == -1)
+		return;
+
+	local gainScript = scripts[scriptIndex];
+	gainScript.setAttribute(gainScript.Gain, gain);
 }
 
 inline function loadManifestConfiguration()
@@ -145,7 +167,6 @@ inline function loadManifestConfiguration()
 	setAttributes(modulators, modulatorIds, modulatorAttributeIds, Manifest.modulators);
 	setAttributes(effects, effectIds, effectAttributeIds, Manifest.effects);
 	setAttributes(samplers, samplerIds, samplerAttributeIds, Manifest.samplers);
-	setKeyRanges(isDefined(Manifest.keyranges) ? Manifest.keyranges : []);
 }
 
 inline function: Array getModules(idList: Array, type: string)
@@ -376,54 +397,6 @@ inline function enableMuters(mutersToEnable: Array)
 	for (i = 0; i < muters.length; i++)
 		muters[i].setAttribute(muters[i].ignoreButton, !mutersToEnable.contains(i));
 }
-
-inline function setKeyRanges(data: Array)
-{
-	if (!data.length)
-		return;
-
-	local keyColours = Manifest.keyColours;
-
-	if (!isDefined(keyColours))
-		return;
-
-	for (x in data)
-	{
-		if (!isDefined(x.loKey) || !isDefined(x.hiKey))
-			continue;
-
-		for (i = x.loKey; i <= x.hiKey; i++)
-		{
-			if (typeof(x.colour) !== "string")
-				continue;
-
-			local isBlack = [1, 3, 6, 8, 10].contains(i % 12);
-			local c = keyColours[x.colour][isBlack];
-
-			if (!isDefined(c))
-				continue;
-
-			Engine.setKeyColour(i, c);
-		}
-	}
-}
-
-inline function resetKeyColours()
-{
-	local colours;
-
-	if (!isDefined(Manifest.keyColours.inactive) || !Array.isArray(Manifest.keyColours.inactive))
-		colours = [0x55414141, 0x55414141];
-	else
-		colours = Manifest.keyColours.inactive;
-
-	for (i = 0; i < 128; i++)
-	{
-		local isBlack = [1, 3, 6, 8, 10].contains(i % 12);
-		Engine.setKeyColour(i, colours[isBlack]);
-	}
-}
-
 function onNoteOn()
 {
 	local n = Message.getNoteNumber();
@@ -432,8 +405,10 @@ function onNoteOn()
 	if (index == -1)
 		return;
 
+	Message.ignoreEvent(true);
+
 	knbArticulation.setValue(index);
-	knbArticulation.changed();
+	changeArticulation(index);
 }
  function onNoteOff()
 {
@@ -441,19 +416,19 @@ function onNoteOn()
 }
  function onController()
 {
-	local cn = Message.getControllerNumber();
+	local cc = Message.getControllerNumber();
 	local cv = Message.getControllerValue();
 
-	if (cn == 123)
+	if (cc == 123)
 		return Engine.allNotesOff();
-
-	if ((ccNumber == 32 && !useUacc) && !Message.isProgramChange())
-		return;
-
-	local index = ArticulationDataManager.getArticulationIndexForProgram(cv);
-
-	if (index != -1)
-		changeArticulation(index);
+		
+	if ((cc == 32 && useUacc) || Message.isProgramChange())
+	{
+		local index = ArticulationDataManager.getArticulationIndexForProgram(cv);
+	
+		if (index != -1)
+			changeArticulation(index);	
+	}
 }
  function onTimer()
 {

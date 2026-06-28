@@ -17,24 +17,19 @@
 
 namespace ListPanel
 {
-	inline function: ScriptObject create(parentPanelId: string, items: Array, options: JSON)
+	inline function: object create(parentPanelId: string, items: Array, options: JSON)
 	{
 		if (!Content.componentExists(parentPanelId))
 		{
 			Console.print("!List Panel - " + parentPanelId + " does not exist.");
 			return {};
 		}
-		
+
 		local parentPanel = Content.getComponent(parentPanelId);
-		local border = isDefined(options.border) ? options.border : 0;
 		local saveInPreset = isDefined(options.saveInPreset) ? options.saveInPreset : false;
-		
+
 		//! viewport
-		local viewport = Content.addViewport("vpt" + parentPanelId.replace("Container").replace("pnl"), 0, 0);
-		viewport.set("parentComponent", parentPanelId);
-		viewport.setPosition(border / 2, border / 2, parentPanel.getWidth() - border / 2, parentPanel.getHeight() - border);
-		viewport.set("scrollBarThickness", 10);
-		viewport.set("saveInPreset", false);
+		local viewport = createViewport(parentPanel, options);
 
 		//! panel
 		local panel = Content.addPanel(parentPanelId.replace("Container").replace("List") + "List", 0, 0);
@@ -65,11 +60,11 @@ namespace ListPanel
 
 		panel.startTimer(500);
 
-		if (isDefined(options.useDefaultPaintRoutine) && options.useDefaultPaintRoutine)
+		if (!isDefined(options.useCustomPaintRoutine) || !options.useCustomPaintRoutine)
 			panel.setPaintRoutine(function(g) {paintRoutine();});
 
 		parentPanel.data.viewport = viewport;
-		parentPanel.data.listPanel = panel;		
+		parentPanel.data.listPanel = panel;
 
 		return parentPanel;
 	}
@@ -80,7 +75,9 @@ namespace ListPanel
 		local rowHeight = this.data.rowHeight;
 		local margin = this.data.margin;
 		local radius = this.get("borderRadius");
-		
+		local font = isDefined(this.data.font) ? this.data.font : this.data.viewport.get("font");
+		local fontSize = isDefined(this.data.fontSize) ? this.data.fontSize : this.data.viewport.get("fontSize");
+
 		for (i = 0; i < items.length; i++)
 		{
 			local a = [0, i * (rowHeight + margin), this.getWidth(), rowHeight];
@@ -104,14 +101,14 @@ namespace ListPanel
 			}
 	
 			g.setColour(Colours.withAlpha(this.get("textColour"), this.get("enabled") ? (this.getValue() == i ? 1.0 : 0.8) : 0.5));
-	
+
 			if (this.data.selected.contains(i))
 			{
 				g.setColour(Colours.withAlpha(this.get("itemColour2"), this.data.hover == i ? 0.8 : 1.0));
 				g.fillRoundedRectangle([a[0], a[1], 5, a[3]], {CornerSize: radius, Rounded:[1, 0, 1, 0]});
 			}
 
-			g.setFont(isDefined(this.data.fontName) ? this.data.fontName : "regular", isDefined(this.data.fontSize) ? this.data.fontSize : 18);
+			g.setFont(font, fontSize);
 			g.setColour(this.get("textColour"));
 			g.drawFittedText(items[i], [a[0] + 15 + 20 * hasIcon, a[1], a[2], a[3]], "left", 1.0, 1.0);
 
@@ -219,6 +216,39 @@ namespace ListPanel
 		this.changed();
 		
 		updateViewportPosition(this);
+	}
+	
+	inline function: ScriptObject createViewport(parent: ScriptObject, options: JSON)
+	{
+		local id = parent.getId().replace("Container").replace("pnl", "vpt");
+		local border = isDefined(options.border) ? options.border : 0;
+		local viewport;
+
+		if (Content.componentExists(id))
+		{
+			viewport = Content.getComponent(id);
+		}
+		else 
+		{
+			viewport = Content.addViewport(id);			
+
+			Content.setPropertiesFromJSON(id, {
+				fontName: "monoRegular",
+				fontSize: 18
+			});
+		}
+		
+		Content.setPropertiesFromJSON(id, {
+			parentComponent: parent.getId(),
+			x: border / 2,
+			y: border / 2,
+			width: parent.getWidth() - border,
+			height: parent.getHeight() - border,
+			scrollBarThickness: isDefined(options.scrollBarThickness) ? options.scrollBarThickness : 10,
+			saveInPreset: false
+		});
+
+		return viewport;
 	}
 	
 	inline function setItems(panel: ScriptObject, items: Array)

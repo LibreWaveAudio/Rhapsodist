@@ -17,6 +17,9 @@
 
 namespace Footer
 {
+	const style = CoreLookAndFeel.style;
+	const fonts = CoreLookAndFeel.fonts;
+
 	//! pnlFooter
 	const pnlFooter = Content.getComponent("pnlFooter");
 
@@ -28,13 +31,30 @@ namespace Footer
 		var a = this.getLocalBounds(0);
 		g.fillAll(this.get("bgColour"));
 		
-		if (isDefined(Style.useNoise) && Style.useNoise)
-			g.addNoise({alpha: 0.03, scaleFactor: 1.5, area: a.toArray(), monochromatic: true});
+		if (!isDefined(style.footer.shadow) || style.footer.shadow)
+			g.drawDropShadow([a[0], a[1], a[2], 35], Colours.withAlpha(Colours.black, 0.4), 8);
+
+		if (!isDefined(style.useNoise) || style.useNoise)
+			g.addNoise({alpha: 0.03, scaleFactor: 1.5, area: a, monochromatic: true});
+	});
+	
+	//! pnlStatus
+	const pnlStatus = Content.getComponent("pnlStatus");
+	
+	pnlStatus.setPaintRoutine(function(g)
+	{
+		if (isDefined(LookAndFeel.drawStatusPanel))
+			return LookAndFeel.drawStatusPanel();
+	
+		var a = this.getLocalBounds(0);
+		g.fillAll(this.get("bgColour"));
+
+		if (!isDefined(style.useNoise) || style.useNoise)
+			g.addNoise({alpha: 0.03, scaleFactor: 1.5, area: a, monochromatic: true});
 	});
 	
 	//! fltPerformanceLabel
 	const fltPerformanceLabel = Content.getComponent("fltPerformanceLabel");
-	fltPerformanceLabel.set("y", isDefined(Style.footer.performanceLabelOffsetY) ? Style.footer.performanceLabelOffsetY : 0);
 	
 	//! pnlLogo
 	const pnlLogo = Content.getComponent("pnlLogo");
@@ -44,7 +64,7 @@ namespace Footer
 		if (isDefined(LookAndFeel.drawLogo))
 			return LookAndFeel.drawLogo();
 		
-		var yOffset = isDefined(Style.footer.logoOffsetY) ? Style.footer.logoOffsetY : 0;
+		var yOffset = isDefined(style.footer.logoOffsetY) ? style.footer.logoOffsetY : 0;
 		
 		var a = this.getLocalBounds(0).translated(0, yOffset);
 		var company = Engine.getProjectInfo().Company;
@@ -53,9 +73,20 @@ namespace Footer
 			return drawLibreWaveLogo();
 
 		g.setColour(this.get("textColour"));
-		g.setFont("bold", 20);
+		g.setFont(fonts.bold, 20 + fonts.size);
 		g.drawAlignedText(company.toUpperCase(), a, "centred");
 	});
+
+	//! btnAllNotesOff
+	const btnAllNotesOff = Content.getComponent("btnAllNotesOff");
+	btnAllNotesOff.setLocalLookAndFeel(CoreLookAndFeel.iconButton);
+	btnAllNotesOff.setControlCallback(onbtnAllNotesOffControl);
+	
+	inline function onbtnAllNotesOffControl(component, value)
+	{
+		if (value)
+			Engine.allNotesOff();
+	}
 
 	//! Functions
 	inline function drawLibreWaveLogo()

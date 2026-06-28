@@ -17,6 +17,8 @@
 
 namespace Tooltips
 {
+	const style = CoreLookAndFeel.style;
+	const fonts = CoreLookAndFeel.fonts;
 	const tooltipComponents = getComponents();
 	
 	//! pnlTooltip
@@ -34,13 +36,13 @@ namespace Tooltips
 		g.setColour(this.get("bgColour"));
 		g.fillRoundedRectangle(a, radius);
 
-		if (isDefined(Style.useNoise) && Style.useNoise)
-			g.addNoise({alpha: 0.025, scaleFactor: 1.5, area: a.toArray(), monochromatic: true});
+		if (isDefined(style.useNoise) && style.useNoise)
+			g.addNoise({alpha: 0.025, scaleFactor: 1.5, area: a, monochromatic: true});
 
 		g.setColour(this.get("itemColour"));
 		g.drawRoundedRectangle([a[0] + radius / 4, a[1] + radius / 4, a[2] - radius / 2, a[3] - radius / 2], radius, 1);
 
-		g.setFontWithSpacing("medium", 16, 0.0);
+		g.setFontWithSpacing(fonts.medium, 16 + fonts.size, 0.0);
 		g.setColour(this.get("textColour"));
 		g.drawAlignedText(this.get("tooltip"), a, "centred");
 	});
@@ -87,7 +89,7 @@ namespace Tooltips
 			var interfaceSize = Content.getInterfaceSize();
 
 			this.set("tooltip", component.get("tooltip"));
-			this.set("width", Engine.getStringWidth(this.get("tooltip"), "medium", 16, 0.0) + 75);
+			this.set("width", Engine.getStringWidth(this.get("tooltip"), fonts.medium, 16 + fonts.size, 0.0) + 75);
 			this.set("x", component.getGlobalPositionX() + component.getWidth() / 2 - this.getWidth() / 2);
 			this.set("y", component.getGlobalPositionY() + 10);
 

@@ -18,7 +18,7 @@
 namespace Keyboard
 {
 	const range = [];
-	
+	const style = isDefined(LookAndFeel.style) ? LookAndFeel.style : {};	
 	const laf = Content.createLocalLookAndFeel();
 
 	laf.registerFunction("drawWhiteNote", function(g, obj)
@@ -42,6 +42,9 @@ namespace Keyboard
 		local a = obj.area.reduced(0.5, 0);
 		local isLowKey = obj.noteNumber == range[0];
 		local isHighKey = obj.noteNumber == range[1];
+		local roundEndKeys = isDefined(style.keyboard.roundEndKeys) ? style.keyboard.roundEndKeys : false;
+		local radius = isDefined(style.keyboard.radius) ? style.keyboard.radius : 2;
+		local useShadow = isDefined(style.keyboard.useShadow) ? style.keyboard.useShadow : false;
 		local cornerData = [0, 0, 1, 1];
 		local keyColour = obj.keyColour == 0 ? 0xff9399b2 : obj.keyColour;
 		local hsl = Colours.toHsl(keyColour);
@@ -50,13 +53,13 @@ namespace Keyboard
 		g.setColour(keyColour);
 
 		if (isLowKey)
-			cornerData = [Style.keyboard.roundEndKeys, 0, !obj.down, !obj.down];
+			cornerData = [roundEndKeys, 0, !obj.down, !obj.down];
 
 		if (isHighKey)
-			cornerData = [0, Style.keyboard.roundEndKeys, !obj.down, !obj.down];
+			cornerData = [0, roundEndKeys, !obj.down, !obj.down];
 		
 		if (isLowKey || isHighKey || !obj.down)
-			g.fillRoundedRectangle(a, {CornerSize: Style.keyboard.radius, Rounded: cornerData});
+			g.fillRoundedRectangle(a, {CornerSize: radius, Rounded: cornerData});
 		else
 			g.fillRoundedRectangle(a, {CornerSize: 1, Rounded: cornerData});
 
@@ -67,16 +70,16 @@ namespace Keyboard
 			g.setColour(Colours.withAlpha(Colours.fromHsl(hsl), 0.5));
 
 		if (obj.hover || obj.down)
-			g.fillRoundedRectangle(a, {CornerSize: obj.down ? 1 : Style.keyboard.radius, Rounded: cornerData});
+			g.fillRoundedRectangle(a, {CornerSize: obj.down ? 1 : radius, Rounded: cornerData});
 		
-		if (Style.keyboard.shadow)
+		if (useShadow)
 		{
 			g.setGradientFill([Colours.withAlpha(Colours.black, 0.3), a[2] / 2, a[1], 0x0, a[2] / 2, a[3] / 2]);
-			g.fillRoundedRectangle(a, {CornerSize: obj.down ? 1 : Style.keyboard.radius, Rounded: cornerData});
+			g.fillRoundedRectangle(a, {CornerSize: obj.down ? 1 : radius, Rounded: cornerData});
 		}
 
-		if (isDefined(Style.useNoise) && Style.useNoise)
-			g.addNoise({alpha: 0.025, scaleFactor: 1.5, area: a.toArray(), monochromatic: true});
+		if (!isDefined(style.useNoise) || !style.useNoise)
+			g.addNoise({alpha: 0.025, scaleFactor: 1.5, area: a, monochromatic: true});
 
 		local noteName = Engine.getMidiNoteName(obj.noteNumber);
 		
@@ -84,41 +87,43 @@ namespace Keyboard
 		{
 			g.setColour(fltKeyboard.get("textColour"));
 			g.setFont(obj.font, obj.fontSize);
-			g.drawAlignedText(noteName, a.withTrimmedBottom(5), "centredBottom");
+			g.drawAlignedText(noteName, a.withTrimmedBottom(2), "centredBottom");
 		}
 	}
 		
 	inline function drawBlackNote()
 	{
 		local a = obj.area.withTrimmedBottom(1);
+		local radius = isDefined(style.keyboard.radius) ? style.keyboard.radius : 2;
+		local useShadow = isDefined(style.keyboard.useShadow) ? style.keyboard.useShadow : false;
 		local cornerData = [0, 0, 1, 1];
 		local keyColour = obj.keyColour == 0 ? 0xff11111b : obj.keyColour;
 		local hsl = Colours.toHsl(keyColour);
 		hsl[2] = hsl[2] < 0.5 ? 0.9 : 0.1; // Invert lightness for hover and down
 
 		g.setColour(Colours.black);
-		g.fillRoundedRectangle(a, {CornerSize: obj.down ? 0 : Style.keyboard.radius, Rounded: cornerData});
+		g.fillRoundedRectangle(a, {CornerSize: obj.down ? 0 : radius, Rounded: cornerData});
 
 		g.setColour(keyColour);
-		g.fillRoundedRectangle(a, {CornerSize: obj.down ? 0 : Style.keyboard.radius, Rounded: cornerData});
+		g.fillRoundedRectangle(a, {CornerSize: obj.down ? 0 : radius, Rounded: cornerData});
 
 		if (obj.hover)
-			g.setColour(Colours.withAlpha(Colours.fromHsl(hsl), 0.3));
+			g.setColour(Colours.withAlpha(Colours.fromHsl(hsl), 0.2));
 
 		if (obj.down)
-			g.setColour(Colours.withAlpha(Colours.fromHsl(hsl), 0.5));
+			g.setColour(Colours.withAlpha(Colours.fromHsl(hsl), 0.3));
 
 		if (obj.hover || obj.down)
-			g.fillRoundedRectangle(a, {CornerSize: obj.down ? 0 : Style.keyboard.radius, Rounded: cornerData});
+			g.fillRoundedRectangle(a, {CornerSize: obj.down ? 0 : radius, Rounded: cornerData});
 
-		if (Style.keyboard.shadow)
+		if (useShadow)
 		{
 			g.setGradientFill([Colours.withAlpha(Colours.black, 0.3), a[2] / 2, a[1], 0x0, a[2] / 2, a[3] / 2]);
-			g.fillRoundedRectangle(a, {CornerSize: obj.down ? 0 : Style.keyboard.radius, Rounded: cornerData});
+			g.fillRoundedRectangle(a, {CornerSize: obj.down ? 0 : radius, Rounded: cornerData});
 		}
 		
-		if (isDefined(Style.useNoise) && Style.useNoise)
-			g.addNoise({alpha: 0.025, scaleFactor: 1.5, area: a.toArray(), monochromatic: true});
+		if (!isDefined(style.useNoise) || !style.useNoise)
+			g.addNoise({alpha: 0.025, scaleFactor: 1.5, area: a, monochromatic: true});
 	}
 	
 	//! fltKeyboard
@@ -150,7 +155,99 @@ namespace Keyboard
 		range[0] = getDataProperty("LowKey");
 		range[1] = getDataProperty("HiKey");
 	}
+
+	inline function setKeyRanges(data: Array)
+	{
+		if (!data.length)
+			return;
+
+		local keyColours = {
+			keyswitch: [0xff94483a, 0x7794483a],
+			playable: [0xccA3A4A5, 0xcc293037]
+		};
+		
+		if (isDefined(style.keyboard.keyColours))
+		{
+			for (x in style.keyboard.keyColours)
+				keyColours[x] = style.keyboard.keyColours[x];
+		}		
+
+		if (!isDefined(keyColours))
+			return;
+
+		for (x in data)
+		{
+			if (!isDefined(x.loKey) || !isDefined(x.hiKey))
+				continue;
+	
+			for (i = x.loKey; i <= x.hiKey; i++)
+			{
+				if (typeof(x.colour) !== "string")
+					continue;
+
+				local isBlack = [1, 3, 6, 8, 10].contains(i % 12);
+				local c = keyColours[x.colour][isBlack];
+
+				if (!isDefined(c))
+					continue;
+
+				Engine.setKeyColour(i, c);
+			}
+		}
+	}
+	
+	inline function resetKeyColours()
+	{
+		local keyColours;
+
+		if (!isDefined(style.keyboard.keyColours.inactive) || !Array.isArray(style.keyboard.keyColours.inactive))
+			keyColours = [0x775D6168, 0xbb2A3037];
+		else
+			keyColours = style.keyboard.keyColours.inactive;
+
+		for (i = 0; i < 128; i++)
+		{
+			local isBlack = [1, 3, 6, 8, 10].contains(i % 12);
+			Engine.setKeyColour(i, keyColours[isBlack]);
+		}
+	}
 	
 	//! Function Calls
 	updateRange();
+
+	if (isDefined(Manifest.keyranges))
+	{
+		resetKeyColours();
+		setKeyRanges(Manifest.keyranges);
+	}
+
+	//! Broadcasters
+	const bcPatchChanged = Engine.createBroadcaster({id: "keyboardPatchChanged", args: ["component", "value"]});
+	bcPatchChanged.setEnableQueue(true);
+	bcPatchChanged.attachToComponentValue("knbPatch", "");
+	
+	bcPatchChanged.addListener(0, "Patch change listener", function(component, value)
+	{	
+		var patch = Manifest.patches[value];
+	
+		if (isDefined(patch.keyranges))
+		{
+			resetKeyColours();
+			setKeyRanges(patch.keyranges);
+		}
+	});
+	
+	const bcArticulationChanged = Engine.createBroadcaster({id: "keyboardArticulationChanged", args: ["component", "value"]});
+	bcArticulationChanged.attachToComponentValue("knbArticulation", "");
+
+	bcArticulationChanged.addListener(0, "Articulation change listener", function(component, value)
+	{	
+		var articulation = ArticulationDataManager.getArticulation(value);
+		
+		if (isDefined(articulation.keyranges))
+		{
+			resetKeyColours();
+			setKeyRanges(articulation.keyranges);
+		}
+	});
 }

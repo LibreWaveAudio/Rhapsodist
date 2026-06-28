@@ -17,6 +17,9 @@
 
 namespace Header
 {
+	const style = CoreLookAndFeel.style;
+	const fonts = CoreLookAndFeel.fonts;
+
 	reg masterVolumeValue;
 	reg masterPanValue;
 
@@ -33,15 +36,18 @@ namespace Header
 		g.setColour(this.get("bgColour"));
 		g.fillRect(a);
 		
-		g.setFont(Style.header.font, Style.header.fontSize);
+		var font = fonts.title;
+		var fontSize = 22 + fonts.titleSize;
+
+		g.setFont(font, fontSize);
 		g.setColour(this.get("textColour"));
-		g.drawAlignedText(this.get("text"), [a[0] + 10, a[1], a[2], a[3] + Style.header.textHeightOffset], "left");
+		g.drawAlignedText(this.get("text"), [a[0] + 40, a[1], a[2], a[3] + style.fonts.titleOffset], "left");
 
 		g.setColour(this.get("itemColour2"));
 		g.drawHorizontalLine(a[3] - 1, a[0], a[2]);
 
-		if (isDefined(Style.useNoise) && Style.useNoise)
-			g.addNoise({alpha: 0.025, scaleFactor: 1.5, area: a.toArray(), monochromatic: true});
+		if (!isDefined(style.useNoise) || style.useNoise)
+			g.addNoise({alpha: 0.025, scaleFactor: 1.5, area: a, monochromatic: true});
 	});
 	
 	//! knbMasterPan
@@ -53,10 +59,13 @@ namespace Header
 	{
 		if (isDefined(LookAndFeel.drawPanVolSliders))
 			return LookAndFeel.drawPanVolSliders();
+			
+		var font = fonts.medium;
+		var fontSize = 16 + fonts.size;
 
-		g.setFont(Style.header.sliderFont, Style.header.sliderFontSize);
+		g.setFont(font, fontSize);
 		g.setColour(Colours.withMultipliedBrightness(obj.textColour, obj.hover || obj.clicked ? 1.0 : 0.8));
-		g.drawAlignedText(obj.text + "  " + obj.valueAsText, obj.area, "left");
+		g.drawAlignedText(obj.text + " " + obj.valueAsText, obj.area, "left");
 	});
 	
 	//! knbMasterVolume
@@ -70,7 +79,7 @@ namespace Header
 	//! Functions
 	
 	//! Broadcasters
-	/*Presets.broadcasters.preLoad.addListener({}, "Preset has been loaded", function(isInternal)
+	Presets.broadcasters.preLoad.addListener({}, "Preset preload", function(isInternal)
 	{
 		if (!isInternal)
 		{
@@ -79,14 +88,15 @@ namespace Header
 		}
 	});
 	
-	Presets.broadcasters.postLoad.addListener({}, "Preset has been loaded", function(isInternal)
+	Presets.broadcasters.postLoad.addListener({}, "Preset post load", function(isInternal)
 	{
 		if (!isInternal && isDefined(masterVolumeValue))
 		{
 			knbMasterVolume.setValue(masterVolumeValue);
 			knbMasterPan.setValue(masterPanValue);
+
 			knbMasterVolume.changed();
 			knbMasterPan.changed();
 		}			
-	});*/
+	});
 }

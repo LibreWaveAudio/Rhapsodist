@@ -1,5 +1,5 @@
 /*
-    Copyright 2024, 2025 David Healey
+    Copyright 2024, 2025, 2026 David Healey
 
     This file is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,216 +17,354 @@
 
 namespace Mixer
 {
-	inline function: ScriptObject create(panelId: string, numChannels: int)
+	const style = CoreLookAndFeel.style;
+	const fonts = CoreLookAndFeel.fonts;
+
+	inline function: ScriptObject create(panelId: string, numChannels: int, options: JSON)
 	{
-		local panel = Content.getComponent(panelId);
-		local width = panel.getWidth() / numChannels;
+		local parent = Content.getComponent(panelId);
+		local componentExists = Content.componentExists("pnlMixer");
+		local pnlMixer = Container.createRow("pnlMixer", [0, 10, 0, 10], -1, {});
+
+		if (!componentExists)
+		{
+			clearComponentColours("pnlMixer");
+			
+			Content.setPropertiesFromJSON("pnlMixer", {
+				width: parent.getWidth(),
+				height: parent.getHeight(),
+				parentComponent: panelId,
+				text: ""
+			});
+		}
+		
 		local muteButtons = [];
 		local soloButtons = [];
 
 		for (i = 0; i < numChannels; i++)
 		{
-			local area = [i * width, 0, width, panel.getHeight()];
-			local pnlChannel = createChannelPanel(panel, i, area[2]);
-			local components = [];
-
-			pnlChannel.setPaintRoutine(function(g)
-			{
-				var a = this.getLocalBounds(0);
-
-				g.setColour(this.get("textColour"));
-				g.setFont("semibold", 14);
-				g.drawAlignedText(this.get("text"), [a[0], a[1], a[2], a[3]], "centredTop");
-			});
+			local pnlChannel = createChannelPanel(pnlMixer, numChannels, i);
 
 			local knbPan = createPanKnob(pnlChannel, i);
-			knbPan.setLocalLookAndFeel(CoreLookAndFeel.smallKnob);
-			components.push(knbPan);
+			knbPan.setLocalLookAndFeel(lafMixer);
 
-			local knbGain = createGainKnob(pnlChannel, i, 180);
-			knbGain.setLocalLookAndFeel(CoreLookAndFeel.verticalSlider);
-			components.push(knbGain);
-			
-			local lblGain = createGainValueLabel(pnlChannel, i);
-			components.push(lblGain);
+			local gainSliderWidth = isDefined(options.gainSliderWidth) ? options.gainSliderWidth : 22;
+			local gainSliderHeight = isDefined(options.gainSliderHeight) ? options.gainSliderHeight : 180;
 
-			local fltMeter = createMeter(pnlChannel, i, 180);
-			fltMeter.setLocalLookAndFeel(CoreLookAndFeel.peakMeter);
-			
-			setGainKnobAndMeterXPosition(pnlChannel, knbGain, fltMeter);
-						
+			local pnlGain = Container.createGrid("pnlMixerGain" + i, [0, 10, 0, 10], [-1, -1, -1, -1], 2, {layout: [{alignment: "top"}, {alignment: "top"}, {alignment: "bottom", colSpan: 2}]});
+			clearComponentColours("pnlMixerGain" + i);
+			pnlGain.set("parentComponent", pnlChannel.getId());
+			pnlGain.set("width", pnlChannel.getWidth() * .75);
+			pnlGain.set("height", gainSliderHeight + 30);
+
+			local knbGain = createGainKnob(pnlGain, i, gainSliderWidth, gainSliderHeight);
+
+			local fltMeter = createMeter(pnlGain, i, numChannels, gainSliderHeight);			
+
+			local knbGainValue = createGainValueKnob(pnlGain, i);
+
 			local btnPurge = createPurgeButton(pnlChannel, i);
-			btnPurge.setLocalLookAndFeel(CoreLookAndFeel.powerButton);
-			components.push(btnPurge);
+			btnPurge.setLocalLookAndFeel(lafMixer);
 		
-			local btnMuteSolo = createMuteSoloButtons(pnlChannel, i);
-	
-			for (x in btnMuteSolo)
-				x.setLocalLookAndFeel(CoreLookAndFeel.textButton);
+			local pnlMixerMuteSolo = createMuteSoloButtons(pnlChannel, i);
+			muteButtons.push(pnlMixerMuteSolo.data.buttons[0]);
+			soloButtons.push(pnlMixerMuteSolo.data.buttons[1]);
 
-			components.push(btnMuteSolo[0]);
-			muteButtons.push(btnMuteSolo[0]);
-			soloButtons.push(btnMuteSolo[1]);
-
-			local cmbOutput = createOutputMenu(pnlChannel, i, {autoHide: true});
-			cmbOutput.setLocalLookAndFeel(CoreLookAndFeel.comboBox);
-
-			if (cmbOutput.get("visible"))
-				components.push(cmbOutput);
-
-			positionComponents(pnlChannel, components);
-			fltMeter.set("y", knbGain.get("y"));
-
-			btnMuteSolo[1].set("y", btnMuteSolo[0].get("y"));
+			local cmbOutput = createOutputMenu(pnlChannel, i, {});
 		}
 
-		panel.setPaintRoutine(function(g) {});
-		addMuteSoloIsolateBroadcasters(panel, muteButtons, soloButtons);
-	
-		return panel;
+		addMuteSoloIsolateBroadcasters(pnlMixer, muteButtons, soloButtons);
+
+		return pnlMixer;
 	}
-	
-	inline function: ScriptObject createChannelPanel(parent: ScriptObject, index: number, width: number)
+
+	inline function: ScriptObject createChannelPanel(parentPanel: ScriptObject, numChannels: int, index: number)
 	{
-		local a = [index * width, 0, width, parent.getHeight()];
-		local panel = Content.addPanel("pnlMixerChannel" + index, 0, 0);
-		panel.set("parentComponent", parent.getId());
-		panel.setPosition(a[0], a[1], a[2], a[3]);
+		local id = "pnlMixerChannel" + index;
+		local componentExists = Content.componentExists(id);		
+		local panel = Container.createStack(id, [50, 0, 30, 0], -1, {});
+
+		if (!componentExists)
+		{
+			clearComponentColours(id);
+
+			Content.setPropertiesFromJSON(id, {
+				y: 0,
+				height: parentPanel.getHeight(),
+				text: "Channel " + (index + 1),
+				itemColour: 0xff15191d,
+				textColour: 0xffd6dfe8
+			});
+		}
+
+		panel.set("parentComponent", parentPanel.getId());
+		panel.data.numChannels = numChannels;
 		panel.data.index = index;
-		panel.data.bc = {};
-	
+		
+		panel.setPaintRoutine(function(g)
+		{
+			if (isDefined(LookAndFeel.drawMixerChannelBackground))
+				LookAndFeel.drawMixerChannelBackground();
+
+			var a = this.getLocalBounds(0);
+			var font = fonts.medium;
+			var fontSize = 16 + fonts.size;
+		
+			g.setColour(this.get("textColour"));
+			g.setFont(font, fontSize);
+			g.drawAlignedText(this.get("text"), [a[0], a[1] + 20, a[2], a[3]], "centredTop");
+
+			if (this.data.index >= this.data.numChannels - 1)
+				return;
+
+			g.setColour(Colours.withAlpha(this.get("itemColour"), 0.5));
+			g.drawVerticalLine(a[2] - 1, a[1] + a[3] * 0.14, a[3] - a[3] * 0.08);
+		});
+
 		return panel;
 	}
 	
 	inline function: ScriptObject createPanKnob(parentPanel: ScriptObject, index: number)
 	{
-		local a = [parentPanel.getWidth() / 2 - 36 / 2, 0, 36, 60];
+		local id = "knbMixerPan" + index;
+		local componentExists = Content.componentExists(id);
 
-		local knbPan = Content.addKnob("knbMixerPan" + index, 0, 0);	
+		local knob = Content.addKnob(id);
 
-		Content.setPropertiesFromJSON("knbMixerPan" + index, {
-			"x": a[0], "y": a[1], "width": a[2], "height": a[3],
-			"parentComponent": parentPanel.getId(),
-			"tooltip": "Set the channel's pan.",
-			"isPluginParameter": true,
-			"pluginParameterName": "Channel " + (index + 1) + " pan",
-			"mode": "Pan",
-			"style": "Knob",
-			"showTextBox": false
+		if (!componentExists)
+		{
+			Content.setPropertiesFromJSON(id, {
+				y: 0,
+				width: 60,
+				height: 70,
+				text: "",
+				tooltip: "Set the channel's pan.",
+				pluginParameterName: "Channel " + (index + 1) + " pan",
+				processorId: "mixerHandler",
+				parameterId: "Pan" + index,
+				defaultValue: 0,
+				bgColour: 0xFF15171B,
+				itemColour: 0xFF292C30,
+				itemColour2: 0x0,
+				textColour: 0xFFD7D8DA,
+				showTextBox: false
+			});
+		}
+
+		Content.setPropertiesFromJSON(id, {
+			x: parentPanel.getWidth() / 2 - knob.getWidth() / 2,		
+			parentComponent: parentPanel.getId(),
+			mode: "Pan",
+			style: "Knob"
 		});
-		
-		return knbPan;
+
+		return knob;
 	}
 		
-	inline function: ScriptObject createMeter(parentPanel: ScriptObject, index: number, height: number)
+	inline function: ScriptObject createGainKnob(parentPanel: ScriptObject, index: number, width: number, height: number)
 	{
-		local a = [0, 0, 8, height];
+		local id = "knbMixerGain" + index;
+		local componentExists = Content.componentExists(id);
 
-		local fltMeter = Content.addFloatingTile("fltMixerMeter" + index, 0, 0);
+		local knob = Content.addKnob(id);
 
-		Content.setPropertiesFromJSON("fltMixerMeter" + index, {
-			"x": a[0], "y": a[1], "width": a[2], "height": a[3],
-			"parentComponent": parentPanel.getId(),
-			"ContentType": "MatrixPeakMeter",
-			"saveInPreset": false
+		if (!componentExists)
+		{			
+			Content.setPropertiesFromJSON(id, {
+				y: 0,
+				width: width,
+				height: height,
+				text: "Channel " + (index + 1) + " Gain",
+				tooltip: "Set the channel's volume.",
+				pluginParameterName: "Channel " + (index + 1) + " gain",
+				processorId: "mixerHandler",
+				parameterId: "Gain" + index,
+				defaultValue: 0,
+				showTextBox: false,
+				bgColour: 0xFF15171B,
+				itemColour: 0xFF292C30,
+				itemColour2: 0x0,
+				textColour: 0xFFD7D8DA,
+				stepSize: 1.0
+			});
+		}
+
+		Content.setPropertiesFromJSON(id, {
+			parentComponent: parentPanel.getId(),
+			mode: "Decibel",
+			min: -100,
+			max: 3.0,
+			middlePosition: -18,
+			style: "Vertical"
 		});
-		
-		return fltMeter;
-	}
-		
-	inline function: ScriptObject createGainKnob(parentPanel: ScriptObject, index: number, height: number)
-	{
-		local a = [0, 0, 15, height];
 
-		local knbGain = Content.addKnob("knbMixerGain" + index, 0, 0);
+		knob.setLocalLookAndFeel(lafMixer);
 
-		Content.setPropertiesFromJSON("knbMixerGain" + index, {
-			"x": a[0], "y": a[1], "width": a[2], "height": a[3],
-			"parentComponent": parentPanel.getId(),
-			"text": "Gain",
-			"tooltip": "Set the channel's volume.",
-			"isPluginParameter": true,
-			"pluginParameterName": "Channel " + (index + 1) + " gain",
-			"defaultValue": 0,
-			"mode": "Decibel",
-			"max": 3.0,
-			"style": "Vertical",
-			"showTextBox": false		
-		});
-
-		parentPanel.data.bc.gainKnobValue = Engine.createBroadcaster({id: "knbMixerGainValue" + index, args: ["component", "value"]});
-		parentPanel.data.bc.gainKnobValue.attachToComponentValue(knbGain, "Value");		
-
-		return knbGain;
+		return knob;
 	}
 	
-	inline function: ScriptObject createGainValueLabel(parentPanel: ScriptObject, index: number)
+	inline function: ScriptObject createMeter(parentPanel: ScriptObject, index: number, numChannels: int, height: number)
 	{
-		local lblGain = Content.addLabel("lblMixerGain" + index, 0, 0);
+		local id = "fltMixerMeter" + index;
+		local componentExists = Content.componentExists(id);
 
-		Content.setPropertiesFromJSON("lblMixerGain" + index, {
-			parentComponent: parentPanel.getId(),
-			width: parentPanel.getWidth(),
-			text: "",
-			editable: false
-		});
+		local floatingTile = Content.addFloatingTile(id);
 
-		parentPanel.data.bc.gainKnobValue.addComponentPropertyListener(lblGain, "text", "Change label text", function(index, component, value)
+		if (!componentExists)
 		{
-			return Engine.doubleToString(value, 1) + " dB";
+			local channelIndexes = [];
+
+			for (i = 0; i < 2; i++)
+				channelIndexes.push((index * 2) + i);
+	
+			clearComponentColours(id);
+
+			Content.setPropertiesFromJSON(id, {
+				y: 0,			
+				width: 8,
+				height: height,
+				parentComponent: parentPanel.getId(),
+				ContentType: "MatrixPeakMeter",
+				Data: "{\n  \"ProcessorId\": \"" + "mixerGain" + index + "\",\n  \"Index\": -1,\n  \"FollowWorkspace\": false,\n  \"SegmentLedSize\": 0.0,\n  \"UpDecayTime\": 200.0,\n  \"DownDecayTime\": 500.0,\n  \"UseSourceChannels\": false,\n  \"SkewFactor\": 0.2,\n  \"PaddingSize\": 0.5,\n  \"ShowMaxPeak\": true,\n  \"ChannelIndexes\": [" + channelIndexes.join(",") + "]\n}",
+				saveInPreset: false,
+				bgColour: 0xfe15171b,
+				itemColour2: 0x0,
+				textColour: 0xffbfbfbf
+			});
+		}
+		
+		Content.setPropertiesFromJSON(id, {
+			parentComponent: parentPanel.getId(),
+			ContentType: "MatrixPeakMeter",
+			saveInPreset: false
 		});
 		
-		return lblGain;
+		floatingTile.setLocalLookAndFeel(lafMixer);
+		
+		return floatingTile;
+	}
+	
+	inline function: ScriptObject createGainValueKnob(parentPanel: ScriptObject, index: number)
+	{
+		local id = "knbMixerGainValue" + index;
+		local componentExists = Content.componentExists(id);
+		
+		local knob = Content.addKnob(id);
+
+		if (!componentExists)
+		{
+			clearComponentColours(id);
+
+			Content.setPropertiesFromJSON(id, {
+				height: 28,
+				defaultValue: 0,
+				textColour: 0xffd7d8da,
+				stepSize: 1.0
+			});
+		}
+		
+		Content.setPropertiesFromJSON(id, {
+			parentComponent: parentPanel.getId(),
+			linkedTo: id.replace("Value"),
+			mode: "Decibel",
+			max: 3.0,
+			style: "Vertical"
+		});
+
+		knob.setLocalLookAndFeel(lafGainValueKnob);
+		
+		return knob;
 	}
 		
 	inline function: ScriptObject createPurgeButton(parentPanel: ScriptObject, index: number)
 	{
-		local a = [parentPanel.getWidth() / 2 - 16 / 2, 0, 16, 16];
+		local id = "btnMixerPurge" + index;
+		local componentExists = Content.componentExists(id);
+		
+		local button = Content.addButton(id);
 
-		local btnPurge = Content.addButton("btnMixerPurge" + index, 0, 0);
-		
-		Content.setPropertiesFromJSON("btnMixerPurge" + index, {
-			"x": a[0], "y": a[1], "width": a[2], "height": a[3],
-			"parentComponent": parentPanel.getId(),
-			"text": "Purge/Load",
-			"tooltip": "Purge or load this channel's samples.",
-			"enableMidiLearn": false
-		});
-		
-		return btnPurge;
-	}
-	
-	inline function: Array createMuteSoloButtons(parentPanel: ScriptObject, index: number)
-	{
-		local a = [(parentPanel.getWidth() / 2) - (18 * 2) / 2, y, 18, 18];
-		
-		local buttons = [];
-		
-		for (i = 0; i < 2; i++)
+		if (!componentExists)
 		{
-			local name = i == 0 ? "Mute" : "Solo";
-			local x = a[0] + (a[2] * i) + (-2 + 4 * i);
+			clearComponentColours(id);
 
-			buttons[i] = Content.addButton("btnMixer" + name + index, 0, 0);		
-
-			Content.setPropertiesFromJSON("btnMixer" + name + index, {
-				"x": x, "y": a[1], "width": a[2], "height": a[3],
-				"parentComponent": parentPanel.getId(),
-				"text": i == 0 ? "M" : "S",
-				"tooltip": name + " this channel.",
-				"enableMidiLearn": false
+			Content.setPropertiesFromJSON(id, {
+				width: 18,
+				height: 18,
+				text: "Purge/Load",
+				tooltip: "Purge or load this channel's samples.",
+				processorId: "mixerHandler",
+				parameterId: "Purge" + index,
+				itemColour: 0xffd7d8da,
+				itemColour2: 0xffc9c9c9
 			});
 		}
 
-		return buttons;
+		Content.setPropertiesFromJSON(id, {
+			x: parentPanel.getWidth() / 2 - button.getWidth() / 2,
+			parentComponent: parentPanel.getId(),
+			enableMidiLearn: false
+		});
+		
+		return button;
+	}
+	
+	inline function: ScriptObject createMuteSoloButtons(parentPanel: ScriptObject, index: number)
+	{
+		local panelId = "pnlMixerMuteSolo" + index;
+		local panel = Container.createRow(panelId, [0, 0, 0, 0], -1, {});
+		local buttons = [];
+		
+		clearComponentColours(panelId);
+		
+		Content.setPropertiesFromJSON(panelId, {
+			parentComponent: parentPanel.getId(),
+			width: 45,
+			height: 22
+		});
+
+		for (i = 0; i < 2; i++)
+		{
+			local name = i == 0 ? "Mute" : "Solo";
+			local id = "btnMixer" + name + index;
+			local x = a[0] + (a[2] * i) + (-2 + 4 * i);
+
+			local componentExists = Content.componentExists(id);
+
+			buttons[i] = Content.addButton(id);
+
+			if (!componentExists)
+			{
+				clearComponentColours(id);
+
+				Content.setPropertiesFromJSON(id, {
+					width: 20,
+					height: 20,
+					text: i == 0 ? "M" : "S",
+					tooltip: name + " this channel.",
+					processorId: "mixerHandler",
+					parameterId: i == 0 ? "Mute" + index : "Solo" + index,
+					itemColour: 0xffd7d8da,
+					textColour: 0xffd7d8da
+				});
+			}
+
+			Content.setPropertiesFromJSON(id, {
+				parentComponent: panelId,
+				enableMidiLearn: false
+			});
+
+			buttons[i].setLocalLookAndFeel(lafTextButton);
+		}
+
+		panel.data.buttons = buttons;
+
+		return panel;
 	}
 
 	inline function: ScriptObject createOutputMenu(parentPanel: ScriptObject, index: number, options: JSON)
 	{
-		local a = [parentPanel.getWidth() / 2 - parentPanel.getWidth() / 2 / 2, 0, parentPanel.getWidth() / 2, 22];
 		local rootChainId = Synth.getIdList("Container")[0];
 		local rootMatrix = Synth.getRoutingMatrix(rootChainId);
-			
 		local items = [];
 
 		for (i = 0; i < rootMatrix.getNumDestinationChannels(); i++)
@@ -234,66 +372,56 @@ namespace Mixer
 			items.push((i + 1) + "/" + (i + 2));
 			i++;
 		}
+
+		local id = "cmbMixerOutput" + index;
+		local componentExists = Content.componentExists(id);
 		
-		local result = Content.addComboBox("cmbMixerOutput" + index, 0, 0);
+		local comboBox = Content.addComboBox(id);
+
+		if (!componentExists)
+		{
+			clearComponentColours(id);
+
+			Content.setPropertiesFromJSON("cmbMixerOutput" + index, {
+				width: parentPanel.getWidth() * 0.7,
+				height: 28,
+				text: "Output",
+				tooltip: "Set the channel's output.",
+				processorId: "mixerHandler",
+				parameterId: "Output" + index,
+				bgColour: 0xff15171b,
+				textColour: 0xffd7d8da
+			});
+		}
 
 		Content.setPropertiesFromJSON("cmbMixerOutput" + index, {
-			"x": a[0], "y": a[1], "width": a[2], "height": a[3],
-			"parentComponent": parentPanel.getId(),
-			"text": "Output",
-			"tooltip": "Set the channel's output.",
-			"items": items.join("\n"),
-			"enableMidiLearn": false
+			x: parentPanel.getWidth() / 2 - comboBox.getWidth() / 2,
+			parentComponent: parentPanel.getId(),
+			items: items.join("\n"),
+			enableMidiLearn: false
 		});
 
-		if (options.autoHide)
-			result.showControl(items.length > 1);
+		comboBox.setLocalLookAndFeel(lafMixer);
 		
-		return result;
+		return comboBox;
 	}
-	
-	inline function setGainKnobAndMeterXPosition(panel: ScriptObject, gainKnob: ScriptObject, meter: ScriptObject)
+		
+	inline function clearComponentColours(id: string)
 	{
-		local totalWidgetsWidth = gainKnob.getWidth() + meter.getWidth() + 5;
-		local startX = (panel.getWidth() - totalWidgetsWidth) / 2;
-	
-		gainKnob.set("x", startX);
-		meter.set("x", startX + gainKnob.getWidth() + 5);			
+		Content.setPropertiesFromJSON(id, {
+			bgColour: 0x0,
+			itemColour: 0x0,
+			itemColour2: 0x0,
+			textColour: 0x0
+		});
 	}
-	
-	inline function positionComponents(panel: ScriptObject, components: Array)
-	{
-		local totalComponentHeight;
 		
-		for (x in components)
-		{
-			if (!x.getId().contains("btnSolo"))
-				totalComponentHeight += x.getHeight();
-		}
-	
-		local remainingSpace = panel.getHeight() - totalComponentHeight - 25;
-		local margin = remainingSpace / (components.length + 1);
-		
-		local y = 25 + margin;
-		
-		for (i = 0; i < components.length; i++)
-		{
-			local c = components[i];
-	
-			c.set("y", y);
-			y += c.getHeight() + margin;
-		}
-	}
-	
 	inline function addMuteSoloIsolateBroadcasters(panel: ScriptObject, muteButtons: Array, soloButtons: Array)
-	{
-		if (!isDefined(panel.data.bc))
-			panel.data.bc = {};
-	
-		panel.data.bc.muteIsolate = Engine.createBroadcaster({"id": "muteIsolate", "args": ["component", "value"]});
-		panel.data.bc.muteIsolate.attachToComponentValue(muteButtons, "");
-		
-		panel.data.bc.muteIsolate.addListener(muteButtons, "Enabled the clicked button and disable others if ctrl or cmd is down", function(component, value)
+	{	
+		panel.data.bcMuteIsolate = Engine.createBroadcaster({id: "muteIsolate", args: ["component", "value"]});
+		panel.data.bcMuteIsolate.attachToComponentValue(muteButtons, "");
+
+		panel.data.bcMuteIsolate.addListener(muteButtons, "Enabled the clicked button and disable others if ctrl or cmd is down", function(component, value)
 		{
 			if (!Content.isCtrlDown())
 				return;
@@ -304,11 +432,11 @@ namespace Mixer
 				x.changed();
 			}
 		});
-		
-		panel.data.bc.soloIsolate = Engine.createBroadcaster({"id": "soloIsolate", "args": ["component", "value"]});
-		panel.data.bc.soloIsolate.attachToComponentValue(soloButtons, "");
-		
-		panel.data.bc.soloIsolate.addListener(soloButtons, "Enabled the clicked button and disable others if ctrl or cmd is down", function(component, value)
+
+		panel.data.bcSoloIsolate = Engine.createBroadcaster({id: "soloIsolate", args: ["component", "value"]});
+		panel.data.bcSoloIsolate.attachToComponentValue(soloButtons, "");
+
+		panel.data.bcSoloIsolate.addListener(soloButtons, "Enabled the clicked button and disable others if ctrl or cmd is down", function(component, value)
 		{
 			if (!Content.isCtrlDown())
 				return;
@@ -317,7 +445,94 @@ namespace Mixer
 			{
 				x.setValue(x == component);
 				x.changed();
-			}			
+			}
 		});
 	}
+	
+	//! Look and Feel
+	const lafMixer = Content.createLocalLookAndFeel();
+	
+	lafMixer.registerFunction("drawRotarySlider", function(g, obj)
+	{
+		 if (isDefined(LookAndFeel.drawMixerPanKnob))
+		 	return LookAndFeel.drawMixerPanKnob();
+	
+		 CoreLookAndFeel.drawKnob();
+	});
+	
+	lafMixer.registerFunction("drawLinearSlider", function(g, obj)
+	{
+		 if (isDefined(LookAndFeel.drawMixerGainSlider))
+		 	return LookAndFeel.drawMixerGainSlider();
+	
+		 CoreLookAndFeel.drawSlider();
+	});
+	
+	lafMixer.registerFunction("drawMatrixPeakMeter", function(g, obj)
+	{
+		 if (isDefined(LookAndFeel.drawMixerPeakMeter))
+		 	return LookAndFeel.drawMixerPeakMeter();
+	
+		 CoreLookAndFeel.drawMatrixPeakMeter();
+	});
+	
+	lafMixer.registerFunction("drawToggleButton", function(g, obj)
+	{
+		 if (isDefined(LookAndFeel.drawMixerPurgeButton))
+		 	return LookAndFeel.drawMixerPurgeButton();
+	
+		CoreLookAndFeel.drawPowerButton();	 
+	});
+	
+	lafMixer.registerFunction("drawComboBox", function(g, obj)
+	{
+		if (isDefined(LookAndFeel.drawMixerOutput))
+			return LookAndFeel.drawMixerOutput();
+	
+		CoreLookAndFeel.drawComboBox();
+	});
+	
+	lafMixer.registerFunction("drawPopupMenuBackground", function(g, obj)
+	{
+		CoreLookAndFeel.drawPopupMenuBackground();
+	});
+	
+	lafMixer.registerFunction("drawPopupMenuItem", function(g, obj)
+	{
+		CoreLookAndFeel.drawPopupMenuItem();
+	});
+	
+	lafMixer.registerFunction("getIdealPopupMenuItemSize", function(obj)
+	{
+		return CoreLookAndFeel.getIdealPopupMenuItemSize();
+	});
+	
+	// Mute/Solo Buttons
+	const lafTextButton = Content.createLocalLookAndFeel();
+	
+	lafTextButton.registerFunction("drawToggleButton", function(g, obj)
+	{
+		if (isDefined(LookAndFeel.drawMixerMuteSoloButton))
+			return LookAndFeel.drawMixerMuteSoloButton();
+
+		CoreLookAndFeel.drawTextButtonToggle();
+	});
+
+	// Gain Value Knob
+	const lafGainValueKnob = Content.createLocalLookAndFeel();
+	
+	lafGainValueKnob.registerFunction("drawLinearSlider", function(g, obj)
+	{
+		if (isDefined(LookAndFeel.drawMixerGainValue))
+			return LookAndFeel.drawMixerGainValue();
+
+		var a = obj.area;
+		var font = fonts.regular;
+		var fontSize = 16 + fonts.size;
+	
+		g.setColour(obj.textColour);
+		g.setFont(font, fontSize);
+		g.drawAlignedText(obj.valueAsText.replace(" "), a, "centredBottom");
+	});
+	
 }

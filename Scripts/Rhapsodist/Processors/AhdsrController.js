@@ -1,5 +1,5 @@
 /*
-    Copyright 2021, 2022, 2023, 2024, 2025 David Healey
+    Copyright 2021, 2022, 2023, 2024, 2025, 2026 David Healey
 
     This file is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,109 +15,182 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
-Content.setHeight(100);
+Content.setWidth(700);
+Content.setHeight(125);
 
-const mods = Synth.getAllModulators("GainAhdsr");
-const attributes = [mods[0].Attack, mods[0].Hold, mods[0].Decay, mods[0].Sustain, mods[0].Release];
-
+//! Mods
 const globalAhdsr = Synth.getAllModulators("globalAhdsr")[0];
-
-//! btnMute
-const btnMute = Content.addButton("Mute", 10, 10);
-
-//! knbArticulation
-const knbArticulation = Content.addKnob("Articulation", 160, 0);
-knbArticulation.set("text", "Articulation");
-knbArticulation.setRange(-1, 100, 1);
-knbArticulation.setControlCallback(onknbArticulationControl);
-knbArticulation.setTooltip("This is a tooltip");
-
-inline function onknbArticulationControl(component, value)
-{	
-	if (!btnMute.getValue())
-		changeArticulation(value);
-}
+const mods = Synth.getAllModulators("GainAhdsr");
+const attributes = getAttributeList();
 
 //! knbAhdsr
-const knbAhdsr = [];
-
-//! Attack
-knbAhdsr[0] = Content.addKnob("Attack", 310, 0);
-knbAhdsr[0].set("mode", "Time");
-knbAhdsr[0].set("defaultValue", 20);
-
-//! Hold
-knbAhdsr[1] = Content.addKnob("Hold", 460, 0);
-knbAhdsr[1].set("mode", "Time");
-knbAhdsr[1].set("defaultValue", 10);
-
-//! Decay
-knbAhdsr[2] = Content.addKnob("Decay", 10, 50);
-knbAhdsr[2].set("mode", "Time");
-knbAhdsr[2].set("defaultValue", 300);
-
-//! Sustain
-knbAhdsr[3] = Content.addKnob("Sustain", 160, 50);
-knbAhdsr[3].set("mode", "Decibel");
-knbAhdsr[3].set("defaultValue", 0);
-
-//! Release
-knbAhdsr[4] = Content.addKnob("Release", 310, 50);
-knbAhdsr[4].set("mode", "Time");
-knbAhdsr[4].set("defaultValue", 20);
-
-for (c in knbAhdsr)
-    c.setControlCallback(onAhdsrControl);
+const knbAhdsr = createKnobs();
 
 inline function onAhdsrControl(component, value)
 {
-	if (btnMute.getValue() || !attributes.length)
-		return;
-
-    local index = knbAhdsr.indexOf(component);
-
-    for (x in mods)
-        x.setAttribute(attributes[index], value);
-
-	if (isDefined(globalAhdsr))
-		globalAhdsr.setAttribute(attributes[index], value);
+    local knobIndex = knbAhdsr.indexOf(component);
+    setModuleProperty(knobIndex, value);
+    setSliderPackValue(knobIndex, value);
 }
 
+//! knbArticulation
+const knbArticulation = Content.addKnob("Articulation", 424, 60);
+knbArticulation.setRange(0, 49, 1);
+knbArticulation.set("sendValueOnDrag", false);
+knbArticulation.setControlCallback(onknbArticulationControl);
+
+inline function onknbArticulationControl(component, value)
+{
+	changeArticulation(value);
+}
+
+//! btnLink
+const btnLink = Content.addButton("LinkArticulation", 562, 70);
+btnLink.set("text", "Link Articulation");
+btnLink.set("tooltip", "When enabled, changing the value of a knob will affect all articulations");
+
+//! Sliderpack Data
+const slpAhdsrData = Engine.createAndRegisterSliderPackData(0);
+slpAhdsrData.setUsePreallocatedLength(400);
+
 //! slpAhdsr
-const slpAhdsr = Content.addSliderPack("Ahdsr", 10, 100);
+const slpAhdsr = Content.addSliderPack("Ahdsr", 0, 0);
+slpAhdsr.showControl(false);
+slpAhdsr.referToData(slpAhdsrData);
+slpAhdsr.set("sliderAmount", 400);
 slpAhdsr.set("min", -100);
 slpAhdsr.set("max", 20000);
 slpAhdsr.set("stepSize", 0.01);
-slpAhdsr.set("width", 580);
-slpAhdsr.set("sliderAmount", knbAhdsr.length * knbArticulation.get("max"));
-slpAhdsr.showControl(false);
-
-const slpAhdsrData = Engine.createAndRegisterSliderPackData(0);
-slpAhdsr.referToData(slpAhdsrData);
 
 //! Functions
 inline function changeArticulation(index: number)
 {
-	if (btnMute.getValue() || !attributes.length)
+	if (!mods.length)
 		return;
+
+	knbArticulation.setValue(index);
 
 	for (i = 0; i < attributes.length; i++)
 	{
-		local value = slpAhdsr.getSliderValueAt(attributes.length * index + i);		
+		local value = slpAhdsr.getSliderValueAt(attributes.length * index + i);	
 		knbAhdsr[i].setValue(value);
-		knbAhdsr[i].changed();
+		setModuleProperty(i, value);
 	}
 }
 
-//! Broadcasters
-const bcArticulation = Engine.createBroadcaster({id: "bcArticulation", args: ["processor", "parameter", "value"]});
-bcArticulation.attachToModuleParameter("Interface", "knbArticulation", "");
-
-bcArticulation.addComponentValueListener("Articulation", "Listen for changes from Interface's articulation knob", function(index, processor, parameter, value)
+inline function setModuleProperty(knobIndex: number, value: number)
 {
-	return value;
-});
+	if (!mods.length)
+		return;
 
+	for (x in mods)
+		x.setAttribute(attributes[knobIndex], value);
+
+	if (isDefined(globalAhdsr) && isDefined(attributes[knobIndex]))
+		globalAhdsr.setAttribute(attributes[knobIndex], value);
+}
+
+inline function setSliderPackValue(knobIndex: number, value: number)
+{
+	if (btnLink.getValue())
+	{	
+		for (i = 0; i <= knbArticulation.get("max"); i++)
+		{
+			local index = i * attributes.length + knobIndex;
+			slpAhdsr.setSliderAtIndex(index, value);
+		}
+
+		return;
+	}
+
+	local index = knbArticulation.getValue() * attributes.length + knobIndex;
+	slpAhdsr.setSliderAtIndex(index, value);
+}
+
+inline function: Array createKnobs()
+{
+	local result = [];
+
+	local knobProperties = [
+		{
+			text: "Attack",
+			mode: "Time",
+			defaultValue: 2,
+		},
+		{
+			text: "Hold",
+			mode: "Time",
+			defaultValue: 10,
+		},
+		{
+			text: "Decay",
+			mode: "Time",
+			defaultValue: 300,
+		},
+		{
+			text: "Sustain",
+			mode: "Decibel",
+			defaultValue: -1,
+		},
+		{
+			text: "Release",
+			mode: "Time",
+			defaultValue: 5000,
+		},
+		{
+			text: "AttackLeve",
+			mode: "Decibel",
+			defaultValue: 0,
+		},
+		{
+			text: "AttackCurve",
+			mode: "NormalizedPercentage",
+			defaultValue: 0.5,
+		},
+		{
+			text: "DecayCurve",
+			mode: "NormalizedPercentage",
+			defaultValue: 1.0,
+		}
+	];
+
+	for (i = 0; i < knobProperties.length; i++)
+	{
+		local props = knobProperties[i];
+
+		local knob = Content.addKnob(props.text);
+		
+		props.x = 10 + ((i % 5) * (knob.getWidth() + 10));
+		props.y = Math.floor(i / 5) * (knob.getHeight() + 10);
+
+		Content.setPropertiesFromJSON(props.text, props);
+
+		knob.setControlCallback(onAhdsrControl);
+
+		result.push(knob);
+	}
+
+	return result;
+}
+
+inline function: Array getAttributeList()
+{
+	if (!mods.length)
+		return [];
+
+	return [mods[0].Attack, mods[0].Hold, mods[0].Decay, mods[0].Sustain, mods[0].Release, mods[0].AttackLevel, mods[0].AttackCurve, mods[0].DecayCurve];
+}
+
+//! Global Cables
+const gm = Engine.getGlobalRoutingManager();
+
+const gcPatch = gm.getCable("patch");
+gcPatch.setRange(-1, 100);
+
+const gcArticulation = gm.getCable("articulation");
+gcArticulation.setRange(-1, 100);
+
+gcArticulation.registerCallback(changeArticulation, SyncNotification);
 function onNoteOn()
 {
 	
