@@ -111,7 +111,9 @@ inline function getModulators(type: string)
 
 	for (x in lfoIds)
 	{
-		if (x.contains(type) && !x.contains("Random"))
+		local id = x.toLowerCase();
+
+		if (id.contains(type) && !id.contains("random"))
 			lfos.push(Synth.getModulator(x));
 	}
 
