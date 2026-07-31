@@ -21,22 +21,19 @@ namespace Envelope
 	
 	inline function: ScriptObject create(panelId: string, numArticulations: int, options: JSON)
 	{
-		if (!checkRequirements())
-			return {};
-
 		local panel = Content.getComponent(panelId);
 
 		//! pnlEnvelope
-		local pnlEnvelope = createEnvelopePanel();
-		
+		local pnlEnvelope = createEnvelopePanel(panel);
+
 		//! fltEnvelope
-		local fltEnvelope = createEnvelopeFloatingTile();
+		local fltEnvelope = createEnvelopeFloatingTile(pnlEnvelope);
 
 		//! pnlEnvelopeControls
 		local pnlEnvelopeControls = createEnvelopeControls(pnlEnvelope, options);
 
 		//! slpEnvelopeControls
-		local slpEnvelopeControls = createSliderPack(pnlEnvelopeControls, numArticulations);
+		local slpEnvelopeControls = createSliderPack(pnlEnvelopeControls, numArticulations, options);
 
 		pnlEnvelope.data.graph = fltEnvelope;
 		pnlEnvelope.data.controlPanel = pnlEnvelopeControls;
@@ -50,17 +47,17 @@ namespace Envelope
 		return pnlEnvelope;
 	}
 	
-	inline function: ScriptObject createEnvelopePanel()
+	inline function: ScriptObject createEnvelopePanel(parentPanel: ScriptObject)
 	{
 		local componentExists = Content.componentExists("pnlEnvelope");
 		local panel = Content.addPanel("pnlEnvelope");
-		
+
 		if (!componentExists)
 		{
 			Content.setPropertiesFromJSON("pnlEnvelope", {
-				width: panel.getWidth(),
-				height: panel.getHeight(),
-				parentComponent: panelId,
+				width: parentPanel.getWidth(),
+				height: parentPanel.getHeight(),
+				parentComponent: parentPanel.getId(),
 				text: "",
 				bgColour: 0x0,
 				itemColour: 0x0,
@@ -74,7 +71,7 @@ namespace Envelope
 		return panel;
 	}
 	
-	inline function: ScriptObject createEnvelopeFloatingTile()
+	inline function: ScriptObject createEnvelopeFloatingTile(parentPanel: ScriptObject)
 	{
 		local componentExists = Content.componentExists("fltEnvelope");
 		local tile = Content.addFloatingTile("fltEnvelope");
@@ -84,9 +81,9 @@ namespace Envelope
 			Content.setPropertiesFromJSON("fltEnvelope", {
 				x: 10,
 				y: 10,
-				width: pnlEnvelope.getWidth() - 20,
-				height: (pnlEnvelope.getHeight() / 2),
-				parentComponent: "pnlEnvelope",
+				width: parentPanel.getWidth() - 20,
+				height: (parentPanel.getHeight() / 2),
+				parentComponent: parentPanel.getId(),
 				ContentType: "AHDSRGraph",
 				Data: "{\n  \"ProcessorId\": \"globalAhdsr\",\n  \"Index\": -1,\n  \"FollowWorkspace\": false,\n}",
 				bgColour: 0x0,
@@ -114,7 +111,7 @@ namespace Envelope
 				y: parentPanel.getHeight() / 2 + 10,
 				width: parentPanel.getWidth(),
 				height: (parentPanel.getHeight() / 2),			
-				parentComponent: parentPanel.getId() - 10,
+				parentComponent: parentPanel.getId(),
 				text: "",
 				bgColour: 0x0,
 				itemColour: 0x0,
@@ -131,6 +128,7 @@ namespace Envelope
 		local knobProperties = [
 			{
 				text: "A",
+				parameter: "Attack",
 				mode: "Time",
 				defaultValue: 2,
 				middlePosition: 1000,
@@ -138,6 +136,7 @@ namespace Envelope
 			},
 			{
 				text: "H",
+				parameter: "Hold",
 				mode: "Time",
 				defaultValue: 10,
 				middlePosition: 1000,
@@ -145,6 +144,7 @@ namespace Envelope
 			},
 			{
 				text: "D",
+				parameter: "Decay",
 				mode: "Time",
 				defaultValue: 300,
 				middlePosition: 1000,
@@ -152,6 +152,7 @@ namespace Envelope
 			},
 			{
 				text: "S",
+				parameter: "Sustain",
 				mode: "Decibel",
 				defaultValue: -1,
 				middlePosition: -18,
@@ -160,6 +161,7 @@ namespace Envelope
 			},
 			{
 				text: "R",
+				parameter: "Release",
 				mode: "Time",
 				defaultValue: 5000,
 				middlePosition: 1000,
@@ -167,6 +169,7 @@ namespace Envelope
 			},
 			{
 				text: "Atk Level",
+				parameter: "AttackLevel",
 				mode: "Decibel",
 				defaultValue: 0,
 				middlePosition: -18,
@@ -175,6 +178,7 @@ namespace Envelope
 			},
 			{
 				text: "Atk Curve",
+				parameter: "AttackCurve",
 				mode: "NormalizedPercentage",
 				defaultValue: 0.5,
 				middlePosition: 0.5,
@@ -183,6 +187,7 @@ namespace Envelope
 			},
 			{
 				text: "Decay Curve",
+				parameter: "DecayCurve",
 				mode: "NormalizedPercentage",
 				defaultValue: 1.0,
 				middlePosition: 0.5,
@@ -194,6 +199,7 @@ namespace Envelope
 		if (!knbAhdsr.length)
 		{
 			local knobHeight = 90;
+			local knobWidth = 62;
 
 			if (isDefined(options.knobHeight) && options.knobHeight < knobHeight)
 				knobHeight = options.knobHeight;
@@ -210,12 +216,8 @@ namespace Envelope
 				props.height = knobHeight;
 				props.parentComponent = "pnlEnvelopeControls";
 				props.processorId = "ahdsrController";
-				props.parameterId = props.text.replace(" ");
-				props.pluginParameterName = props.parameterId;
-				props.bgColour = 0xff11111b;
-				props.itemColour = 0xff6c7086;
-				props.itemColour2 = 0x0;
-				props.textColour = 0xffcdd6f4;
+				props.parameterId = props.parameter;
+				props.pluginParameterName = props.parameter;
 				props.saveInPreset = true;
 
 				Content.setPropertiesFromJSON("knbAhdsr" + i, props);				
@@ -247,7 +249,7 @@ namespace Envelope
 		return panel;
 	}
 	
-	inline function: ScriptObject createSliderPack(parentPanel: ScriptObject, numArticulations: number)
+	inline function: ScriptObject createSliderPack(parentPanel: ScriptObject, numArticulations: number, options: JSON)
 	{
 		local componentExists = Content.componentExists("slpEnvelopeControls");
 		local sliderPack = Content.addSliderPack("slpEnvelopeControls", 0, 0);
@@ -270,6 +272,9 @@ namespace Envelope
 			stepSize: 0.01,
 			sliderAmount: 8 * numArticulations
 		});
+		
+		if (!isDefined(options.sliderPack))
+			return sliderPack;
 
 		return sliderPack;
 	}
@@ -280,20 +285,7 @@ namespace Envelope
 		{
 			local value = sliderPack.getSliderValueAt(knobs.length * index + i);
 			knobs[i].setValue(value);
-		}		
-	}
-	
-	inline function: number checkRequirements()
-	{
-		local msg = "";
-	
-		if (!isDefined(ComponentPack.create))
-			msg = "!ArticulationEnvelope.js requires ComponentPack.js";
-
-		if (msg != "")
-			Console.print(msg);
-
-		return msg == "";
+		}
 	}
 	
 	//! Look and Feel
@@ -314,12 +306,10 @@ namespace Envelope
 			return LookAndFeel.drawAhdsrPath();
 
 		var a = obj.area;
-		var fillColour = obj.itemColour2;
-		var pathColour = (isDefined(style.featureColour) && obj.itemColour == 0x0) ? style.featureColour : obj.itemColour;
-		var c = Colours.withMultipliedBrightness(fillColour, 0.5);
-		c = Colours.withMultipliedAlpha(c, obj.enabled ? 0.5 : 0.1);
-	
-		g.setGradientFill([c, a[2] / 2, a[1], Colours.withMultipliedAlpha(c, 0.2), a[2] / 2, a[3]]);
+		var pathColour = obj.itemColour;
+		var fillColour = Colours.withMultipliedAlpha(obj.itemColour2, obj.enabled ? 0.5 : 0.1);
+
+		g.setGradientFill([fillColour, a[2] / 2, a[1], Colours.withMultipliedAlpha(fillColour, 0.1), a[2] / 2, a[3]]);
 		
 		g.fillPath(obj.path, a);
 	
@@ -340,13 +330,10 @@ namespace Envelope
 
 		var a = Rectangle(obj.position[0] - 8, obj.position[1] - 8, 16, 16);
 
-		var colour = obj.itemColour3 == 0x0 ? obj.itemColour : obj.itemColour3;
-		colour = (isDefined(style.featureColour) && colour == 0x0) ? style.featureColour : colour;
-
-		g.setColour(Colours.withMultipliedAlpha(colour, 0.5));
+		g.setColour(Colours.withMultipliedAlpha(obj.itemColour3, 0.5));
 		g.fillEllipse(a);
 	
-		g.setColour(colour);
+		g.setColour(obj.itemColour3);
 		g.fillEllipse(a.reduced(3));
 	});
 	
