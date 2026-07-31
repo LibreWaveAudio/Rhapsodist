@@ -18,7 +18,7 @@
 namespace Header
 {
 	const style = CoreLookAndFeel.style;
-	const fonts = CoreLookAndFeel.fonts;
+	const fonts = style.fonts;
 
 	reg masterVolumeValue;
 	reg masterPanValue;
@@ -37,11 +37,11 @@ namespace Header
 		g.fillRect(a);
 		
 		var font = fonts.title;
-		var fontSize = 22 + fonts.titleSize;
+		var fontSize = fonts.titleSize;
 
 		g.setFont(font, fontSize);
 		g.setColour(this.get("textColour"));
-		g.drawAlignedText(this.get("text"), [a[0] + 40, a[1], a[2], a[3] + style.fonts.titleOffset], "left");
+		g.drawAlignedText(this.get("text"), [a[0] + 40, a[1], a[2], a[3] + fonts.titleOffset], "left");
 
 		g.setColour(this.get("itemColour2"));
 		g.drawHorizontalLine(a[3] - 1, a[0], a[2]);
@@ -64,7 +64,12 @@ namespace Header
 		var fontSize = 16 + fonts.size;
 
 		g.setFont(font, fontSize);
-		g.setColour(Colours.withMultipliedBrightness(obj.textColour, obj.hover || obj.clicked ? 1.0 : 0.8));
+		
+		if (style.mode == "dark")
+			g.setColour(Colours.withMultipliedBrightness(obj.textColour, obj.hover || obj.clicked ? 1.0 : 0.8));
+		else
+			g.setColour(Colours.withMultipliedBrightness(obj.textColour, obj.hover || obj.clicked ? 1.5 : 1.0));
+			
 		g.drawAlignedText(obj.text + " " + obj.valueAsText, obj.area, "left");
 	});
 	

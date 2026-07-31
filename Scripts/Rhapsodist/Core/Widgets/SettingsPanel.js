@@ -18,7 +18,7 @@
 namespace SettingsPanel
 {
 	const style = CoreLookAndFeel.style;
-	const fonts = CoreLookAndFeel.fonts;
+	const fonts = style.fonts;
 
 	inline function create(panelId: string, rowHeight: number, options: JSON)
 	{

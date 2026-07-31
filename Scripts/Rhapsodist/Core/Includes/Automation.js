@@ -17,7 +17,8 @@
 
 namespace Automation
 {
-	const fonts = CoreLookAndFeel.fonts;
+	const style = CoreLookAndFeel.style;
+	const fonts = style.fonts;
 	const mpeMods = [];
 	const mpeTableData = [];
 

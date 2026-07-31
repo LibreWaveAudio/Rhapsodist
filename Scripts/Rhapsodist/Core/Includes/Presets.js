@@ -18,7 +18,10 @@
 namespace Presets
 {
 	const style = CoreLookAndFeel.style;
-	const fonts = CoreLookAndFeel.fonts;
+	const fonts = style.fonts;
+
+	const automationDataFile = Expansions.getAppDataFolder().getChildFile("automation.xml");
+	const automationDefaults = Engine.createMidiAutomationHandler().getAutomationDataObject();
 
 	reg favouriteButtonState = false;
 	reg currentPresetFile;
@@ -70,7 +73,7 @@ namespace Presets
 		if (!isDefined(style.useNoise) || style.useNoise)
 			g.addNoise({alpha: 0.025, scaleFactor: 1.5, area: a, monochromatic: true});
 	});
-	
+
 	//! btnPresetBrowser
 	const btnPresetBrowser = Content.getComponent("btnPresetBrowser");
 	btnPresetBrowser.setControlCallback(onbtnPresetBrowserControl);
@@ -88,7 +91,15 @@ namespace Presets
 		var a = obj.area;
 
 		g.setFont("phosphor", 16);
-		g.setColour(Colours.withMultipliedBrightness(obj.textColour, obj.over ? 1.0 - 0.2 * obj.down : 0.8));
+
+		var c;
+		
+		if (style.mode == "dark")
+			c = Colours.withMultipliedBrightness(obj.textColour, obj.over ? 1.0 - 0.2 * obj.down : 0.7);
+		else
+			c = Colours.withMultipliedBrightness(obj.textColour, obj.over ? 1.5 + 0.5 * obj.down : 0.7);
+
+		g.setColour(c);		
 		g.drawAlignedText(obj.value ? "\ue13c" : "\ue136", [a[0] + 7, a[1], a[2], a[3]], "left");
 
 		var font = fonts.regular;
@@ -334,7 +345,15 @@ namespace Presets
 		local editIcons = ["\ue3d4", "\ue3b4", "\ue4a8"];
 
 		g.setFont("phosphor", 22);
-		g.setColour(Colours.withMultipliedBrightness(fltPresetBrowser.get("textColour"), obj.over ? 1.0 - 0.2 * obj.down : 0.8));
+		
+		local c;
+
+		if (style.mode == "dark")
+			c = Colours.withMultipliedBrightness(fltPresetBrowser.get("textColour"), obj.over ? 1.0 - 0.2 * obj.down : 0.8);
+		else
+			c = Colours.withMultipliedBrightness(fltPresetBrowser.get("textColour"), obj.over ? 1.5 + 0.5 * obj.down : 0.8);
+			
+		g.setColour(c);
 
 		if (editButtons.contains(obj.text))
 			return g.drawAlignedText(editIcons[editButtons.indexOf(obj.text)], a, "centred");

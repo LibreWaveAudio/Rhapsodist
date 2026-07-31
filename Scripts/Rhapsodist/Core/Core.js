@@ -23,7 +23,6 @@ namespace Core
 	Synth.deferCallbacks(true);
 	Engine.setAllowDuplicateSamples(false);
 	Engine.loadAudioFilesIntoPool();
-	Engine.loadImageIntoPool("Icon.png");
 	Content.setUseHighResolutionForPanels(true);
 
 	const samplers = getSamplers();
@@ -61,6 +60,7 @@ namespace Core
 
 //! Includes
 include("Rhapsodist/Core/Includes/CoreLookAndFeel.js");
+include("Rhapsodist/Core/Includes/StyleHandler.js");
 include("Rhapsodist/Core/Includes/ErrorManager.js");
 include("Rhapsodist/Core/Widgets/Container.js");
 include("Rhapsodist/Core/Widgets/SwitcherPanel.js");

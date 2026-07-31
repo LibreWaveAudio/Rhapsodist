@@ -18,7 +18,7 @@
 namespace ArticulationList
 {
 	const style = CoreLookAndFeel.style;
-	const fonts = CoreLookAndFeel.fonts;
+	const fonts = style.fonts;
 
 	inline function: object create(panelId: string, options: JSON)
 	{
@@ -39,11 +39,7 @@ namespace ArticulationList
 		{
 			Content.setPropertiesFromJSON("vptArticulationList", {
 				borderSize: 0,			
-				borderRadius: 2,
-				bgColour: 0xff1e1e2e,
-				itemColour: 0xffcdd6f4,
-				itemColour2: 0x0,
-				textColour: 0x0
+				borderRadius: 2
 			});
 		}
 
@@ -61,11 +57,7 @@ namespace ArticulationList
 		{
 			Content.setPropertiesFromJSON("pnlArticulationList", {
 				borderSize: 0,			
-				borderRadius: 2,
-				bgColour: 0xFF15171B,
-				itemColour: 0x545E6167,
-				itemColour2: 0x0,
-				textColour: 0xFFD7D8DA
+				borderRadius: 2
 			});
 		}
 

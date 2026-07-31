@@ -18,7 +18,7 @@
 namespace MicrotuningPanel
 {
 	const style = CoreLookAndFeel.style;
-	const fonts = CoreLookAndFeel.fonts;
+	const fonts = style.fonts;
 
 	inline function: ScriptObject create(panelId: string, options: JSON)
 	{

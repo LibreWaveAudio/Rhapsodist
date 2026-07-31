@@ -18,7 +18,7 @@
 namespace Tooltips
 {
 	const style = CoreLookAndFeel.style;
-	const fonts = CoreLookAndFeel.fonts;
+	const fonts = style.fonts;
 	const tooltipComponents = getComponents();
 	
 	//! pnlTooltip

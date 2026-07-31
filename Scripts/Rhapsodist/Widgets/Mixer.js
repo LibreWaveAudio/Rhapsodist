@@ -18,7 +18,7 @@
 namespace Mixer
 {
 	const style = CoreLookAndFeel.style;
-	const fonts = CoreLookAndFeel.fonts;
+	const fonts = style.fonts;
 
 	inline function: ScriptObject create(panelId: string, numChannels: int, options: JSON)
 	{
@@ -34,6 +34,8 @@ namespace Mixer
 				width: parent.getWidth(),
 				height: parent.getHeight(),
 				parentComponent: panelId,
+				borderSize: 0,
+				borderRadius: 0,
 				text: ""
 			});
 		}
@@ -92,8 +94,8 @@ namespace Mixer
 				y: 0,
 				height: parentPanel.getHeight(),
 				text: "Channel " + (index + 1),
-				itemColour: 0xff15191d,
-				textColour: 0xffd6dfe8
+				itemColour: parentPanel.get("itemColour"),
+				textColour: parentPanel.get("textColour")
 			});
 		}
 
@@ -143,10 +145,6 @@ namespace Mixer
 				processorId: "mixerHandler",
 				parameterId: "Pan" + index,
 				defaultValue: 0,
-				bgColour: 0xFF15171B,
-				itemColour: 0xFF292C30,
-				itemColour2: 0x0,
-				textColour: 0xFFD7D8DA,
 				showTextBox: false
 			});
 		}
@@ -181,10 +179,6 @@ namespace Mixer
 				parameterId: "Gain" + index,
 				defaultValue: 0,
 				showTextBox: false,
-				bgColour: 0xFF15171B,
-				itemColour: 0xFF292C30,
-				itemColour2: 0x0,
-				textColour: 0xFFD7D8DA,
 				stepSize: 1.0
 			});
 		}
@@ -226,10 +220,7 @@ namespace Mixer
 				parentComponent: parentPanel.getId(),
 				ContentType: "MatrixPeakMeter",
 				Data: "{\n  \"ProcessorId\": \"" + "mixerGain" + index + "\",\n  \"Index\": -1,\n  \"FollowWorkspace\": false,\n  \"SegmentLedSize\": 0.0,\n  \"UpDecayTime\": 200.0,\n  \"DownDecayTime\": 500.0,\n  \"UseSourceChannels\": false,\n  \"SkewFactor\": 0.2,\n  \"PaddingSize\": 0.5,\n  \"ShowMaxPeak\": true,\n  \"ChannelIndexes\": [" + channelIndexes.join(",") + "]\n}",
-				saveInPreset: false,
-				bgColour: 0xfe15171b,
-				itemColour2: 0x0,
-				textColour: 0xffbfbfbf
+				saveInPreset: false
 			});
 		}
 		
@@ -258,7 +249,6 @@ namespace Mixer
 			Content.setPropertiesFromJSON(id, {
 				height: 28,
 				defaultValue: 0,
-				textColour: 0xffd7d8da,
 				stepSize: 1.0
 			});
 		}
@@ -293,9 +283,7 @@ namespace Mixer
 				text: "Purge/Load",
 				tooltip: "Purge or load this channel's samples.",
 				processorId: "mixerHandler",
-				parameterId: "Purge" + index,
-				itemColour: 0xffd7d8da,
-				itemColour2: 0xffc9c9c9
+				parameterId: "Purge" + index
 			});
 		}
 
@@ -342,9 +330,7 @@ namespace Mixer
 					text: i == 0 ? "M" : "S",
 					tooltip: name + " this channel.",
 					processorId: "mixerHandler",
-					parameterId: i == 0 ? "Mute" + index : "Solo" + index,
-					itemColour: 0xffd7d8da,
-					textColour: 0xffd7d8da
+					parameterId: i == 0 ? "Mute" + index : "Solo" + index
 				});
 			}
 
@@ -388,9 +374,7 @@ namespace Mixer
 				text: "Output",
 				tooltip: "Set the channel's output.",
 				processorId: "mixerHandler",
-				parameterId: "Output" + index,
-				bgColour: 0xff15171b,
-				textColour: 0xffd7d8da
+				parameterId: "Output" + index
 			});
 		}
 

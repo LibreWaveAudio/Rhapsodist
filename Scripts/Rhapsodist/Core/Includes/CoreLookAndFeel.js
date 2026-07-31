@@ -22,21 +22,13 @@ namespace CoreLookAndFeel
 	Engine.loadFontAs("{PROJECT_FOLDER}Fonts/Rhapsodist/Text/AtkinsonHyperlegibleMono-SemiBold.ttf", "monoSemiBold");
 	Engine.loadFontAs("{PROJECT_FOLDER}Fonts/Rhapsodist/Text/AtkinsonHyperlegibleMono-Bold.ttf", "monoBold");
 	Engine.loadFontAs("{PROJECT_FOLDER}Fonts/Rhapsodist/Icons/Phosphor.ttf", "phosphor");
+	Engine.loadFontAs("{PROJECT_FOLDER}Fonts/Rhapsodist/Icons/Phosphor-Thin.ttf", "phosphorThin");
+	Engine.loadFontAs("{PROJECT_FOLDER}Fonts/Rhapsodist/Icons/Phosphor-Light.ttf", "phosphorLight");
 	Engine.loadFontAs("{PROJECT_FOLDER}Fonts/Rhapsodist/Icons/Phosphor-Bold.ttf", "phosphorBold");
 	Engine.loadFontAs("{PROJECT_FOLDER}Fonts/Rhapsodist/Icons/Phosphor-Fill.ttf", "phosphorFill");
 	Engine.loadFontAs("{PROJECT_FOLDER}Fonts/Rhapsodist/Icons/fontaudio.ttf", "fontaudio");	
 
-	const style = isDefined(LookAndFeel.style) ? LookAndFeel.style : {useNoise: true, featureColour: 0xFFDFC69F};
-
-	const fonts = {
-		regular: isDefined(style.fonts.regular) ? style.fonts.regular : "monoRegular",
-		medium: isDefined(style.fonts.medium) ? style.fonts.medium : "monoMedium",
-		semibold: isDefined(style.fonts.semibold) ? style.fonts.semibold : "monoSemiBold",
-		bold: isDefined(style.fonts.bold) ? style.fonts.bold : "monoBold",
-		title: isDefined(style.fonts.title) ? style.fonts.title : "monoMedium",
-		size: isDefined(style.fonts.size) ? style.fonts.size : 0,
-		titleSize: isDefined(style.fonts.titleSize) ? style.fonts.titleSize : 0
-	};	
+	const style = {};
 
     // empty
 	const empty = Content.createLocalLookAndFeel();	
@@ -70,7 +62,7 @@ namespace CoreLookAndFeel
 		g.setColour(Colours.withAlpha(itemColour, 0.8));
 		g.drawRoundedRectangle(a.reduced(0.5), 2, 1);
 		
-		g.setFont(fonts.bold, 14 + fonts.fontSize);
+		g.setFont(style.fonts.bold, 14 + style.fonts.fontSize);
 		g.setColour(textColour);
 		g.drawAlignedText(obj.macroIndex + 1, a.translated(0, -0.3), "centred");
 	}
@@ -87,18 +79,18 @@ namespace CoreLookAndFeel
 			return LookAndFeel.drawAlertWindow();
 
 		local a = obj.area.expanded(20);
-		local titleFont = fonts.semibold;
-		local titleFontSize = 24 + fonts.size;
-		local font = fonts.regular;
-		local fontSize = 20 + fonts.size;
-		local bgColour = isDefined(style.alertWindow.bgColour) ? style.alertWindow.bgColour : 0xff2a2d32;
-		local itemColour = isDefined(style.alertWindow.itemColour) ? style.alertWindow.itemColour : 0xff202428;
-		local itemColour2 = isDefined(style.alertWindow.itemColour2) ? style.alertWindow.itemColour2 : 0x55d7d8da;
-		local itemColour3 = isDefined(style.alertWindow.itemColour3) ? style.alertWindow.itemColour3 : 0xff15191d;
-		local textColour = isDefined(style.alertWindow.textColour) ? style.alertWindow.textColour : 0xffd7d8da;
-		local radius = isDefined(style.alertWindow.borderRadius) ? style.alertWindow.borderRadius : 2;
-		local borderSize = isDefined(style.alertWindow.borderSize) ? style.alertWindow.borderSize : 1;
-		local labelRadius = isDefined(style.alertWindow.labelRadius) ? style.alertWindow.labelRadius : 2;
+		local titleFont = style.fonts.semibold;
+		local titleFontSize = 24 + style.fonts.size;
+		local font = style.fonts.regular;
+		local fontSize = 20 + style.fonts.size;
+		local bgColour = style.alertWindow.bgColour;
+		local itemColour = style.alertWindow.itemColour;
+		local itemColour2 = style.alertWindow.itemColour2;
+		local itemColour3 = style.alertWindow.itemColour3;
+		local textColour = style.alertWindow.textColour;
+		local radius = style.alertWindow.borderRadius;
+		local borderSize = style.alertWindow.borderSize;
+		local labelRadius = style.alertWindow.labelRadius;
 		local hasLabel = isDefined(obj.labelArea) && obj.labelArea[0] != 0;
 
 		g.drawDropShadow(a, Colours.withAlpha(Colours.black, 0.5), 20);
@@ -148,10 +140,10 @@ namespace CoreLookAndFeel
 		if (isDefined(LookAndFeel.getAlertWindowMarkdownStyleData))
 			return LookAndFeel.getAlertWindowMarkdownStyleData();
 
-		obj.headlineFont = fonts.medium;
-		obj.font = fonts.regular;
-		obj.fontSize = 22 + fonts.size;
-		obj.textColour = isDefined(style.alertWindow.textColour) ? style.alertWindow.textColour : 0xffd7d8da;
+		obj.headlineFont = style.fonts.medium;
+		obj.font = style.fonts.regular;
+		obj.fontSize = 22 + style.fonts.size;
+		obj.textColour = style.alertWindow.textColour;
 		return obj;
 	}
 	
@@ -167,7 +159,7 @@ namespace CoreLookAndFeel
 
 		local a = obj.area;
 		local icons = {"Info": "\ue2ce", "Warning": "\ue4e0", "Question": "\ue3e8", "Error": "\ue7fc"};
-		local textColour = isDefined(style.alertWindow.textColour) ? style.alertWindow.textColour : 0xffd7d8da;
+		local textColour = style.alertWindow.textColour;
 
 		g.setFont("phosphor", 42);
 		g.setColour(Colours.withAlpha(textColour, 0.8));
@@ -187,11 +179,11 @@ namespace CoreLookAndFeel
 
 		local a = obj.area;
 		local text = obj.text;
-		local bgColour = isDefined(style.alertWindow.itemColour) ? style.alertWindow.itemColour : 0xff202428;
-		local textColour = isDefined(style.alertWindow.textColour) ? style.alertWindow.textColour : 0xffd7d8da;
-		local font = fonts.medium;
-		local fontSize = 18 + fonts.size;
-		local radius = isDefined(style.alertWindow.buttonRadius) ? style.alertWindow.buttonRadius : 2;
+		local bgColour = style.alertWindow.itemColour;
+		local textColour = style.alertWindow.textColour;
+		local font = style.fonts.medium;
+		local fontSize = 18 + style.fonts.size;
+		local radius = style.alertWindow.buttonRadius;
 		
 		if (["Exit", "Overwrite Preset"].contains(obj.parentName))
 			text = obj.text == "OK" ? "Yes" : "No";
@@ -202,7 +194,14 @@ namespace CoreLookAndFeel
 		g.setColour(Colours.withAlpha(Colours.black, 0.7));
 		g.drawRoundedRectangle([a[0] + 0.25, a[1] + 0.25, a[2] - 0.5, a[3] - 0.5], radius, 1);
 
-		g.setColour(Colours.withMultipliedBrightness(textColour, 1.0 + obj.over - 0.2 * obj.down));
+		local c;
+
+		if (style.mode == "dark")
+			c = Colours.withMultipliedBrightness(textColour, obj.over ? 1.0 - 0.2 * obj.down : 0.8);
+		else
+			c = Colours.withMultipliedBrightness(textColour, obj.over ? 1.5 + 0.5 * obj.down : 0.8);
+
+		g.setColour(c);		
 		g.setFont(font, fontSize);
 		g.drawAlignedText(text.toUpperCase(), a, "centred");
 	}
@@ -214,15 +213,14 @@ namespace CoreLookAndFeel
 	{
 		drawMatrixPeakMeter();
 	});
-		
+
 	inline function drawMatrixPeakMeter()
 	{
 		if (isDefined(LookAndFeel.drawMatrixPeakMeter))
 			return LookAndFeel.drawMatrixPeakMeter();
 
 		local a = obj.area;
-		local featureColour = (isDefined(style.featureColour) && obj.itemColour2 == 0x0) ? style.featureColour : obj.itemColour2;
-		local radius = isDefined(style.peakMeter.radius) ? style.peakMeter.radius : 1;
+		local radius = style.peakMeter.radius;
 		local peaks = [];
 		local maxPeaks = [];
 
@@ -251,7 +249,7 @@ namespace CoreLookAndFeel
 			else
 				g.fillRoundedRectangle([a[0], a[3] / 2 * i + (0.5 * i), a[2] * peaks[i], (a[3] - 1) / 2], radius);				
 
-			g.setColour(featureColour);
+			g.setColour(obj.itemColour2);
 
 			if (maxPeaks[i] == 0)
 				continue;
@@ -325,16 +323,13 @@ namespace CoreLookAndFeel
 	inline function drawTablePath()
 	{
 		if (isDefined(LookAndFeel.drawTablePath))
-			return LookAndFeel.drawTablePath(properties);
+			return LookAndFeel.drawTablePath();
 
 		local a = obj.area;
-		local fillColour = obj.itemColour2;
-		local pathColour = (isDefined(style.featureColour) && obj.bgColour == 0x0) ? style.featureColour : obj.bgColour;
+		local pathColour = obj.bgColour;
+		local fillColour = Colours.withMultipliedAlpha(obj.itemColour2, obj.enabled ? 0.5 : 0.1);
 
-		local c = Colours.withMultipliedBrightness(fillColour, 0.5);
-		c = Colours.withMultipliedAlpha(c, obj.enabled ? 0.5 : 0.1);
-
-		g.setGradientFill([c, a[2] / 2, a[1], Colours.withMultipliedAlpha(c, 0.2), a[2] / 2, a[3]]);
+		g.setGradientFill([fillColour, a[2] / 2, a[1], Colours.withMultipliedAlpha(fillColour, 0.3), a[2] / 2, a[3]]);
 		g.fillPath(obj.path, a);
 
 		g.setColour(pathColour);
@@ -349,10 +344,10 @@ namespace CoreLookAndFeel
 	inline function drawTablePoint()
 	{
 		if (isDefined(LookAndFeel.drawTablePoint))
-			return LookAndFeel.drawTablePoint(properties);
+			return LookAndFeel.drawTablePoint();
 
 		local a = obj.tablePoint;
-		local colour = (isDefined(style.featureColour) && obj.bgColour == 0x0) ? style.featureColour : obj.bgColour;
+		local colour = style.table.pointColour;
 
 		g.setColour(Colours.withMultipliedAlpha(colour, obj.hover ? 0.7 : 0.4));
 		g.fillEllipse(a);
@@ -369,15 +364,14 @@ namespace CoreLookAndFeel
 	inline function drawTableRuler()
 	{
 		if (isDefined(LookAndFeel.drawTableRuler))
-			return LookAndFeel.drawTableRuler(properties);
+			return LookAndFeel.drawTableRuler();
 
 		local x = obj.position * obj.area[2];
-		local colour = (isDefined(style.featureColour) && obj.bgColour == 0x0) ? style.featureColour : obj.bgColour;
 
-		g.setColour(Colours.withAlpha(colour, 0.1));	       
+		g.setColour(Colours.withAlpha(style.table.rulerColour, 0.1));	       
 		g.drawLine(x, x, 0, obj.area[3], 10.0);
 
-		g.setColour(Colours.withAlpha(colour, 0.8));
+		g.setColour(Colours.withAlpha(style.table.rulerColour, 0.8));
 		g.drawLine(x, x, 0, obj.area[3], 0.6);
 	}
 	
@@ -430,8 +424,8 @@ namespace CoreLookAndFeel
 			return LookAndFeel.drawTableHeaderColumn();
 
 		local a = obj.area;
-		local font = fonts.semibold;
-		local fontSize = 16 + fonts.size;
+		local font = style.fonts.semibold;
+		local fontSize = 16 + style.fonts.size;
 		local text = obj.text.replace(" #").replace("Inverted", "Invert").replace("Source", "Macro");
 	
 		g.setColour(obj.textColour);
@@ -473,8 +467,8 @@ namespace CoreLookAndFeel
 			return LookAndFeel.drawTableCell();
 	
 		local a = obj.area;
-		local font = fonts.regular;
-		local fontSize = 16 + fonts.size;
+		local font = style.fonts.regular;
+		local fontSize = 16 + style.fonts.size;
 		local text = obj.text.replace("Macro ").replace("MPE").toLowerCase().capitalize().trim();
 		
 		g.setFont(font, fontSize);
@@ -493,8 +487,8 @@ namespace CoreLookAndFeel
 			return LookAndFeel.drawTableLinearSlider();
 	
 		local a = obj.area;
-		local font = fonts.regular;
-		local fontSize = 16 + fonts.size;
+		local font = style.fonts.regular;
+		local fontSize = 16 + style.fonts.size;
 
 		g.setColour(Colours.withMultipliedBrightness(obj.itemColour1, 0.8));
 		g.fillRoundedRectangle(a.reduced(2, 3), 2);
@@ -534,8 +528,8 @@ namespace CoreLookAndFeel
 			return LookAndFeel.drawTableComboBox();
 	
 		local a = obj.area;
-		local font = fonts.regular;
-		local fontSize = 16 + fonts.size;
+		local font = style.fonts.regular;
+		local fontSize = 16 + style.fonts.size;
 		local textColour = 0xffd7d8da;		
 	
 		if (obj.text == "Polyphonic")
@@ -581,10 +575,10 @@ namespace CoreLookAndFeel
 		local bgColour = obj.bgColour;
 		local itemColour = obj.itemColour1;
 		local textColour = obj.textColour;
-		local font = fonts.regular;
-		local fontSize = 16 + fonts.size;
-		local radius = isDefined(style.inputBox.borderRadius) ? style.inputBox.borderRadius : 2;
-		local borderSize = isDefined(style.inputBox.borderSize) ? style.inputBox.borderSize : 0;
+		local font = style.fonts.regular;
+		local fontSize = 16 + style.fonts.size;
+		local radius = style.inputBox.borderRadius;
+		local borderSize = style.inputBox.borderSize;
 	
 		g.setColour(Colours.withAlpha(bgColour, obj.enabled ? 1.0 : 0.5));
 		g.fillRoundedRectangle(a, radius);
@@ -635,17 +629,17 @@ namespace CoreLookAndFeel
 			return LookAndFeel.drawPopupMenuBackground();
 
 		local a = obj.area;
-		local bgColour = isDefined(style.popupMenu.bgColour) ? style.popupMenu.bgColour : 0xff202428;
-		local borderColour = isDefined(style.popupMenu.itemColour) ? style.popupMenu.itemColour : 0x77d7d8da;
-		local borderSize = isDefined(style.popupMenu.borderSize) ? style.popupMenu.borderSize : 1;
-		local borderRadius = isDefined(style.popupMenu.borderRadius) ? style.popupMenu.borderRadius : 2;
-	
+		local bgColour = style.popupMenu.bgColour;
+		local borderColour = style.popupMenu.itemColour;
+		local borderSize = style.popupMenu.borderSize;
+		local borderRadius = style.popupMenu.borderRadius;
+
 		g.setColour(bgColour);
 		g.fillRoundedRectangle(a, borderRadius);
-	
+
 		if (!isDefined(style.useNoise) || style.useNoise)
 			g.addNoise({alpha: 0.025, scaleFactor: 1.5, area: a, monochromatic: true});
-	
+
 		if (borderSize == 0)
 			return;
 	
@@ -672,17 +666,17 @@ namespace CoreLookAndFeel
 		local hasIcon = obj.text.startsWith("e");
 		local icon = obj.text.substring(0, obj.text.indexOf("-"));
 		local text = obj.text.replace(icon + "-");	
-		local itemColour2 = isDefined(style.popupMenu.itemColour2) ? style.popupMenu.itemColour2 : 0x995E6167;
-		local textColour = isDefined(style.popupMenu.textColour) ? style.popupMenu.textColour : 0xffd7d8da;
-		local textOffsetY = isDefined(style.popupMenu.textOffsetY) ? style.popupMenu.textOffsetY : 0;
-		local font = fonts.regular;
-		local fontSize = 18 + fonts.size;
-		local iconFont = isDefined(style.popupMenu.iconFont) ? style.popupMenu.iconFont : "phosphorFill";
-		local iconFontSize = isDefined(style.popupMenu.iconFontSize) ? style.popupMenu.iconFontSize : 22;
-		local subMenuIcon = isDefined(style.popupMenu.subMenuIcon) ? style.popupMenu.subMenuIcon : "e13a";
-		local subMenuIconFont = isDefined(style.popupMenu.subMenuIconFont) ? style.popupMenu.subMenuIconFont : "phosphor";
-		local subMenuIconFontSize = isDefined(style.popupMenu.subMenuIconFontSize) ? style.popupMenu.subMenuIconFontSize : 16;
-		local radius = isDefined(style.popupMenu.itemRadius) ? style.popupMenu.itemRadius : 2;
+		local itemColour2 = style.popupMenu.itemColour2;
+		local textColour = style.popupMenu.textColour;
+		local textOffsetY = style.popupMenu.textOffsetY;
+		local font = style.fonts.regular;
+		local fontSize = 18 + style.fonts.size;
+		local iconFont = style.popupMenu.iconFont;
+		local iconFontSize = style.popupMenu.iconFontSize;
+		local subMenuIcon = style.popupMenu.subMenuIcon;
+		local subMenuIconFont = style.popupMenu.subMenuIconFont;
+		local subMenuIconFontSize = style.popupMenu.subMenuIconFontSize;
+		local radius = style.popupMenu.itemRadius;
 	
 		if (obj.isSeparator)
 		{
@@ -757,9 +751,9 @@ namespace CoreLookAndFeel
 		local a = obj.area;
 		local ha = obj.handle;
 		local w = a[2] > 10 ? 10 : a[2];
-		local radius = isDefined(style.scrollbar.radius) ? style.scrollbar.radius : 1;
-		local bgColour = isDefined(obj.bgColour) ? obj.bgColour : 0xff15171b;
-		local itemColour = isDefined(obj.itemColour) ? obj.itemColour : 0xffd7d8da;
+		local radius = style.scrollbar.radius;
+		local bgColour = isDefined(obj.bgColour) ? obj.bgColour : style.scrollbar.bgColour;
+		local itemColour = isDefined(obj.itemColour) ? obj.itemColour : style.scrollbar.itemColour;
 
 		g.setColour(bgColour);
 		g.fillRoundedRectangle([a[2] - w + 2, a[1], w - 4, a[3]], radius + 1);
@@ -793,11 +787,10 @@ namespace CoreLookAndFeel
 			return LookAndFeel.drawBigKnob();
 
 		local a = Rectangle(obj.area[0], obj.area[1], obj.area[2], obj.area[2]).reduced(14);
-		local valueFont = fonts.regular;
-		local valueFontSize = 18 + fonts.size;
-		local labelFont = fonts.medium;
-		local labelFontSize = 18 + fonts.size;
-		local featureColour = (isDefined(style.featureColour) && obj.itemColour2 == 0x0) ? style.featureColour : obj.itemColour2;
+		local valueFont = style.fonts.regular;
+		local valueFontSize = 18 + style.fonts.size;
+		local labelFont = style.fonts.medium;
+		local labelFontSize = 18 + style.fonts.size;
 		local thickness = 4;	
 		local offset = 2.4;
 		local endOffset = -offset + 2 * offset * obj.valueNormalized;
@@ -813,7 +806,7 @@ namespace CoreLookAndFeel
 		pathArea[0] += obj.area[2] / 2 - diameter / 2;
 		pathArea[1] += obj.area[1] + thickness / 2;
 
-		g.setColour(obj.bgColour);
+		g.setColour(Colours.withMultipliedAlpha(obj.bgColour, obj.enabled ? 1.0 : 0.5));
 		g.drawPath(p, pathArea, strokeStyle);
 
 		p = Content.createPath();
@@ -823,30 +816,40 @@ namespace CoreLookAndFeel
 		pathArea[0] += obj.area[2] / 2 - diameter / 2;
 		pathArea[1] += obj.area[1] + thickness / 2;
 
-		local c = Colours.withMultipliedBrightness(featureColour, obj.hover ? 1.1 - 0.1 * obj.clicked : 1.0);
+		local c;
+		
+		if (style.mode == "dark")
+			c = Colours.withMultipliedBrightness(obj.itemColour2, (obj.hover || obj.clicked) ? 1.1 - 0.1 * obj.clicked : 1.0);
+		else
+			c = Colours.withMultipliedBrightness(obj.itemColour2, (obj.hover || obj.clicked) ? 1.3 + 0.1 * obj.clicked : 1.0);
 
-		g.setColour(Colours.withMultipliedAlpha(c, obj.enabled ? 1.0 : 0.7));
+		g.setColour(Colours.withAlpha(c, obj.enabled ? 1.0 : 0.5));
 		g.drawPath(p, pathArea, strokeStyle);
 
 		// Shadow
 		local shadowPath = Content.createPath();
 		shadowPath.addEllipse(a);
+		g.drawDropShadowFromPath(shadowPath, a, Colours.withAlpha(Colours.black, obj.enabled ? 0.6 : style.mode == "dark" ? 0.3 : 0.1), 10, [0, 10]);
 
-		g.drawDropShadowFromPath(shadowPath, a, Colours.withAlpha(Colours.black, obj.enabled ? 0.5 : 0.2), 10, [0, 12]);
-
-		// Body
-		c = Colours.withMultipliedBrightness(obj.itemColour1, obj.enabled ? (obj.hover ? 1.1 - 0.1 * obj.clicked : 1.0) : 0.9);
-		g.setGradientFill([c, a[0] + a[2] / 2, a[1], Colours.withMultipliedBrightness(c, 0.8), a[0] + a[2] / 2, a[1] + a[3]]);
+		// Body		
+		if (style.mode == "dark")		
+			c = Colours.withMultipliedBrightness(obj.itemColour1, (obj.hover || obj.clicked) ? 1.2 - 0.1 * obj.clicked : 1.0);
+		else
+			c = Colours.withMultipliedBrightness(obj.itemColour1, (obj.hover || obj.clicked) ? 1.5 - 0.2 * obj.clicked : 1.0);
+			
+		g.setGradientFill([c, a[2] / 2, a[1], Colours.withMultipliedBrightness(c, 0.8), a[2] / 2, a[3]]);
 		g.fillEllipse(a);
-
+		
 		// Highlight
-		c = Colours.withMultipliedBrightness(obj.itemColour1, obj.enabled ? 1.5 : 1.1);
+		c = Colours.withMultipliedBrightness(obj.itemColour1, 1.5);
 		g.setGradientFill([c, a[0] + a[2] / 2, a[1], 0x0, a[0] + a[2] / 2, a[1] + a[3]]);
-		g.drawEllipse(a, 2);
 
+		if (obj.enabled)
+			g.drawEllipse(a, 2);
+		
 		// Value
-		g.setFont(valueFont, valueFontSize);
-		g.setColour(Colours.withAlpha(obj.textColour, obj.enabled ? 1.0 : 0.5));
+		g.setFont(valueFont, valueFontSize);		
+		g.setColour(Colours.withAlpha(obj.textColour, obj.enabled ? 1.0 : style.mode == "dark" ? 0.8 : 0.6));
 		g.drawAlignedText(Math.round(obj.valueNormalized * 100), a, "centred");
 
 		// Label
@@ -871,18 +874,18 @@ namespace CoreLookAndFeel
 
 		local a = Rectangle(obj.area[0], obj.area[1], obj.area[2], obj.area[2]).reduced(16);
 		local arcArea = a.expanded(7);
+		local labelBelow = obj.text.startsWith("[") && obj.text.endsWith("]");
 
-		if (obj.text != "")
+		if (obj.text != "" && !labelBelow)
 		{
 			a.setPosition(a[0], obj.area[3] / 2 - a[3] / 2);
 			arcArea.setPosition(arcArea[0], obj.area[3] / 2 - arcArea[3] / 2);			
 		}
 		
-		local valueFont = fonts.regular;
-		local valueFontSize = 16 + fonts.size;
-		local labelFont = fonts.medium;
-		local labelFontSize = 18 + fonts.size;
-		local featureColour = (isDefined(style.featureColour) && obj.itemColour2 == 0x0) ? style.featureColour : obj.itemColour2;
+		local valueFont = style.fonts.regular;
+		local valueFontSize = 16 + style.fonts.size;
+		local labelFont = style.fonts.medium;
+		local labelFontSize = 18 + style.fonts.size;
 		local thickness = 3;
 		local offset = 2.4;
 		local endOffset = -offset + 2 * offset * obj.valueNormalized;
@@ -907,21 +910,30 @@ namespace CoreLookAndFeel
 		pathArea = p.getBounds(diameter);
 		pathArea[0] += arcArea[0] + arcArea[2] / 2 - diameter / 2;
 		pathArea[1] += arcArea[1] + thickness / 2;
+		
+		local c;
 
-		local c = Colours.withMultipliedBrightness(featureColour, obj.hover ? 1.1 - 0.1 * obj.clicked : 1.0);
-		g.setColour(Colours.withMultipliedAlpha(c, obj.enabled ? 1.0 : 0.5));
-
+		if (style.mode == "dark")
+			c = Colours.withMultipliedBrightness(obj.itemColour2, (obj.hover || obj.clicked) ? 1.1 - 0.1 * obj.clicked : 1.0);
+		else
+			c = Colours.withMultipliedBrightness(obj.itemColour2, (obj.hover || obj.clicked) ? 1.3 + 0.1 * obj.clicked : 1.0);
+		
+		g.setColour(Colours.withAlpha(c, obj.enabled ? 1.0 : 0.5));
 		g.drawPath(p, pathArea, strokeStyle);
 			
 		// Shadow
 		local shadowPath = Content.createPath();
 		shadowPath.addEllipse(a);
-		
+
 		if (obj.enabled)
 			g.drawDropShadowFromPath(shadowPath, a, Colours.withAlpha(Colours.black, 0.7), 8, [0, 6]);
 
 		// Body		
-		c = Colours.withMultipliedBrightness(obj.itemColour1, obj.enabled ? (obj.hover ? 1.2 - 0.1 * obj.clicked : 1.1) : 0.8);
+		if (style.mode == "dark")		
+			c = Colours.withMultipliedBrightness(obj.itemColour1, (obj.hover || obj.clicked) ? 1.2 - 0.1 * obj.clicked : 1.0);
+		else
+			c = Colours.withMultipliedBrightness(obj.itemColour1, (obj.hover || obj.clicked) ? 1.5 - 0.2 * obj.clicked : 1.0);
+			
 		g.setGradientFill([c, a[0] + a[2] / 2, a[1], Colours.withMultipliedBrightness(c, 0.8), a[0] + a[2] / 2, a[1] + a[3] / 1.2]);
 		g.fillEllipse(a);
 		
@@ -929,16 +941,22 @@ namespace CoreLookAndFeel
 		c = Colours.withMultipliedBrightness(obj.itemColour1, obj.enabled ? 1.5 : 1.0);
 		g.setGradientFill([c, a[0] + a[2] / 2, a[1], 0x0, a[0] + a[2] / 2, a[1] + a[3]]);
 		g.drawEllipse(a, 1);
-		
+
 		// Value
 		g.setFont(valueFont, valueFontSize);
-		g.setColour(Colours.withAlpha(obj.textColour, obj.enabled ? 1.0 : 0.5));
-		g.drawAlignedText(obj.valueAsText.replace(" "), obj.area, "centredBottom");
+		g.setColour(Colours.withAlpha(obj.textColour, obj.enabled ? 1.0 : 0.6));
+		
+		if (!labelBelow || (labelBelow && obj.hover))
+			g.drawAlignedText(obj.valueAsText.replace(" "), obj.area, "centredBottom");
 		
 		// Label
 		g.setFont(labelFont, labelFontSize);
-		g.setColour(Colours.withAlpha(obj.textColour, obj.enabled ? 1.0 : 0.5));
-		g.drawAlignedText(obj.text, obj.area.translated(0, -2), "centredTop");
+		g.setColour(Colours.withAlpha(obj.textColour, obj.enabled ? 1.0 : 0.5));		
+				
+		if (!labelBelow)
+			g.drawAlignedText(obj.text, obj.area.translated(0, -2), "centredTop");
+		else if (!obj.hover)
+			g.drawAlignedText(obj.text.replace("[").replace("]"), obj.area, "centredBottom");
 			
 		// Value indicator
 		g.rotate(endOffset, [a[0] + a[2] / 2, a[1] + a[2] / 2]);
@@ -981,11 +999,10 @@ namespace CoreLookAndFeel
 		local isBidirectional = -1.0 * obj.min == obj.max;
 		local thickness = 4;
 		local radius = 1;
-		local valueFont = fonts.regular;
-		local valueFontSize = 16 + fonts.size;
-		local labelFont = fonts.medium;
-		local labelFontSize = 16 + fonts.size;
-		local featureColour = (isDefined(style.featureColour) && obj.itemColour2 == 0x0) ? style.featureColour : obj.itemColour2;
+		local valueFont = style.fonts.regular;
+		local valueFontSize = 16 + style.fonts.size;
+		local labelFont = style.fonts.medium;
+		local labelFontSize = 16 + style.fonts.size;
 
 		local v = obj.valueNormalized;
 		local x = a[0];
@@ -1001,7 +1018,7 @@ namespace CoreLookAndFeel
 		g.setColour(obj.bgColour);
 		g.fillRoundedRectangle([a[0], y, a[2], thickness], radius);
 
-		local c = Colours.withMultipliedBrightness(featureColour, obj.hover ? 1.1 - 0.1 * obj.clicked : 1.0);
+		local c = Colours.withMultipliedBrightness(obj.itemColour2, obj.hover ? 1.1 - 0.1 * obj.clicked : 1.0);
 		g.setColour(Colours.withMultipliedAlpha(c, obj.enabled ? 1.0 : 0.5));
 		g.fillRoundedRectangle([x, y, w, thickness], 1);
 				
@@ -1029,7 +1046,6 @@ namespace CoreLookAndFeel
 			return LookAndFeel.drawVerticalSlider();
 
 		local a = Rectangle(obj.area[2] / 2 - 4 / 2, obj.area[1], 4, obj.area[3]);
-		local featureColour = (isDefined(style.featureColour) && obj.itemColour2 == 0x0) ? style.featureColour : obj.itemColour2;
 		local radius = 1;
 
 		g.setColour(obj.bgColour);
@@ -1039,7 +1055,7 @@ namespace CoreLookAndFeel
 		local h = a[3] * v;
 		local y = a[3] - a[3] * v;
 
-		local c = Colours.withMultipliedBrightness(featureColour, obj.hover ? 1.1 - 0.1 * obj.clicked : 1.0);
+		local c = Colours.withMultipliedBrightness(obj.itemColour2, obj.hover ? 1.1 - 0.1 * obj.clicked : 1.0);
 		g.setColour(Colours.withMultipliedAlpha(c, obj.enabled ? 1.0 : 0.5));
 		g.fillRoundedRectangle([a[0], y, a[2], h], radius);
 
@@ -1069,13 +1085,14 @@ namespace CoreLookAndFeel
 			return LookAndFeel.drawToggleSwitch();
 
 		local a = obj.area;
-		local radius = isDefined(style.toggleSwitch.radius) ? style.toggleSwitch.radius : 10;
-		local borderSize = 1;
+		local radius = style.toggleSwitch.borderRadius;
+		local borderSize = style.toggleSwitch.borderSize;
+		local activeColour = style.toggleSwitch.activeColour;
 
 		g.setColour(Colours.withMultipliedAlpha(obj.textColour, obj.enabled ? 1.0 : 0.5));		
 		g.drawRoundedRectangle(a.reduced(borderSize / 2), radius, borderSize);
 
-		local c = Colours.withMultipliedBrightness(obj.value ? obj.itemColour1 : obj.itemColour2, obj.over ? 1.0 - 0.1 * obj.down : 0.8);
+		local c = Colours.withMultipliedBrightness(obj.value ? activeColour : obj.itemColour2, obj.over ? 1.0 - 0.1 * obj.down : 0.8);
 		g.setColour(Colours.withMultipliedAlpha(c, obj.enabled ? 1.0 : 0.5));
 
 		local x = 2 + (obj.value ? a[2] - a[3] / 1.5 : 2) - 6 * obj.value;
@@ -1098,9 +1115,15 @@ namespace CoreLookAndFeel
 
 		local a = obj.area;
 
-		g.setFont("phosphor", 20);
+		g.setFont("phosphor", a[2] < 20 ? a[2] : 20);
 
-		local c = Colours.withMultipliedBrightness(obj.textColour, obj.over ? 1.0 - 0.2 * obj.value : 0.7);
+		local c;
+
+		if (style.mode == "dark")
+			c = Colours.withMultipliedBrightness(obj.textColour, obj.over ? 1.0 - 0.2 * obj.value : 0.7);
+		else
+			c = Colours.withMultipliedBrightness(obj.textColour, obj.over ? 1.5 + 0.5 * obj.value : 0.7);
+
 		g.setColour(Colours.withMultipliedAlpha(c, obj.enabled ? 1.0 : 0.5));
 
 		g.drawAlignedText(String.fromCharCode(obj.text), a, "centred");
@@ -1123,8 +1146,14 @@ namespace CoreLookAndFeel
 
 		g.setFont("phosphor", 20);
 
-		local c = Colours.withMultipliedBrightness(obj.textColour, (obj.value ? 0.9 : 0.5) + 0.1 * obj.over - 0.1 * obj.down);
-		g.setColour(Colours.withMultipliedAlpha(c, obj.enabled ? 1.0 : 0.5));
+		local c = Colours.withMultipliedBrightness(obj.textColour, (obj.value ? 0.9 : 0.6) + 0.2 * obj.over - 0.2 * obj.down);
+		
+		if (style.mode == "dark")
+			c = Colours.withMultipliedAlpha(c, (obj.value ? 1.0 : 0.8) + 0.1 * obj.over - 0.1 * obj.down);
+		else
+			c = Colours.withMultipliedAlpha(c, (obj.value ? 1.0 : 0.4) + 0.1 * obj.over - 0.1 * obj.down);
+
+		g.setColour(Colours.withMultipliedBrightness(c, obj.enabled ? 1.0 : 0.5));
 
 		g.drawAlignedText(String.fromCharCode(obj.text), a, "centred");
 	}
@@ -1132,7 +1161,7 @@ namespace CoreLookAndFeel
 	//! textButton
 	const textButton = Content.createLocalLookAndFeel()
 	
-	textButton.registerFunction("drawButton", function(g, obj)
+	textButton.registerFunction("drawToggleButton", function(g, obj)
 	{
 		drawTextButton();
 	});
@@ -1141,35 +1170,8 @@ namespace CoreLookAndFeel
 	{
 		if (isDefined(LookAndFeel.drawTextButton))
 			return LookAndFeel.drawTextButton();
-	
-		local a = obj.area;
-		local radius = isDefined(style.textButton.radius) ? style.textButton.radius : 2;
-		local font = fonts.medium;
-		local fontSize = 18 + fonts.size;
-	
-		local c = Colours.withMultipliedBrightness(obj.bgColour, (obj.value ? 1.0 : 0.8 + 0.1 * obj.over) - 0.1 * obj.down);
-		g.setColour(c);
-		g.fillRoundedRectangle(a, radius);
-	
-		if (obj.enabled)
-			g.setColour(Colours.withMultipliedBrightness(obj.itemColour1, obj.value ? 1.0 - 0.1 * obj.down: 0.5));
-		else
-			g.setColour(Colours.withMultipliedBrightness(obj.itemColour1, 0.5));
-		
-		g.drawRoundedRectangle(a.reduced(0.5), radius, 1);
-	
-		c = Colours.withMultipliedBrightness(obj.textColour, (obj.value ? 1.0 : 0.8 + 0.1 * obj.over) - 0.1 * obj.down);
-		
-		if (obj.enabled)
-			g.setColour(c);
-		else
-			g.setColour(Colours.withMultipliedBrightness(obj.textColour, 0.5));
-
-		g.setFont(font, fontSize);
-		g.drawAlignedText(obj.text, a, "centred");
-	
-		if (!isDefined(style.useNoise) || style.useNoise)
-			g.addNoise({alpha: 0.025, scaleFactor: 1.5, area: a, monochromatic: true});
+			
+		drawTextButtonToggle();
 	}
 	
 	//! textButtonToggle
@@ -1186,27 +1188,24 @@ namespace CoreLookAndFeel
 			return LookAndFeel.drawTextButtonToggle();
 
 		local a = obj.area;
-		local radius = isDefined(style.textButton.radius) ? style.textButton.radius : 2;
-		local font = fonts.medium;
-		local fontSize = 18 + fonts.size;
+		local radius = style.textButton.borderRadius;
+		local font = style.fonts.medium;
+		local fontSize = 18 + style.fonts.size;
 
 		local c = Colours.withMultipliedBrightness(obj.bgColour, (obj.value ? 1.0 : 0.8 + 0.1 * obj.over) - 0.1 * obj.down);
+
 		g.setColour(c);
 		g.fillRoundedRectangle(a, radius);
 
-		if (obj.enabled)
-			g.setColour(Colours.withMultipliedBrightness(obj.itemColour1, (obj.value ? 1.0 : 0.7 + 0.1 * obj.over) - 0.1 * obj.down));
-		else
-			g.setColour(Colours.withMultipliedBrightness(obj.itemColour1, 0.5));
+		c = Colours.withMultipliedBrightness(obj.textColour, (obj.value ? 0.9 : 0.6) + 0.2 * obj.over - 0.2 * obj.down);
 
+		if (style.mode == "dark")
+			c = Colours.withMultipliedAlpha(c, (obj.value ? 1.0 : 0.8) + 0.1 * obj.over - 0.1 * obj.down);
+		else
+			c = Colours.withMultipliedAlpha(c, (obj.value ? 1.0 : 0.4) + 0.1 * obj.over - 0.1 * obj.down);
+
+		g.setColour(Colours.withMultipliedBrightness(c, obj.enabled ? 1.0 : 0.5));
 		g.drawRoundedRectangle(a.reduced(0.5), radius, 1);
-
-		c = Colours.withMultipliedBrightness(obj.textColour, (obj.value ? 1.0 : 0.7 + 0.1 * obj.over) - 0.1 * obj.down);
-
-		if (obj.enabled)
-			g.setColour(c);
-		else
-			g.setColour(Colours.withMultipliedBrightness(obj.textColour, 0.3));
 
 		g.setFont(font, fontSize);
 		g.drawAlignedText(obj.text, a, "centred");
@@ -1230,11 +1229,14 @@ namespace CoreLookAndFeel
 
 		local thickness = 2;
 		local a = obj.area.reduced(thickness / 2);
+		local c;
 		
-		g.setColour(Colours.withMultipliedAlpha(obj.itemColour1, obj.enabled ? 1.0 : 0.5));
+		g.setColour(Colours.withMultipliedAlpha(obj.textColour, obj.enabled ? 1.0 : 0.5));
 		g.drawEllipse(a, thickness);
-	
-		local c = Colours.withMultipliedBrightness(obj.itemColour2, (obj.value ? 0.9 : 0.3) + 0.2 * obj.over - 0.2 * obj.down);
+			
+		c = Colours.withMultipliedBrightness(obj.itemColour2, (obj.value ? 0.9 : 0.6) + 0.2 * obj.over - 0.2 * obj.down);
+		c = Colours.withMultipliedAlpha(c, (obj.value ? 1.0 : 0.3) + 0.1 * obj.over - 0.1 * obj.down);
+
 		g.setColour(Colours.withMultipliedAlpha(c, obj.enabled ? 1.0 : 0.5));
 
 		g.fillEllipse(a.reduced(thickness * 1.5));
@@ -1247,48 +1249,13 @@ namespace CoreLookAndFeel
 			return LookAndFeel.drawAnalyserPath();
 			
 		local a = obj.pathArea;
-		local featureColour = (isDefined(style.featureColour) && obj.itemColour2 == 0x0) ? style.featureColour : obj.itemColour2;
-		local c = featureColour;
-		c = Colours.withMultipliedAlpha(c, obj.enabled ? 1.0 : 0.1);
+		local c = Colours.withMultipliedAlpha(obj.itemColour2, obj.enabled ? 1.0 : 0.1);
 		
 		g.setGradientFill([c, a[2] / 2, a[1], Colours.withMultipliedAlpha(c, 0.2), a[2] / 2, a[3]]);
 		g.setColour(c);
 		g.fillPath(obj.path, a);
-		
-		g.setColour(featureColour);
+
+		g.setColour(obj.itemColour2);
 		g.drawPath(obj.path, [a[0] - 2, a[1], a[2] + 4, a[3] + 2], 2.0);
 	}
-
-	inline function setValuePopupProperties()
-	{
-		local defaults = {
-	        "fontName": "monoMedium",
-	        "fontSize": 20,
-	        "borderSize": 2,
-	        "borderRadius": 5,
-	        "margin": 10,
-	        "bgColour": 0x55d7d8da,
-	        "itemColour": 0x55202428,
-	        "itemColour2": 0x55202428,
-	        "textColour": 0xffd7d8da
-		};
-
-		if (!isDefined(style.valuePopup))
-			return Content.setValuePopupData(defaults);
-
-		local properties = {};
-
-		for (x in defaults)
-		{
-			if (isDefined(style.valuePopup[x]))
-				properties[x] = style.valuePopup[x];
-			else
-				properties[x] = defaults[x];
-		}
-
-		Content.setValuePopupData(properties);
-	}
-	
-	//! Function Calls
-	setValuePopupProperties();
 }

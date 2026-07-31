@@ -18,13 +18,16 @@
 namespace ValueEdit
 {
 	const style = CoreLookAndFeel.style;
-	const fonts = CoreLookAndFeel.fonts;
+	const fonts = style.fonts;
 
 	inline function create(panelId: string, options: JSON)
 	{
 		local styleSheetPrefix = isDefined(options.styleSheetPrefix) ? (options.styleSheetPrefix + "_") : "";
 
 		local panel = Content.getComponent(panelId);
+		panel.set("bgColour", style.inputBox.bgColour);
+		panel.set("borderSize", isDefined(style.inputBox.borderSize) ? style.inputBox.borderSize : 0);
+		panel.set("borderRadius", isDefined(style.inputBox.borderRadius) ? style.inputBox.borderRadius : 2);
 		
 		for (x in options)
 			panel.data[x] = options[x];
@@ -32,8 +35,8 @@ namespace ValueEdit
 		panel.setPaintRoutine(function(g)
 		{
 			var a = this.getLocalBounds(0);
-			var radius = isDefined(style.inputBox.borderRadius) ? style.inputBox.borderRadius : 2;
-			var borderSize = isDefined(style.inputBox.borderSize) ? style.inputBox.borderSize : 0;
+			var radius = this.get("borderRadius");
+			var borderSize = this.get("borderSize");
 
 			g.setColour(Colours.withAlpha(this.get("bgColour"), this.get("enabled") ? 1.0 : 0.5));
 			g.fillRoundedRectangle(a, radius);
@@ -53,8 +56,6 @@ namespace ValueEdit
 		knob.setPosition(panel.getWidth() / 6, 0, panel.getWidth() / 1.5, panel.getHeight());
 		knob.set("style", "Knob");
 		knob.set("dragDirection", "Vertical");
-		knob.set("bgColour", 0x0);
-		knob.set("itemColour", 0x0);
 		knob.set("showTextBox", false);
 
 		local knobLaf = Content.createLocalLookAndFeel();
@@ -100,7 +101,7 @@ namespace ValueEdit
 			b.set("y", pHeight - b.getHeight() + b.getHeight() * i);
 			b.set("allowCallbacks", "All Callbacks");
 			b.set("text", i == 0 ? "Up" : "Down");
-			b.set("textColour", panel.get("textColour"));
+			b.set("textColour", panel.data.knob.get("textColour"));
 			b.data.icon = i == 0 ? "\ue13c" : "\ue136";
 
 			b.setPaintRoutine(function(g)

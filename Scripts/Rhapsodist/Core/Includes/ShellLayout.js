@@ -18,7 +18,7 @@
 namespace Shell
 {
 	const style = CoreLookAndFeel.style;
-	const fonts = CoreLookAndFeel.fonts;
+	const fonts = style.fonts;
 	const numSourceChannels = Synth.getRoutingMatrix(Synth.getIdList("Container")[0]).getNumSourceChannels();
 	const channelIndexes = [];
 	
@@ -43,8 +43,6 @@ namespace Shell
 			"locked": "1",
 			"borderSize": 0.0,
 			"borderRadius": 0.0,
-			"bgColour": "0xFF1D2024",
-			"textColour": "0xFFD7D8DA",
 			"childComponents": [{
 				"type": "ScriptSlider",
 				"id": "knbPatch",
@@ -87,7 +85,6 @@ namespace Shell
 				"borderSize": 1.0,
 				"borderRadius": 2.0,
 				"locked": "1",
-				"bgColour": "0xFF15191D",
 				"childComponents": [{
 					"type": "ScriptButton",
 					"id": "btnPresetBrowser",
@@ -98,14 +95,13 @@ namespace Shell
 					"text": "Presets",
 					"locked": "1",
 					"enableMidiLearn": "0",
-					"textColour": "0xFFD7D8DA",
 					"tooltip": "Click to Open Preset Browser"
 				},
 				{
 					"type": "ScriptButton",
 					"id": "btnPreset0",
-					"x": 285.0,
-					"width": 17.0,
+					"x": 287.0,
+					"width": 15.0,
 					"height": 30.0,
 					"parentComponent": "pnlPresetDisplay",
 					"saveInPreset": "0",
@@ -113,14 +109,13 @@ namespace Shell
 					"text": "e138",
 					"tooltip": "Load Previous Preset",
 					"locked": "1",
-					"enableMidiLearn": "0",
-					"textColour": "0xFFD7D8DA"
+					"enableMidiLearn": "0"
 				},
 				{
 					"type": "ScriptButton",
 					"id": "btnPreset1",
-					"x": 303.0,
-					"width": 17.0,
+					"x": 304.0,
+					"width": 15.0,
 					"height": 30.0,
 					"parentComponent": "pnlPresetDisplay",
 					"saveInPreset": "0",
@@ -128,8 +123,7 @@ namespace Shell
 					"text": "e13a",
 					"tooltip": "Load Next Preset",
 					"locked": "1",
-					"enableMidiLearn": "0",
-					"textColour": "0xFFD7D8DA"
+					"enableMidiLearn": "0"
 				},
 				{
 					"type": "ScriptButton",
@@ -144,8 +138,7 @@ namespace Shell
 					"text": "e248",
 					"isMomentary": "1",
 					"locked": "1",
-					"enableMidiLearn": "0",
-					"textColour": "0xFFD7D8DA"
+					"enableMidiLearn": "0"
 				}]
 			},
 			{
@@ -168,8 +161,7 @@ namespace Shell
 				"tooltip": "Master Pan",
 				"pluginParameterName": "Master Pan",
 				"processorId": "masterGain",
-				"parameterId": "Balance",
-				"textColour": "0xFFD7D8DA"
+				"parameterId": "Balance"
 			},
 			{
 				"type": "ScriptSlider",
@@ -190,8 +182,7 @@ namespace Shell
 				"tooltip": "Master Volume",
 				"pluginParameterName": "Master Volume",
 				"processorId": "masterGain",
-				"parameterId": "Gain",
-				"textColour": "0xFFD7D8DA"
+				"parameterId": "Gain"
 			},
 			{
 				"type": "ScriptFloatingTile",
@@ -202,10 +193,8 @@ namespace Shell
 				"height": 10.0,
 				"parentComponent": "pnlHeader",
 				"ContentType": "MatrixPeakMeter",
-				"Data": "{\n  \"ProcessorId\": \"" + Synth.getIdList("Container")[0] + "\",\n  \"Index\": -1,\n  \"FollowWorkspace\": false,\n  \"SegmentLedSize\": 0.0,\n  \"UpDecayTime\": 0.0,\n  \"DownDecayTime\": 500.0,\n  \"UseSourceChannels\": false,\n  \"SkewFactor\": 0.2,\n  \"PaddingSize\": 1.0,\n  \"ShowMaxPeak\": true,\n  \"ChannelIndexes\": " + trace(channelIndexes) + "\n}",
-				"locked": "1",
-				"bgColour": "0xFE0F1215",
-				"textColour": "0xFFBFBFBF"
+				"Data": "{\n  \"ProcessorId\": \"" + Synth.getIdList("Container")[0] + "\",\n  \"Index\": -1,\n  \"FollowWorkspace\": false,\n  \"SegmentLedSize\": 0.0,\n  \"UpDecayTime\": 50.0,\n  \"DownDecayTime\": 500.0,\n  \"UseSourceChannels\": false,\n  \"SkewFactor\": 0.2,\n  \"PaddingSize\": 1.0,\n  \"ShowMaxPeak\": true,\n  \"ChannelIndexes\": " + trace(channelIndexes) + "\n}",
+				"locked": "1"
 			},
 			{
 				"type": "ScriptPanel",
@@ -218,8 +207,6 @@ namespace Shell
 				"text": "",
 				"borderRadius": 1.0,
 				"borderSize": 0.0,
-				"bgColour": "0xFE0F1215",
-				"itemColour": "0xFFD7D8DA",
 				"locked": "1",
 				"visible": false
 			},
@@ -234,7 +221,6 @@ namespace Shell
 				"parentComponent": "pnlHeader",
 				"isMomentary": "1",
 				"tooltip": "Opens Settings Window",
-				"textColour": "0xFFD7D8DA",
 				"saveInPreset": "0",
 				"locked": "1",
 				"enableMidiLearn": "0"
@@ -250,7 +236,6 @@ namespace Shell
 				"parentComponent": "pnlHeader",
 				"isMomentary": "1",
 				"tooltip": "Unload this instrument",
-				"textColour": "0xFFD7D8DA",
 				"saveInPreset": "0",
 				"locked": "1",
 				"enableMidiLearn": "0"
@@ -265,8 +250,7 @@ namespace Shell
 			"parentComponent": "pnlMain",
 			"locked": "1",
 			"borderSize": 0.0,
-			"borderRadius": 0.0,
-			"bgColour": "0xFF181C20"
+			"borderRadius": 0.0
 		},
 		{
 			"type": "ScriptPanel",
@@ -278,7 +262,6 @@ namespace Shell
 			"locked": "1",
 			"borderSize": 0.0,
 			"borderRadius": 0.0,
-			"bgColour": "4279506971",
 			"childComponents": [{
 				"type": "ScriptPanel",
 				"id": "pnlStatus",
@@ -287,7 +270,6 @@ namespace Shell
 				"parentComponent": "pnlFooter",
 				"borderSize": 0.0,
 				"borderRadius": 0.0,
-				"bgColour": "0xFF14181B",
 				"textColour": "0",
 				"childComponents": [{
 					"type": "ScriptFloatingTile",
@@ -297,7 +279,6 @@ namespace Shell
 					"height": 30.0,
 					"parentComponent": "pnlStatus",
 					"ContentType": "PerformanceLabel",
-					"textColour": "0xFFC3C4C4",
 					"Font": fonts.medium,
 					"FontSize": 14 + fonts.size,
 					"locked": "1"
@@ -310,7 +291,6 @@ namespace Shell
 					"width": 300.0,
 					"height": 30.0,
 					"parentComponent": "pnlStatus",
-					"textColour": "0xFFD7D8DA",
 					"borderSize": 0.0,
 					"borderRadius": 0.0
 				}]
@@ -321,8 +301,10 @@ namespace Shell
 				"x": 44.0,
 				"y": 31.0,
 				"width": 912.0,
-				"height": 65.0,
+				"height": 68.0,
 				"parentComponent": "pnlFooter",
+				"Font": "monoMedium",
+				"FontSize": 10,
 				"ContentType": "Keyboard",
 				"Data": "{\n  \"KeyWidth\": 16.0,\n  \"DisplayOctaveNumber\": false,\n  \"LowKey\": 12,\n  \"HiKey\": 108,\n  \"CustomGraphics\": false,\n  \"DefaultAppearance\": false,\n  \"BlackKeyRatio\": 0.64,\n  \"ToggleMode\": false,\n  \"MidiChannel\": 1,\n  \"UseVectorGraphics\": true,\n  \"UseFlatStyle\": true,\n  \"MPEKeyboard\": false,\n  \"MPEStartChannel\": 2,\n  \"MPEEndChannel\": 16\n}"
 			},
@@ -337,8 +319,7 @@ namespace Shell
 			  "text": "e4e2",
 			  "tooltip": "Stop all MIDI Notes",
 			  "saveInPreset": false,
-			  "isMomentary": true,
-			  "textColour": 0xffb9baba
+			  "isMomentary": true
 			}]
 		},
 		{
@@ -361,7 +342,6 @@ namespace Shell
 				"locked": "1",
 				"borderRadius": 2.0,
 				"parentComponent": "pnlPresetBrowserContainer",
-				"bgColour": "0xFF2A2D32",
 				"borderSize": 1.0,
 				"childComponents": [{
 					"type": "ScriptFloatingTile",
@@ -374,10 +354,6 @@ namespace Shell
 					"ContentType": "PresetBrowser",
 					"Data": "{\n  \"ShowSaveButton\": false,\n  \"ShowExpansionsAsColumn\": false,\n  \"ShowFolderButton\": true,\n  \"ShowNotes\": false,\n  \"ShowEditButtons\": true,\n  \"EditButtonOffset\": 10,\n  \"ShowAddButton\": true,\n  \"ShowRenameButton\": true,\n  \"ShowDeleteButton\": true,\n  \"ShowSearchBar\": true,\n  \"ShowFavoriteIcon\": true,\n  \"FavoriteIconOffset\": 7,\n  \"FullPathFavorites\": true,\n  \"FullPathSearch\": true,\n  \"ButtonsInsideBorder\": true,\n  \"NumColumns\": 3,\n  \"ColumnWidthRatio\": [\n    0.3333333333333333,\n    0.3333333333333333,\n    0.3333333333333333\n  ],\n  \"ListAreaOffset\": [\n    0,\n    0,\n    0,\n    0\n  ],\n  \"ColumnRowPadding\": [\n    10,\n    10,\n    10,\n    10\n  ],\n  \"SearchBarBounds\": [\n    611,\n    5,\n    276,\n    30\n  ],\n  \"MoreButtonBounds\": [\n    2,\n    5,\n    30,\n    30\n  ],\n  \"SaveButtonBounds\": [\n    846,\n    8,\n    50,\n    30\n  ],\n  \"FavoriteButtonBounds\": [\n    595,\n    8,\n    23,\n    23\n  ],\n  \"Type\": \"PresetBrowser\"\n}",
 					"locked": "1",
-					"bgColour": "0xFF202428",
-					"itemColour2": "0x605E6167",
-					"itemColour3": "0xFF15191D",
-					"textColour": "0xFFD7D8DA",
 					"Font": "Oxygen",
 					"FontSize": 14
 				}]
@@ -402,9 +378,6 @@ namespace Shell
 				"parentComponent": "pnlSettingsContainer",
 				"borderSize": 0.0,
 				"borderRadius": 2.0,
-				"text": "SETTINGS",
-				"bgColour": "0xFF2A2D32",
-				"textColour": "0xFFD7D8DA",
 				"locked": "1",
 				"childComponents": [				
 				{
@@ -427,8 +400,6 @@ namespace Shell
 						"allowCallbacks": "All Callbacks",
 						"borderSize": 0.0,
 						"borderRadius": 2.0,
-						"itemColour": "0x605E6167",
-						"textColour": "0xFFD7D8DA",
 						"locked": "1"
 					}]
 				},
@@ -461,7 +432,6 @@ namespace Shell
 							"parentComponent": "vptEngineSettings",
 							"borderSize": 0.0,
 							"borderRadius": 0.0,
-							"textColour": "0xFFD7D8DA",
 							"locked": "1",
 							"childComponents": [{
 								"type": "ScriptComboBox",
@@ -475,8 +445,6 @@ namespace Shell
 								"text": "Disk Mode",
 								"items": "SSD\nHDD",
 								"saveInPreset": "0",
-								"textColour": "0xFFD7D8DA",
-								"bgColour": "0xFF15191D",
 								"locked": "1"
 							},
 						{
@@ -492,8 +460,6 @@ namespace Shell
 							"items": "32\n64\n128\n256",
 							"saveInPreset": "0",
 							"defaultValue": 4.0,
-							"textColour": "0xFFD7D8DA",
-							"bgColour": "0xFF15191D",
 							"locked": "1"
 						},
 						{
@@ -508,8 +474,6 @@ namespace Shell
 							"text": "UI Scale",
 							"saveInPreset": "0",
 							"defaultValue": 2.0,
-							"textColour": "0xFFD7D8DA",
-							"bgColour": "0xFF15191D",
 							"locked": "1"
 						},
 						{
@@ -523,8 +487,6 @@ namespace Shell
 							"borderSize": 1.0,
 							"borderRadius": 2.0,
 							"text": "BPM",
-							"bgColour": "0xFF15191D",
-							"textColour": "0xFFD7D8DA",
 							"locked": "1",
 							"visible": "0",
 							"childComponents": [{
@@ -543,9 +505,24 @@ namespace Shell
 								"defaultValue": 120.0,
 								"saveInPreset": "0",
 								"locked": "1",
-								"enableMidiLearn": "0",
-								"textColour": "0xFFD7D8DA"
+								"enableMidiLearn": "0"
 							}]
+						},
+						{
+							"type": "ScriptButton",
+							"id": "btnLazyLoad",
+							"x": 326,
+							"y": 130.0,
+							"width": 34,
+							"height": 20,
+							"parentComponent": "pnlEngineSettings",
+							"text": "Lazy Load",
+							"tooltip": "Unloads samples until they are played",
+							"saveInPreset": "0",
+							"enableMidiLearn": "0",
+							"processorId": "samplerPurgeHandler",
+							"parameterId": "LazyLoad",
+							"locked": "1"
 						},
 						{
 							"type": "ScriptButton",
@@ -559,9 +536,6 @@ namespace Shell
 							"saveInPreset": "0",
 							"enableMidiLearn": "0",
 							"defaultValue": 1.0,
-							"itemColour": "0xFF66BA71",
-							"itemColour2": "0xFF7C7E82",
-							"textColour": "0xFFD7D8DA",
 							"locked": "1"
 						}]
 					}]
@@ -578,7 +552,6 @@ namespace Shell
 					"borderSize": 0.0,
 					"borderRadius": 0.0,
 					"text": "AUDIO",
-					"textColour": "0xFFD7D8DA",
 					"locked": "1",
 					"visible": false,
 					"childComponents": [{
@@ -593,7 +566,6 @@ namespace Shell
 						"Data": "{\n  \"Driver\": true,\n  \"Device\": true,\n  \"Output\": true,\n  \"BufferSize\": true,\n  \"SampleRate\": true,\n  \"GlobalBPM\": false,\n  \"StreamingMode\": false,\n  \"ScaleFactor\": false,\n  \"VoiceAmountMultiplier\": false,\n  \"ClearMidiCC\": false,\n  \"SampleLocation\": false,\n  \"DebugMode\": false,\n  \"UseOpenGL\": false,\n  \"ScaleFactorList\": [\n    0.5,\n    0.75,\n    1.0,\n    1.25,\n    1.5,\n    2.0\n  ], \n \"LabelAlignment\": \"left\"\n}",
 						"Font": fonts.medium,
 						"FontSize": 16 + fonts.size,
-						"textColour": "0xFFD7D8DA",
 						"locked": "1"
 					}]
 					},
@@ -608,7 +580,6 @@ namespace Shell
 						"borderSize": 0.0,
 						"borderRadius": 0.0,
 						"text": "MIDI I/O",
-						"textColour": "0xFFD7D8DA",
 						"locked": "1",
 						"visible": false,
 						"childComponents": [{
@@ -617,7 +588,6 @@ namespace Shell
 							"y": 22.0,
 							"width": 380.0,
 							"height": 80.0,
-							"textColour": "0xFFD7D8DA",
 							"parentComponent": "pnlMidiSettings",
 							"allowCallbacks": "All Callbacks",
 							"locked": "1",
@@ -634,8 +604,7 @@ namespace Shell
 							"ContentType": "MidiSources",
 							"Font": fonts.medium,
 							"FontSize": 16 + fonts.size,
-							"locked": "1",
-							"textColour": "0xFFD7D8DA"
+							"locked": "1"
 						}]
 					},
 					{
@@ -668,7 +637,6 @@ namespace Shell
 								"parentComponent": "vptInstrumentSettings",
 								"borderSize": 0.0,
 								"borderRadius": 0.0,
-								"textColour": "0xFFD7D8DA",
 								"locked": "1",
 								"childComponents": [{
 									"type": "ScriptPanel",
@@ -681,8 +649,6 @@ namespace Shell
 									"borderSize": 1.0,
 									"borderRadius": 2.0,
 									"text": "Coarse Tune",
-									"bgColour": "0xFF15191D",
-									"textColour": "0xFFD7D8DA",
 									"locked": "1",
 									"childComponents": [{
 										"type": "ScriptSlider",
@@ -702,8 +668,7 @@ namespace Shell
 										"processorId": "tuningHandler",
 										"parameterId": "CoarseTune",
 										"locked": "1",
-										"pluginParameterName": "Coarse Tune",
-										"textColour": "0xFFD7D8DA"
+										"pluginParameterName": "Coarse Tune"
 									}]
 								},
 								{
@@ -717,8 +682,6 @@ namespace Shell
 									"borderSize": 1.0,
 									"borderRadius": 2.0,
 									"text": "Fine Tune",
-									"bgColour": "0xFF15191D",
-									"textColour": "0xFFD7D8DA",
 									"locked": "1",
 									"childComponents": [{
 										"type": "ScriptSlider",
@@ -738,8 +701,7 @@ namespace Shell
 										"processorId": "tuningHandler",
 										"parameterId": "FineTune",
 										"locked": "1",
-										"pluginParameterName": "Fine Tune",
-										"textColour": "0xFFD7D8DA"
+										"pluginParameterName": "Fine Tune"
 									}]
 								},
 								{
@@ -753,8 +715,6 @@ namespace Shell
 									"borderSize": 1.0,
 									"borderRadius": 2.0,
 									"text": "Transpose",
-									"bgColour": "0xFF15191D",
-									"textColour": "0xFFD7D8DA",
 									"locked": "1",
 									"childComponents": [{
 										"type": "ScriptSlider",
@@ -774,27 +734,8 @@ namespace Shell
 										"processorId": "tuningHandler",
 										"parameterId": "SemiToneTranspose",
 										"locked": "1",
-										"pluginParameterName": "Transpose",
-										"textColour": "0xFFD7D8DA"
+										"pluginParameterName": "Transpose"
 									}]
-								},
-								{
-									"type": "ScriptButton",
-									"id": "btnLazyLoad",
-									"x": 326,
-									"y": 130.0,
-									"width": 34,
-									"height": 20,
-									"parentComponent": "pnlInstrumentSettings",
-									"text": "Lazy Load",
-									"tooltip": "Unloads samples until they are played",
-									"enableMidiLearn": "0",
-									"processorId": "samplerPurgeHandler",
-									"parameterId": "LazyLoad",
-									"textColour": "0xFFD7D8DA",
-									"itemColour2": "0xFF7C7E82",
-									"itemColour": "0xFF66BA71",
-									"locked": "1"
 								}]
 							}]
 						}]
@@ -809,7 +750,6 @@ namespace Shell
 						"parentComponent": "pnlSettings",
 						"text": "AUTOMATION",
 						"locked": "1",
-						"textColour": "0xFFD7D8DA",
 						"allowCallbacks": "All Callbacks",
 						"borderRadius": 2.0,
 						"borderSize": 0.0,
@@ -833,9 +773,6 @@ namespace Shell
 								"Font": fonts.medium,
 								"FontSize": 16 + fonts.size,
 								"parentComponent": "pnlMidiAutomation",
-								"itemColour": "0xFF202428",
-								"itemColour2": "0xFF9A9A9A",
-								"textColour": "0xFFD7D8DA",
 								"locked": "1",
 								"Data": "{\n  \"ColumnWidthRatio\": [\n    0.1,\n    0.44,\n    0.16,\n    0.15,\n    0.15\n  ],\n  \"RowHeight\": 30,\n  \"HeaderHeight\": 30,\n  \"ScrollbarWidth\": 10\n}",
 							}]
@@ -859,9 +796,6 @@ namespace Shell
 								"Font": fonts.medium,
 								"FontSize": 16 + fonts.size,
 								"parentComponent": "pnlMacros",
-								"itemColour": "0xFF202428",
-								"itemColour2": "0xFF9A9A9A",
-								"textColour": "0xFFD7D8DA",
 								"locked": "1",
 								"Data": "{\n  \"ColumnWidthRatio\": [\n    0.13,\n    0.45,\n    0.16,\n    0.13,\n    0.13\n  ],\n  \"RowHeight\": 30,\n  \"HeaderHeight\": 30,\n  \"ScrollbarWidth\": 10\n}"
 							}]
@@ -884,10 +818,7 @@ namespace Shell
 								"parentComponent": "pnlMpe",
 								"scrollBarThickness": "10.0",
 								"fontName": fonts.medium,
-								"fontSize": 16 + fonts.size,
-								"itemColour": "0xFF202428",
-								"itemColour2": "0xFF9A9A9A",
-								"textColour": "0xFFD7D8DA"
+								"fontSize": 16 + fonts.size
 							}]
 						}]
 					},
@@ -898,7 +829,6 @@ namespace Shell
 						"y": 30.0,
 						"width": 400.0,
 						"height": 320.0,
-						"textColour": "0xFFD7D8DA",
 						"parentComponent": "pnlSettings",
 						"text": "ABOUT",
 						"locked": "1",
@@ -912,7 +842,6 @@ namespace Shell
 						"y": 5.0,
 						"width": 20.0,
 						"height": 20.0,
-						"textColour": "0xFFD7D8DA",
 						"parentComponent": "pnlSettings",
 						"saveInPreset": "0",
 						"isMomentary": "1",
@@ -927,14 +856,11 @@ namespace Shell
 				"x": 580.0,
 				"y": 23.0,
 				"width": 227.0,
-				"height": 100.0,
+				"height": 80.0,
 				"parentComponent": "pnlMain",
 				"enabled": 0,
 				"borderRadius": 0.0,
 				"borderSize": 1.0,
-				"bgColour": "0xE72A2D32",
-				"textColour": "0xFFD7D8DA",
-				"itemColour": "0x74D7D8DA",
 				"locked": "1",
 				"itemColour2": "0",
 				"visible": false,
@@ -949,7 +875,6 @@ namespace Shell
 				"width": 12,
 				"height": 12,
 				"allowCallbacks": "All Callbacks",
-				"textColour": "0xFFD7D8DA",
 				"locked": "1",
 				"borderSize": 0.0,
 				"borderRadius": 0.0

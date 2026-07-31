@@ -18,7 +18,7 @@
 namespace Keyboard
 {
 	const range = [];
-	const style = isDefined(LookAndFeel.style) ? LookAndFeel.style : {};	
+	const style = CoreLookAndFeel.style.keyboard;
 	const laf = Content.createLocalLookAndFeel();
 
 	laf.registerFunction("drawWhiteNote", function(g, obj)
@@ -42,9 +42,9 @@ namespace Keyboard
 		local a = obj.area.reduced(0.5, 0);
 		local isLowKey = obj.noteNumber == range[0];
 		local isHighKey = obj.noteNumber == range[1];
-		local roundEndKeys = isDefined(style.keyboard.roundEndKeys) ? style.keyboard.roundEndKeys : false;
-		local radius = isDefined(style.keyboard.radius) ? style.keyboard.radius : 2;
-		local useShadow = isDefined(style.keyboard.useShadow) ? style.keyboard.useShadow : false;
+		local roundEndKeys = style.roundEndKeys;
+		local radius = style.radius;
+		local useShadow = style.useShadow;
 		local cornerData = [0, 0, 1, 1];
 		local keyColour = obj.keyColour == 0 ? 0xff9399b2 : obj.keyColour;
 		local hsl = Colours.toHsl(keyColour);
@@ -85,7 +85,7 @@ namespace Keyboard
 		
 		if (noteName.contains("C"))
 		{
-			g.setColour(fltKeyboard.get("textColour"));
+			g.setColour(style.textColour);
 			g.setFont(obj.font, obj.fontSize);
 			g.drawAlignedText(noteName, a.withTrimmedBottom(2), "centredBottom");
 		}
@@ -94,8 +94,8 @@ namespace Keyboard
 	inline function drawBlackNote()
 	{
 		local a = obj.area.withTrimmedBottom(1);
-		local radius = isDefined(style.keyboard.radius) ? style.keyboard.radius : 2;
-		local useShadow = isDefined(style.keyboard.useShadow) ? style.keyboard.useShadow : false;
+		local radius = style.radius;
+		local useShadow = style.useShadow;
 		local cornerData = [0, 0, 1, 1];
 		local keyColour = obj.keyColour == 0 ? 0xff11111b : obj.keyColour;
 		local hsl = Colours.toHsl(keyColour);
@@ -161,28 +161,19 @@ namespace Keyboard
 		if (!data.length)
 			return;
 
-		local keyColours = {
-			keyswitch: [0xff94483a, 0x7794483a],
-			playable: [0xccA3A4A5, 0xcc293037]
-		};
-		
-		if (isDefined(style.keyboard.keyColours))
-		{
-			for (x in style.keyboard.keyColours)
-				keyColours[x] = style.keyboard.keyColours[x];
-		}		
-
-		if (!isDefined(keyColours))
-			return;
+		local keyColours = style.colours;
 
 		for (x in data)
 		{
-			if (!isDefined(x.loKey) || !isDefined(x.hiKey))
+			if ((!isDefined(x.loKey) || !isDefined(x.hiKey)) && !isDefined(x.keys))
 				continue;
-	
-			for (i = x.loKey; i <= x.hiKey; i++)
+
+			for (i = 0; i < 127; i++)
 			{
-				if (typeof(x.colour) !== "string")
+				if (isDefined(x.keys) && !x.keys.contains(i))
+					continue;
+
+				if ((isDefined(x.loKey) && isDefined(x.hiKey)) && (i < x.loKey || i > x.hiKey))
 					continue;
 
 				local isBlack = [1, 3, 6, 8, 10].contains(i % 12);
@@ -198,12 +189,7 @@ namespace Keyboard
 	
 	inline function resetKeyColours()
 	{
-		local keyColours;
-
-		if (!isDefined(style.keyboard.keyColours.inactive) || !Array.isArray(style.keyboard.keyColours.inactive))
-			keyColours = [0x775D6168, 0xbb2A3037];
-		else
-			keyColours = style.keyboard.keyColours.inactive;
+		local keyColours = style.colours.inactive;
 
 		for (i = 0; i < 128; i++)
 		{
@@ -214,12 +200,10 @@ namespace Keyboard
 	
 	//! Function Calls
 	updateRange();
+	resetKeyColours();
 
 	if (isDefined(Manifest.keyranges))
-	{
-		resetKeyColours();
 		setKeyRanges(Manifest.keyranges);
-	}
 
 	//! Broadcasters
 	const bcPatchChanged = Engine.createBroadcaster({id: "keyboardPatchChanged", args: ["component", "value"]});
@@ -230,24 +214,24 @@ namespace Keyboard
 	{	
 		var patch = Manifest.patches[value];
 	
-		if (isDefined(patch.keyranges))
-		{
-			resetKeyColours();
-			setKeyRanges(patch.keyranges);
-		}
+		if (!isDefined(patch.keyranges))
+			return;
+
+		resetKeyColours();
+		setKeyRanges(patch.keyranges);
 	});
-	
+
 	const bcArticulationChanged = Engine.createBroadcaster({id: "keyboardArticulationChanged", args: ["component", "value"]});
 	bcArticulationChanged.attachToComponentValue("knbArticulation", "");
 
 	bcArticulationChanged.addListener(0, "Articulation change listener", function(component, value)
 	{	
 		var articulation = ArticulationDataManager.getArticulation(value);
-		
-		if (isDefined(articulation.keyranges))
-		{
-			resetKeyColours();
-			setKeyRanges(articulation.keyranges);
-		}
+
+		if (!isDefined(articulation.keyranges))
+			return;
+
+		resetKeyColours();
+		setKeyRanges(articulation.keyranges);
 	});
 }

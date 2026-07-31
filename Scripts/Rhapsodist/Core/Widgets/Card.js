@@ -18,7 +18,7 @@
 namespace Card
 {
 	const style = CoreLookAndFeel.style;
-	const fonts = CoreLookAndFeel.fonts;
+	const fonts = style.fonts;
 	const allCards = [];
 	const cards = {};
 
@@ -162,7 +162,7 @@ namespace Card
 		else
 			g.drawRoundedRectangle(a.reduced(borderSize / 2), radius, borderSize);
 
-		if (!isDefined(style.useNoise) || style.useNoise)
+		if (this.get("bgColour") != 0x0 && (!isDefined(style.useNoise) || style.useNoise))
 			g.addNoise({alpha: 0.03, scaleFactor: 2.0, area: a, monochromatic: true});
 
 		g.setFont(font, fontSize);

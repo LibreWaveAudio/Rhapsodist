@@ -18,7 +18,7 @@
 namespace UserSettings
 {
 	const style = CoreLookAndFeel.style;
-	const fonts = CoreLookAndFeel.fonts;
+	const fonts = style.fonts;
 
 	reg settingsLoaded = false; // Flag to make sure settings are loaded before broadcaster triggers
 	

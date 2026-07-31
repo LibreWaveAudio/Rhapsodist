@@ -18,7 +18,7 @@
 namespace Footer
 {
 	const style = CoreLookAndFeel.style;
-	const fonts = CoreLookAndFeel.fonts;
+	const fonts = style.fonts;
 
 	//! pnlFooter
 	const pnlFooter = Content.getComponent("pnlFooter");
@@ -43,8 +43,8 @@ namespace Footer
 	
 	pnlStatus.setPaintRoutine(function(g)
 	{
-		if (isDefined(LookAndFeel.drawStatusPanel))
-			return LookAndFeel.drawStatusPanel();
+		if (isDefined(LookAndFeel.drawStatusBar))
+			return LookAndFeel.drawStatusBar();
 	
 		var a = this.getLocalBounds(0);
 		g.fillAll(this.get("bgColour"));
