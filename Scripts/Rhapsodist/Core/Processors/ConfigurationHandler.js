@@ -70,7 +70,7 @@ const samplerAttributeIds = getAttributeIds(samplers);
 
 for (x in samplers)
 	x.asSampler().enableRoundRobin(false);
-	
+
 //! knbPatch
 const knbPatch = Content.addKnob("Patch", 10, 0);
 knbPatch.setRange(-1, 100, 1);
@@ -110,16 +110,17 @@ inline function changePatch(index: number)
 	setAttributes(effects, effectIds, effectAttributeIds, patch.effects);
 	setAttributes(samplers, samplerIds, samplerAttributeIds, patch.samplers);
 	enableMuters(isDefined(patch.muters) ? patch.muters : []);
-	
-	local samplerData;
+
+	local samplerData = isDefined(Manifest.samplers) ? Manifest.samplers.clone() : [];
 
 	if (isDefined(patch.samplers))
-		samplerData = patch.samplers;
-	else if (isDefined(Manifest.samplers))
-		samplerData = Manifest.samplers;
+		samplerData.concat(patch.samplers);
 	
+	if (Engine.isHISE())
+		Engine.extendTimeOut(60000);
+
 	loadSampleMaps(samplerData);
-	
+
 	if (!effectIds.contains("patchGain"))
 		return;
 
@@ -132,7 +133,7 @@ inline function changeArticulation(index: number)
 {
 	if (index == -1)
 		return;
-
+	
 	local articulation = ArticulationDataManager.getArticulation(index);
 
 	if (!isDefined(articulation))
