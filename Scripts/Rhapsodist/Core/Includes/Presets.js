@@ -52,6 +52,21 @@ namespace Presets
 		updatePresetLabel(true);
 	});
 	
+	if (!Engine.isHISE())
+	{
+		uph.setStateManagerProperties({
+		    SubStates: {
+		        MidiAutomation: "External",
+		        MPEData: "External",
+		        macro_controls: "External"
+		    },
+		    ExternalFileDefault: {
+		        MidiAutomation: automationDefaults
+		    },
+		    ExternalFile: automationDataFile.toString(automationDataFile.FullPath)
+		});
+	}
+	
 	if (isDefined(UserPresetProcessor.process))
 		uph.setEnableUserPresetPreprocessing(true, true);
 
@@ -118,7 +133,7 @@ namespace Presets
 	for (x in btnPreset)
 	{
 		x.setControlCallback(onbtnPresetControl);
-		x.setLocalLookAndFeel(lafbtnPreset);
+		x.setLocalLookAndFeel(CoreLookAndFeel.iconButton);
 	}
 
 	inline function onbtnPresetControl(component, value)
@@ -129,18 +144,10 @@ namespace Presets
 		local index = btnPreset.indexOf(component);	
 		index == 0 ? Engine.loadPreviousUserPreset(false) : Engine.loadNextUserPreset(false);
 	}
-	
-	lafbtnPreset.registerFunction("drawToggleButton", function(g, obj)
-	{
-		var a = obj.area;
 
-		g.setFont("phosphor", 14);
-		g.setColour(Colours.withMultipliedBrightness(obj.textColour, obj.over ? 1.0 - 0.2 * obj.value : 0.8));
-		g.drawAlignedText(String.fromCharCode(obj.text), a, "centred");
-	});
-	
 	//! btnPresetSave
 	const btnPresetSave = Content.getComponent("btnPresetSave");
+	btnPresetSave.setLocalLookAndFeel(CoreLookAndFeel.iconButton);
 	btnPresetSave.setControlCallback(onbtnPresetSaveControl);
 	
 	inline function onbtnPresetSaveControl(component, value)
@@ -150,18 +157,6 @@ namespace Presets
 			
 		savePreset();
 	}
-	
-	const lafbtnPresetSave = Content.createLocalLookAndFeel();
-	btnPresetSave.setLocalLookAndFeel(lafbtnPresetSave);
-
-	lafbtnPresetSave.registerFunction("drawToggleButton", function(g, obj)
-	{
-		var a = obj.area;
-
-		g.setFont("phosphor", 18);
-		g.setColour(Colours.withMultipliedBrightness(obj.textColour, obj.over ? 1.0 - 0.2 * obj.value : 0.8));
-		g.drawText(String.fromCharCode(obj.text), a);
-	});
 	
 	//! pnlPresetBrowserContainer
 	const pnlPresetBrowserContainer = Content.getComponent("pnlPresetBrowserContainer");
