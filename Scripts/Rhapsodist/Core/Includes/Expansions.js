@@ -33,10 +33,10 @@ namespace Expansions
 		{
 			if (response && !Engine.isHISE())
 				eh.setCurrentExpansion("");
-		});		
+		});
 	}
 
-	//! Functions
+	//! Functions	
 	inline function getCurrentExpansionName()
 	{
 		local e = eh.getCurrentExpansion();
@@ -50,6 +50,16 @@ namespace Expansions
 	inline function getCurrentExpansion()
 	{
 		return eh.getCurrentExpansion();
+	}
+
+	inline function: ScriptObject getAppDataFolder()
+	{
+		local e = eh.getCurrentExpansion();
+		
+		if (isDefined(e))
+			return e.getRootFolder();
+		
+		return FileSystem.getFolder(FileSystem.AppData);
 	}
 
 	inline function: Array getAllExpansionIcons()
