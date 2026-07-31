@@ -36,7 +36,7 @@ namespace UserSettings
 	
 		g.setColour(Colours.withAlpha(obj.textColour, obj.value ? 1.0 : 0.8));
 		g.drawEllipse(disc, thickness);
-		
+
 		var alpha = (obj.value ? 0.9 : 0.2) + (0.2 * obj.over) - (0.2 * obj.down);
 		g.setColour(Colours.withAlpha(obj.textColour, alpha));
 		g.fillEllipse(disc.reduced(thickness * 1.5));
@@ -562,21 +562,24 @@ namespace UserSettings
 
 	inline function restoreEngineSettings()
 	{
-		local defaults = {"Max Voices": 4.0, "Disk Mode": 1.0, "BPM": 120};
+		local defaults = {"Max Voices": 4.0, "Disk Mode": 1.0, "BPM": 120, "Lazy Load": 0};
 		local scope = Engine.getName().replace(" ", "_").toLowerCase();
 		local obj = getScopedPropertiesFromFile(scope);
-			
+
 		for (x in Content.getAllComponents(""))
 		{
-			local id = x.get("text");
+			local text = x.get("text");
 
-			if (!isDefined(obj[id]) && !isDefined(defaults[id]))
+			if (!isDefined(obj[text]) && !isDefined(defaults[text]))
 				continue;
 
-			local value = isDefined(obj[id]) ? obj[id] : defaults[id];
+			local value = isDefined(obj[text]) ? obj[text] : defaults[text];
 
 			if (isDefined(value))
-				x.setValue(value);			
+			{
+				x.setValue(value);
+				x.changed();
+			}				
 		}
 
 		settingsLoaded = true;
@@ -598,11 +601,11 @@ namespace UserSettings
 	//! Engine setting changed broadcaster
 	const bcEngineSettingChanged = Engine.createBroadcaster({id: "UserSettings", args: ["component", "value"]});
 	
-	bcEngineSettingChanged.attachToComponentValue(["cmbStreamingMode", "cmbMaxVoices", "knbGlobalBpm", "btnTooltips"], "");
+	bcEngineSettingChanged.attachToComponentValue(["cmbStreamingMode", "cmbMaxVoices", "knbGlobalBpm", "btnLazyLoad", "btnTooltips"], "");
 	bcEngineSettingChanged.addListener(0, "Engine Setting Changed", function(component, value)
 	{
 		if (!settingsLoaded)
-			return restoreEngineSettings();
+			return;
 
 		if (component.get("parentComponent") != "pnlEngineSettings" && component.getId() != "knbGlobalBpm")
 			return;
@@ -611,5 +614,6 @@ namespace UserSettings
 	});
 
 	//! Function Calls
-	populateMenuItems();
+	populateMenuItems();	
+	Content.callAfterDelay(10, restoreEngineSettings);
 }
