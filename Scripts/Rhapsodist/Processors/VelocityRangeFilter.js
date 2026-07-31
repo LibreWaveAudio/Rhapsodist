@@ -24,24 +24,26 @@ reg block;
 //! btnMute
 const btnMute = Content.addButton("Mute", 10, 10);
 
-//! knbLowVelocity
-const knbLowVelocity = Content.addKnob("LowVelocity", 160, 0);
-knbLowVelocity.setRange(0, 127, 1);
-knbLowVelocity.set("tooltip", "Lowest velocity to affect.");
-knbLowVelocity.setControlCallback(onknbLowVelocityControl);
+//! knbMinVelocity
+const knbMinVelocity = Content.addKnob("MinVelocity", 160, 0);
+knbMinVelocity.setRange(0, 127, 1);
+knbMinVelocity.set("defaultValue", 0);
+knbMinVelocity.set("tooltip", "Lowest velocity to affect.");
+knbMinVelocity.setControlCallback(onknbMinVelocityControl);
 
-inline function onknbLowVelocityControl(component, value)
+inline function onknbMinVelocityControl(component, value)
 {
 	low = value;
 }
 
-//! knbHighVelocity
-const knbHighVelocity = Content.addKnob("HighVelocity", 310, 0);
-knbHighVelocity.setRange(0, 127, 1);
-knbHighVelocity.set("tooltip", "Highest velocity to affect.");
-knbHighVelocity.setControlCallback(onknbHighVelocityControl);
+//! knbMaxVelocity
+const knbMaxVelocity = Content.addKnob("MaxVelocity", 310, 0);
+knbMaxVelocity.setRange(0, 127, 1);
+knbMaxVelocity.set("defaultValue", 127);
+knbMaxVelocity.set("tooltip", "Highest velocity to affect.");
+knbMaxVelocity.setControlCallback(onknbMaxVelocityControl);
 
-inline function onknbHighVelocityControl(component, value)
+inline function onknbMaxVelocityControl(component, value)
 {
 	high = value;
 }
