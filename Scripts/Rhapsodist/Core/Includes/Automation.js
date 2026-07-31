@@ -19,10 +19,9 @@ namespace Automation
 {
 	const style = CoreLookAndFeel.style;
 	const fonts = style.fonts;
+
 	const mpeMods = [];
 	const mpeTableData = [];
-
-	reg currentMacroConnections;
 
 	//! Macro Handler
 	const mh = Engine.createMacroHandler();
@@ -247,24 +246,6 @@ namespace Automation
 
 		Engine.setFrontendMacros(names);
 	}
-	
-	//! Broadcasters
-	Presets.broadcasters.preLoad.addListener({}, "Preset preload", function(isInternal)
-	{
-		if (isInternal)
-			return;
-
-		currentMacroConnections = mh.getMacroDataObject();
-	});
-
-	Presets.broadcasters.postLoad.addListener({}, "Preset post load", function(isInternal)
-	{
-		if (isInternal)
-			return;
-
-		if (isDefined(currentMacroConnections))
-			mh.setMacroDataFromObject(currentMacroConnections);
-	});
 
 	// MPE Watcher	
 	const var bcMpeBypassWatcher = Engine.createBroadcaster({id: "bcMpeBypassWatcher", args: ["processor", "parameter", "value"]});
