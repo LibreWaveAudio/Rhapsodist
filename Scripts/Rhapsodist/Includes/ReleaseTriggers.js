@@ -22,9 +22,17 @@ namespace ReleaseTriggers
 	inline function setOptions(options: JSON)
 	{
 		for (x in Core.samplers)
-			x.asSampler().setReleaseStartOptions(options);
-			
-		createReleaseTriggerButton();
+			x.asSampler().setReleaseStartOptions(options);			
+	}
+	
+	inline function setOption(option: string, value: NotUndefined)
+	{
+		for (x in Core.samplers)
+		{
+			local obj = x.asSampler().getReleaseStartOptions();
+			obj[options] = value;
+			x.asSampler().setReleaseStartOptions(obj);	
+		}
 	}
 
 	inline function useDefaults()
@@ -84,6 +92,9 @@ namespace ReleaseTriggers
 		
 		return button;
 	}
+	
+	//! Calls
+	createReleaseTriggerButton();
 	
 	//! Broadcasters
 	const bcbtnReleaseTriggersValue = Engine.createBroadcaster({id: "bcbtnReleaseTriggersValue", args: ["component", "value"]});
