@@ -138,7 +138,7 @@ inline function: Array createKnobs()
 			defaultValue: 5000,
 		},
 		{
-			text: "AttackLeve",
+			text: "AttackLevel",
 			mode: "Decibel",
 			defaultValue: 0,
 		},
