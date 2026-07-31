@@ -17,7 +17,7 @@
 
 Content.setHeight(200);
 
-const NUM_TABLES = 50;
+const NUM_TABLES = 25;
 const data = [];
 
 //! tblVelocity

@@ -107,10 +107,7 @@ namespace VelocityTables
 					width: widthHeight,
 					height: widthHeight,
 					parentComponent: parentPanel.getId(),
-					processorId: "velocityHandler",
-					bgColour: 0x0,
-					itemColour: 0x0ffd7d8da,
-					itemColour2: 0xff8a94a7
+					processorId: "velocityScaler"
 				});
 			}
 		}
