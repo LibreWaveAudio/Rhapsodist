@@ -8,6 +8,7 @@ PooledResources/
 AdditionalSourceCode/
 Packaging/
 Scripts/App
+*.kantban
 *build
 *dev
 *.hxi
@@ -15,5 +16,6 @@ Scripts/App
 *.hxp
 *.hr*
 *.ch*
+*.dat
 .DS_Store
 .kantban
