@@ -27,7 +27,7 @@ namespace PreloadBar
 		g.setColour(this.get("bgColour"));
 		g.fillRoundedRectangle(a, this.get("borderRadius"));
 		
-		g.setColour(this.get("itemColour"));
+		g.setColour(this.get("textColour"));
 		g.fillRoundedRectangle([a[0], a[1], a[2] * this.getValue(), a[3]], this.get("borderRadius"));
 	});
 	
