@@ -1,5 +1,5 @@
 /*
-	Copyright 2025 David Healey
+	Copyright 2025, 2026 David Healey
 
     This file is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,73 +17,23 @@
 
 namespace EqPanel
 {
-	const filterIcons = {"LowPass": "\uf133", "HighPass": "\uf132", "LowShelf": "\uf138", "HighShelf": "\uf137", "Peak": "\uf12f"};
+	const style = CoreLookAndFeel.style;
+	const fonts = style.fonts;
 
-	//! Functions
 	inline function create(panelId: string, effectId: string, options: JSON)
 	{
 		local panel = Content.getComponent(panelId);
-		local effect = Synth.getEffect(effectId);
-		local dbs = Synth.getDisplayBufferSource(effectId);
-
-		Engine.addModuleStateToUserPreset(effectId);
 		
 		for (x in options)
 			panel.data[x] = options[x];
 
-		// Tile
-		local tileId = panelId.replace("pnl", "flt");
-		local tile;
-		
-		if (!Content.componentExists(tileId))
-		{
-			tile = Content.addFloatingTile(panelId.replace("pnl", "flt"), 0, 0);
+		local tile = createFloatingTile(panel, effectId, options);
+		local displayPanel = createDisplayPanel(panel, tile, options);
 
-			tile.setContentData({
-				Type: "DraggableFilterPanel",
-				ProcessorId: effectId,
-				ResetOnDoubleClick: true
-			});			
-		}
-		else
-		{
-			tile = Content.getComponent(tileId);
-		}		
-		
-		tile.setLocalLookAndFeel(lafEq);
+		local effect = Synth.getEffect(effectId);
+		local dbs = Synth.getDisplayBufferSource(effectId);
+		Engine.addModuleStateToUserPreset(effectId);
 
-		Content.setPropertiesFromJSON(tile.getId(), {
-			parentComponent: panelId,
-			width: panel.getWidth(),
-			height: panel.getHeight()
-		});
-		
-		// Display panel
-		local displayPanel = Content.addPanel(panelId + "Display", 0, 0);
-		displayPanel.data.values = [];
-
-		displayPanel.setTimerCallback(function()
-		{
-			this.showControl(false);		
-			this.stopTimer();
-		});
-		
-		Content.setPropertiesFromJSON(displayPanel.getId(), {
-			parentComponent: panelId,
-			x: 0, y: tile.getHeight() - 30, width: tile.getWidth(), height: 15,
-			enabled: false,
-			visible: false
-		});
-				
-		displayPanel.setPaintRoutine(function(g)
-		{
-			var a = this.getLocalBounds(0);
-			
-			g.setFont("regular", 14);					
-			g.setColour(this.get("textColour"));
-			g.drawAlignedText(this.get("text"), a, "centred");
-		});	
-		
 		setEqProperties(dbs, isDefined(options.displayBufferProperties) ? displayBufferProperties : {});
 		
 		panel.data.bc = addBroadcasters(displayPanel, tile.getId(), effect);		
@@ -92,18 +42,76 @@ namespace EqPanel
 		panel.data.dbs = dbs;
 	}
 	
-	//! Functions	
-	inline function addBroadcasters(displayPanel, tileId, effect)
+	//! Functions
+	inline function: ScriptObject createFloatingTile(parentPanel: ScriptObject, effectId: string, options: JSON)
 	{
-		local result = {};
+		local id = parentPanel.getId().replace("pnl", "flt");
+		local componentExists = Content.componentExists(id);
+		local tile = Content.addFloatingTile(id);
 		
-		// Broadcaster definition
+		if (!componentExists)
+		{
+			Content.setPropertiesFromJSON(id, {
+				x: 0,
+				y: 0,
+				width: parentPanel.getWidth(),
+				height: parentPanel.getHeight(),
+				parentComponent: parentPanel.getId(),
+				bgColour: 0x0,
+				itemColour3: 0x55ffffff,
+				ContentType: "DraggableFilterPanel",
+				Data: "{\n  \"ProcessorId\": \"" + effectId + "\",\n  \"Index\": -1,\n  \"FollowWorkspace\": false,\n  \"AllowFilterResizing\": true,\n  \"AllowDynamicSpectrumAnalyser\": 0,\n  \"UseUndoManager\": false,\n  \"ResetOnDoubleClick\": true,\n  \"GainRange\": 24.0,\n  \"AllowContextMenu\": true\n}"
+			});
+		}
+
+		tile.setLocalLookAndFeel(laf);
+		return tile;
+	}
+	
+	inline function: ScriptObject createDisplayPanel(parentPanel: ScriptObject, tile: ScriptObject, options: JSON)
+	{
+		local id = parentPanel.getId() + "Display";
+		local componentExists = Content.componentExists(id);
+		local panel = Content.addPanel(id);
+		panel.data.values = [];
+
+		Content.setPropertiesFromJSON(id, {
+			parentComponent: parentPanel.getId(),
+			x: 0,
+			y: tile.getHeight() - 30,
+			width: tile.getWidth(),
+			height: 30,
+			bgColour: 0x0,
+			itemColour: 0x0,
+			itemColour2: 0x0,
+			enabled: false,
+			visible: false
+		});
+
+		panel.setTimerCallback(function()
+		{
+			this.showControl(false);
+			this.stopTimer();
+		});
+	
+		panel.setPaintRoutine(function(g)
+		{
+			var a = this.getLocalBounds(0);
+			
+			g.setFont(fonts.medium, 16 + fonts.size);					
+			g.setColour(this.get("textColour"));
+			g.drawAlignedText(this.get("text"), a, "centred");
+		});
+
+		return panel;
+	}
+	
+	inline function addBroadcasters(displayPanel: ScriptObject, tileId: string, effect: ScriptObject)
+	{		
 		local bcEqWatcher = Engine.createBroadcaster({id: tileId.replace("flt") + "EqWatcher", args: ["eventType", "value"]});
-		
 		bcEqWatcher.attachToEqEvents(effect.getId(), ["BandMoved", "QChanged", "MouseOver"], "");
 		bcEqWatcher.setEnableQueue(true);
-		
-		// attach first listener
+
 		bcEqWatcher.addListener({"effect": effect, "displayPanel": displayPanel}, "Watch for EQ panel changes", function(eventType, value)
 		{
 			var index = isDefined(value.Index) ? value.Index : value;
@@ -135,13 +143,13 @@ namespace EqPanel
 				this.displayPanel.showControl(value.Over);
 		});
 
-		return result;
+		return bcEqWatcher;
 	}
 	
 	inline function setEqProperties(displayBufferSource, properties)
 	{
 		local props = {
-			"BufferLength": 4096,
+			"BufferLength": 2048,
 			"WindowType": "Blackman Harris",
 			"DecibelRange": [-100.0, 0.0],
 			"UsePeakDecay": false,
@@ -158,155 +166,170 @@ namespace EqPanel
 		dp.setRingBufferProperties(props);
 	}	
 
-	//! lafEq
-	const lafEq = Content.createLocalLookAndFeel();
-	
-	lafEq.registerFunction("drawFilterBackground", function(g, obj)
+	//! Look and Feel
+	const laf = Content.createLocalLookAndFeel();
+
+	laf.registerFunction("drawFilterBackground", function(g, obj)
 	{
 		if (isDefined(LookAndFeel.drawFilterBackground))
-			LookAndFeel.drawFilterBackground();
+			return LookAndFeel.drawFilterBackground();
 	});
 
-	lafEq.registerFunction("drawFilterDragHandle", function(g, obj)
+	laf.registerFunction("drawFilterDragHandle", function(g, obj)
 	{
 		if (isDefined(LookAndFeel.drawFilterDragHandle))
-			LookAndFeel.drawFilterDragHandle();
-		else
-			drawFilterDragHandle();
+			return LookAndFeel.drawFilterDragHandle();
+
+		var a = obj.handle;
+		var c = Colours.withAlpha(obj.itemColour2, obj.enabled ? 0.8 : 0.5);
+		
+		g.setColour(Colours.withMultipliedAlpha(c, obj.hover ? 0.7 : 0.4));
+		g.fillEllipse(a.reduced(2));
+		
+		g.setColour(Colours.withMultipliedAlpha(c, obj.hover ? 1.0 : 0.8));
+		g.fillEllipse(a.reduced(6));
 	});
 
-	inline function drawFilterDragHandle()
-	{
-		local a = obj.handle;
-		local c = Colours.withAlpha(obj.itemColour2, obj.enabled ? 0.8 : 0.5);
-
-		g.setColour(Colours.withMultipliedAlpha(c, obj.hover ? 0.7 : 0.4));
-		g.fillEllipse(a);
-
-		g.setColour(Colours.withMultipliedAlpha(c, obj.hover ? 1.0 : 0.8));
-		g.fillEllipse(a.reduced(4));
-	}
-
-	lafEq.registerFunction("drawFilterPath", function(g, obj)
+	laf.registerFunction("drawFilterPath", function(g, obj)
 	{
 		 if (isDefined(LookAndFeel.drawFilterPath))
-		 	LookAndFeel.drawFilterPath();
-		 else
-		 	drawFilterPath();
-	});
+		 	return LookAndFeel.drawFilterPath();
 
-	inline function drawFilterPath()
-	{
-		local a = obj.pathArea;
+		var a = obj.pathArea;
 
-		g.setColour(Colours.withMultipliedAlpha(obj.itemColour1, obj.enabled ? 1.0 : 0.5));
+		if (a[3] == 0) // No filter nodes
+		{
+			g.setColour(obj.textColour);
+			return g.drawLine(obj.area[0], obj.area[2], obj.area[3] / 2, obj.area[3] / 2, 2);
+		}			
+		
+		if (obj.enabled)
+			g.setGradientFill([Colours.withMultipliedAlpha(obj.itemColour1, 0.8), a[2] / 2, a[1], Colours.withMultipliedAlpha(obj.itemColour1, 0.1), a[2] / 2, a[3]]);
+		else
+			g.setColour(Colours.withMultipliedAlpha(obj.itemColour1, 0.5));
+		
 		g.fillPath(obj.path, a);
 
-		g.setColour(Colours.withAlpha(obj.textColour, 1));
+		g.setColour(obj.textColour);
 		g.drawPath(obj.path, a, 2);
-	}
+	});
 	
-	lafEq.registerFunction("drawPopupMenuBackground", function(g, obj)
+	laf.registerFunction("drawPopupMenuBackground", function(g, obj)
 	{
 		if (isDefined(LookAndFeel.drawEqPopupMenuBackground))
-			LookAndFeel.drawEqPopupMenuBackground();
-		else
-			g.fillAll(0xff2b2b2b);
+			return LookAndFeel.drawEqPopupMenuBackground();
+
+		return CoreLookAndFeel.drawPopupMenuBackground();
 	});
-	
-	lafEq.registerFunction("drawPopupMenuItem", function(g, obj)
+
+	laf.registerFunction("drawPopupMenuItem", function(g, obj)
 	{
 		if (isDefined(LookAndFeel.drawEqPopupMenuItem))
-			LookAndFeel.drawEqPopupMenuItem();
-		else
-			drawPopupMenuItem();
-	});
-	
-	inline function drawPopupMenuItem()
-	{
-		local a = obj.area;
-		local text = obj.text;
-		local icons = {"Delete Band": "\ue4a8", "Delete all bands": "\ue4a8", "Enable Band": "\ue184", "Disable Band": "\ue3de", "Enable Spectrum Analyser": "\ue802", "Disable Spectrum Analyser": "\ue800", "Cancel": "\ue4f8"};
+			return LookAndFeel.drawEqPopupMenuItem();
+
+		var a = obj.area;
+		var itemColour2 = style.popupMenu.itemColour2;
+		var textColour = style.popupMenu.textColour;
+		var textOffsetY = style.popupMenu.textOffsetY;
+		var font = style.popupMenu.font;
+		var fontSize = style.popupMenu.fontSize + style.fonts.size;
+		var iconFont = style.popupMenu.iconFont;
+		var iconFontSize = style.popupMenu.iconFontSize;
+		var radius = style.popupMenu.itemRadius;	
+		var text = obj.text;
+
+		var filterIcons = {
+			"Low Pass": "f133",
+			"High Pass": "f132",
+			"Low Shelf": "f138",
+			"High Shelf": "f137",
+			"Peak": "f12f"
+		};
 		
+		var icons = {		
+			"Delete Band": "e4a8",
+			"Delete all bands": "e4a8",
+			"Enable Band": "e184",
+			"Disable Band": "e3de",
+			"Disable all bands": "e3de",
+			"Enable all bands": "e184",
+			"Enable Spectrum Analyser": "e802",
+			"Disable Spectrum Analyser": "e800",
+			"Cancel": "e4f8"
+		};
+
 		if (obj.isSeparator)
 		{
-			g.setColour(0xffcccccc);
+			g.setColour(Colours.withAlpha(textColour, 0.3));
 			g.drawHorizontalLine(a[3] / 2, a[0] + 5, a[2] - 10);
 			return;
-		}		
-		
+		}
+
 		if (obj.text == "Enable Band" && obj.isTicked)
 			text = "Disable Band";
 			
 		if (obj.text == "Enable Spectrum Analyser" && obj.isTicked)
 			text = "Disable Spectrum Analyser";
-		
-		if (obj.isHighlighted)
-			g.fillAll(Colours.withAlpha(0xffcccccc, 0.15));
-		
-		g.setColour(Colours.withMultipliedBrightness(0xffcccccc, obj.isHighlighted || obj.isSectionHeader ? 1.0 : 0.9));
-				
-		if (isDefined(filterIcons[text.replace(" ")]))
+			
+		if (obj.isHighlighted || (obj.isTicked && !text.contains("Disable")))
 		{
-			g.setFont("fontaudio", 20);
-			g.drawAlignedText(filterIcons[text.replace(" ")], [a[0] + 5, a[1], 20, a[3]], "left");
+			g.setColour(Colours.withMultipliedAlpha(itemColour2, obj.isHighlighted && !obj.isTicked ? 0.6 : 1.0));
+			g.fillRoundedRectangle(a.reduced(5, 2), radius);
+		}
+		
+		if (obj.isSectionHeader)
+			g.setFont(style.fonts.bold, fontSize);
+		else
+			g.setFont(font, fontSize);
+
+		g.setColour(Colours.withMultipliedAlpha(textColour, obj.isHighlighted ? 1.0 : 0.9));
+		g.drawAlignedText(text.capitalize(), a.translated(40, textOffsetY), "left");
+
+		var icon = "";
+
+		if (isDefined(filterIcons[text]))
+		{
+			g.setFont("fontaudio", iconFontSize);
+			icon = filterIcons[text];
 		}
 		else if (isDefined(icons[text]))
 		{
-			g.setFont("phosphor", 20);
-			g.drawAlignedText(icons[text], [a[0] + 5, a[1], 20, a[3]], "left");			
+			g.setFont("phosphor", iconFontSize);
+			icon = icons[text];
 		}
 
-		if (obj.isSectionHeader)
-			g.setFont("bold", 16);
-		else
-			g.setFont("regular", 16);
+		g.drawAlignedText(String.fromCharCode(icon), a.translated(10, 0), "left");
 
-		g.drawAlignedText(text.capitalize(), [a[0] + 35, a[1], a[2], a[3]], "left");		
-	}
-	
-	lafEq.registerFunction("getIdealPopupMenuItemSize", function(obj)
-	{
-		if (isDefined(LookAndFeel.getIdealPopupMenuItemSize))
-			return LookAndFeel.getIdealPopupMenuItemSize();
-			
-		var fontSize = 16;	
-		return [CoreLookAndFeel.getIdealPopupMenuItemWidth() + 25, 25];
+		if (!isDefined(style.useNoise) || style.useNoise)
+			g.addNoise({alpha: 0.025, scaleFactor: 1.5, area: a, monochromatic: true});
 	});
-	
-	lafEq.registerFunction("drawAnalyserPath", function(g, obj)
+
+	laf.registerFunction("getIdealPopupMenuItemSize", function(obj)
+	{
+		var padding = 25;
+		return CoreLookAndFeel.getIdealPopupMenuItemSize();
+	});
+
+	laf.registerFunction("drawAnalyserPath", function(g, obj)
 	{
 		if (isDefined(LookAndFeel.drawAnalyserPath))
-			LookAndFeel.drawAnalyserPath();
-		else
-			drawAnalyserPath();
+			return LookAndFeel.drawAnalyserPath();
+
+		var a = obj.area;
+
+		g.setGradientFill([Colours.withMultipliedAlpha(obj.itemColour1, 0.8), 0, 0, 0x0, 0, a[3]]);
+		g.fillPath(obj.path, obj.pathArea);
 	});
 	
-	inline function drawAnalyserPath()
-	{
-		local a = obj.pathArea;
-
-		g.setGradientFill([obj.itemColour1, 0, 0, 0x0, 0, a[3]]);
-		g.fillPath(obj.path, a);
-	}
-	
-	lafEq.registerFunction("drawAnalyserGrid", function(g, obj)
+	laf.registerFunction("drawAnalyserGrid", function(g, obj)
 	{
 		if (isDefined(LookAndFeel.drawAnalyserGrid))
-			LookAndFeel.drawAnalyserGrid();
-		else
-			drawAnalyserGrid();
+			return LookAndFeel.drawAnalyserGrid();
 	});
 	
-	inline function drawAnalyserGrid() {}
-	
-	lafEq.registerFunction("drawAnalyserBackground", function(g, obj)
+	laf.registerFunction("drawAnalyserBackground", function(g, obj)
 	{
 		if (isDefined(LookAndFeel.drawAnalyserBackground))
-			LookAndFeel.drawAnalyserBackground();
-		else
-			drawAnalyserBackground();
+			return LookAndFeel.drawAnalyserBackground();
 	});
-	
-	inline function drawAnalyserBackground() {}
 }
