@@ -78,6 +78,8 @@ namespace StyleHandler
 			itemColour: Colours.withAlpha(palette.text, 0.3),
 			itemColour2: Colours.withAlpha(Colours.withMultipliedBrightness(palette.raised, palette.mode == "dark" ? 1.5 : 0.8), 0.8),
 			textColour: palette.text,
+			font: isDefined(properties.popupMenu.font) ? properties.popupMenu.font : "monoRegular",
+			fontSize: isDefined(properties.popupMenu.fontSize) ? properties.popupMenu.fontSize : 18,
 			borderSize: isDefined(properties.popupMenu.borderSize) ? properties.popupMenu.borderSize : 1,
 			borderRadius: isDefined(properties.popupMenu.borderRadius) ? properties.popupMenu.borderRadius : 2,
 			textOffsetY: isDefined(properties.popupMenu.textOffsetY) ? properties.popupMenu.textOffsetY : 0,
@@ -179,7 +181,7 @@ namespace StyleHandler
 					break;
 
 				case "ScriptComboBox":
-					c.set("bgColour", Colours.withMultipliedBrightness(palette.surface0, palette.mode == "dark" ? 0.6 : 0.8));
+					c.set("bgColour", CoreLookAndFeel.style.inputBox.bgColour);
 					c.set("textColour", Colours.withMultipliedBrightness(palette.text, palette.mode == "dark" ? 1.0 : 0.6));
 					break;
 
@@ -187,6 +189,13 @@ namespace StyleHandler
 					c.set("bgColour", palette.accent);
 					c.set("itemColour", palette.text);
 					c.set("itemColour2", Colours.withMultipliedBrightness(palette.raised, palette.mode == "dark" ? 1.5 : 0.8));
+					break;
+
+				case "ScriptSliderPack":
+					c.set("bgColour", Colours.withMultipliedBrightness(palette.surface0, palette.mode == "dark" ? 0.5 : 0.8));
+					c.set("itemColour", palette.raised);
+					c.set("itemColour2", palette.accent);
+					c.set("textColour", palette.text);
 					break;
 
 				case "ScriptFloatingTile":
@@ -295,10 +304,17 @@ namespace StyleHandler
 				break;
 
 			case "AHDSRGraph":
+			case "FlexAHDSRGraph":
 				component.set("itemColour", palette.accent);
 				component.set("itemColour2", Colours.withMultipliedBrightness(palette.raised, palette.mode == "dark" ? 1.5 : 0.8));
 				component.set("itemColour3", Colours.withMultipliedBrightness(palette.accent, 1.2));
+				component.set("textColour", palette.text);
 				break;
+
+			case "DraggableFilterPanel":
+				component.set("itemColour", palette.accent);
+				component.set("itemColour2", Colours.withMultipliedBrightness(palette.raised, palette.mode == "dark" ? 1.5 : 0.8));
+				component.set("textColour", palette.text);
 
 			case "PresetBrowser":
 				component.set("bgColour", palette.surface0);
