@@ -498,7 +498,7 @@ namespace CoreLookAndFeel
 
 		g.setFont(font, fontSize - 2);
 		g.setColour(obj.textColour);
-		g.drawAlignedText(parseInt(obj.value), a, "centred");
+		g.drawAlignedText(obj.valueAsText, a, "centred");
 	}
 
 	viewportTable.registerFunction("drawScrollbar", function(g, obj)
