@@ -30,10 +30,16 @@ namespace Presets
 	//! User Preset Handler
 	const uph = Engine.createUserPresetHandler();
 
+	if (isDefined(UserPresetProcessor.process))
+		uph.setEnableUserPresetPreprocessing(true, true);
+
 	uph.setPreCallback(function(presetData)
 	{
 		if (isDefined(UserPresetProcessor.process) && uph.isOldVersion(presetData.version))
-			UserPresetProcessor.process(presetData);
+		{
+			if (!UserPresetProcessor.process(presetData))
+				return uph.abortLoad();
+		}
 
 		isInternal = uph.isInternalPresetLoad();
 		broadcasters.preLoad.sendAsyncMessage(isInternal);
@@ -51,7 +57,7 @@ namespace Presets
 		currentPresetFile = presetFile;
 		updatePresetLabel(true);
 	});
-	
+
 	if (!Engine.isHISE())
 	{
 		uph.setStateManagerProperties({
@@ -66,9 +72,6 @@ namespace Presets
 		    ExternalFile: automationDataFile.toString(automationDataFile.FullPath)
 		});
 	}
-	
-	if (isDefined(UserPresetProcessor.process))
-		uph.setEnableUserPresetPreprocessing(true, true);
 
 	//! pnlPresetDisplay
 	const pnlPresetDisplay = Content.getComponent("pnlPresetDisplay");
@@ -593,5 +596,4 @@ namespace Presets
 
 	//! Function Calls
 	setStyleDataProperties();
-
 }
