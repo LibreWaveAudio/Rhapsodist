@@ -18,28 +18,50 @@
 namespace Envelope
 {
 	const style = CoreLookAndFeel.style;
-	
-	inline function: ScriptObject create(panelId: string, numArticulations: int, options: JSON)
+	const fonts = style.fonts;
+
+	const PARAMETERS = ["Attack", "Hold", "Decay", "Sustain", "Release", "AttackLevel", "AttackCurve", "DecayCurve", "ReleaseCurve"];
+
+	inline function: ScriptObject create(parentPanelId: string, numArticulations: int, options: JSON)
 	{
-		local panel = Content.getComponent(panelId);
+		if (!Content.componentExists(parentPanelId))
+			return Console.print("!Envelope: Component " + parentPanelId + " does not exist.");
 
-		//! pnlEnvelope
-		local pnlEnvelope = createEnvelopePanel(panel);
+		local parentPanel = Content.getComponent(parentPanelId);
+		local pnlEnvelope = createContainer(parentPanel, options);
+		local fltEnvelope = createFloatingTile(pnlEnvelope, options);
+		local pnlEnvelopeControls = createControlPanel(pnlEnvelope, options);
+		local knbAhdsr = createControls(pnlEnvelopeControls, options);
 
-		//! fltEnvelope
-		local fltEnvelope = createEnvelopeFloatingTile(pnlEnvelope);
+		if (!isDefined(options.defaultLayout) || options.defaultLayout)
+			Container.createRow(pnlEnvelopeControls.getId(), [0, 0, 0, 0], -1, {});
 
-		//! pnlEnvelopeControls
-		local pnlEnvelopeControls = createEnvelopeControls(pnlEnvelope, options);
+		bcpnlControlsMouse.attachToComponentMouseEvents([pnlEnvelopeControls, fltEnvelope], "Clicks, Hover & Dragging", "");
+		
+		bcpnlControlsMouse.addListener(knbAhdsr, "Alt click restore defaults.", function(component, event)
+		{
+			if (!event.altDown || !event.clicked || event.rightClick || event.drag)
+				return;
+		
+			for (x in this)
+			{
+				x.setValue(x.get("defaultValue"));
+				x.changed();
+			}
+		});
+
+		if (numArticulations < 2)
+			return pnlEnvelope;
 
 		//! slpEnvelopeControls
 		local slpEnvelopeControls = createSliderPack(pnlEnvelopeControls, numArticulations, options);
 
 		pnlEnvelope.data.graph = fltEnvelope;
-		pnlEnvelope.data.controlPanel = pnlEnvelopeControls;
+		pnlEnvelope.data.controlPanel = controlPanel;
+		pnlEnvelope.data.controls = knbAhdsr;
 		pnlEnvelope.data.sliderPack = slpEnvelopeControls;
 
-		bcArticulationChanged.addListener({knobs: pnlEnvelopeControls.data.knobs, sliderPack: slpEnvelopeControls}, "Articulation change listener", function(component, value)
+		bcArticulationChanged.addListener({knobs: knbAhdsr, sliderPack: slpEnvelopeControls}, "Articulation change listener", function(component, value)
 		{
 			changeArticulation(this.knobs, this.sliderPack, value);
 		});
@@ -47,14 +69,17 @@ namespace Envelope
 		return pnlEnvelope;
 	}
 	
-	inline function: ScriptObject createEnvelopePanel(parentPanel: ScriptObject)
+	inline function: ScriptObject createContainer(parentPanel: ScriptObject, options: JSON)
 	{
-		local componentExists = Content.componentExists("pnlEnvelope");
-		local panel = Content.addPanel("pnlEnvelope");
-
+		local id = "pnlEnvelope" + (isDefined(options.index) ? options.index : "");
+		local componentExists = Content.componentExists(id);
+		local panel = Content.addPanel(id);
+		
 		if (!componentExists)
 		{
-			Content.setPropertiesFromJSON("pnlEnvelope", {
+			Content.setPropertiesFromJSON(id, {
+				x: 0,
+				y: 0,
 				width: parentPanel.getWidth(),
 				height: parentPanel.getHeight(),
 				parentComponent: parentPanel.getId(),
@@ -62,7 +87,6 @@ namespace Envelope
 				bgColour: 0x0,
 				itemColour: 0x0,
 				itemColour2: 0x0,
-				textColour: 0x0,
 				borderRadius: 0,
 				borderSize: 0
 			});
@@ -70,43 +94,41 @@ namespace Envelope
 		
 		return panel;
 	}
-	
-	inline function: ScriptObject createEnvelopeFloatingTile(parentPanel: ScriptObject)
-	{
-		local componentExists = Content.componentExists("fltEnvelope");
-		local tile = Content.addFloatingTile("fltEnvelope");
 		
+	inline function: ScriptObject createFloatingTile(parentPanel: ScriptObject, options: JSON)
+	{
+		local id = "fltEnvelope";
+		local componentExists = Content.componentExists(id);
+		local tile = Content.addFloatingTile(id);
+
 		if (!componentExists)
 		{
-			Content.setPropertiesFromJSON("fltEnvelope", {
+			Content.setPropertiesFromJSON(id, {
 				x: 10,
 				y: 10,
 				width: parentPanel.getWidth() - 20,
 				height: (parentPanel.getHeight() / 2),
 				parentComponent: parentPanel.getId(),
-				ContentType: "AHDSRGraph",
-				Data: "{\n  \"ProcessorId\": \"globalAhdsr\",\n  \"Index\": -1,\n  \"FollowWorkspace\": false,\n}",
 				bgColour: 0x0,
-				itemColour: 0x0,
-				itemColour2: 0xff8a94a7,
-				itemColour3: 0x0,
-				textColour: 0x0
+				ContentType: "FlexAHDSRGraph",
+				Data: "{\n  \"ProcessorId\": \"globalFlexAhdsr\",\n  \"Index\": -1,\n  \"FollowWorkspace\": false,\n  \"CurvePointTolerance\": 20,\n  \"UseOneDimensionDrag\": false,\n  \"ShowBall\": true\n}"
 			});
 		}
 		
 		tile.setLocalLookAndFeel(laf);
+
 		return tile;
 	}
 
-	inline function: ScriptObject createEnvelopeControls(parentPanel: ScriptObject, options: JSON)
+	inline function: ScriptObject createControlPanel(parentPanel: ScriptObject, options: JSON)
 	{
-		//! pnlEnvelopeControls
-		local componentExists = Content.componentExists("pnlEnvelopeControls");
-		local panel = Content.addPanel("pnlEnvelopeControls");
+		local id = parentPanel.getId() + "Controls";
+		local componentExists = Content.componentExists(id);
+		local panel = Content.addPanel(id);
 
 		if (!componentExists)
 		{
-			Content.setPropertiesFromJSON("pnlEnvelopeControls", {
+			Content.setPropertiesFromJSON(id, {
 				x: 0,
 				y: parentPanel.getHeight() / 2 + 10,
 				width: parentPanel.getWidth(),
@@ -121,11 +143,15 @@ namespace Envelope
 				borderSize: 0
 			});
 		}
+				
+		return panel;
+	}
 
-		//! knbAhdsr
-		local knbAhdsr = Content.getAllComponents("knbAhdsr\\d");
-		
-		local knobProperties = [
+	inline function: Array createControls(parentPanel: ScriptObject, options: JSON)
+	{
+		local knobs = [];
+
+		local properties = [
 			{
 				text: "A",
 				parameter: "Attack",
@@ -153,10 +179,9 @@ namespace Envelope
 			{
 				text: "S",
 				parameter: "Sustain",
-				mode: "Decibel",
-				defaultValue: -1,
-				middlePosition: -18,
-				stepSize: 1.0,
+				mode: "NormalizedPercentage",
+				defaultValue: 0.9,
+				middlePosition: 0.5,
 				tooltip: "Envelope sustain level"
 			},
 			{
@@ -170,9 +195,9 @@ namespace Envelope
 			{
 				text: "Atk Level",
 				parameter: "AttackLevel",
-				mode: "Decibel",
-				defaultValue: 0,
-				middlePosition: -18,
+				mode: "NormalizedPercentage",
+				defaultValue: 1.0,
+				middlePosition: 0.5,
 				tooltip: "Envelope attack level",
 				visible: false
 			},
@@ -189,81 +214,97 @@ namespace Envelope
 				text: "Decay Curve",
 				parameter: "DecayCurve",
 				mode: "NormalizedPercentage",
-				defaultValue: 1.0,
+				defaultValue: 0.1,
 				middlePosition: 0.5,
 				tooltip: "Envelope decay curve",
 				visible: false
+			},
+			{
+				text: "Release Curve",
+				parameter: "ReleaseCurve",
+				mode: "NormalizedPercentage",
+				defaultValue: 0.3,
+				middlePosition: 0.5,
+				tooltip: "Envelope release curve",
+				visible: false
 			}
 		];
+		
+		local knobHeight = 90;
+		local knobWidth = 62;
 
-		if (!knbAhdsr.length)
+		if (isDefined(options.knobHeight) && options.knobHeight < knobHeight)
+			knobHeight = options.knobHeight;
+			
+		if (isDefined(options.knobWidth) && options.knobWidth < knobWidth)
+			knobWidth = 62;
+
+		for (i = 0; i < properties.length; i++)
 		{
-			local knobHeight = 90;
-			local knobWidth = 62;
+			local id = parentPanel.getId().replace("Controls").replace("Envelope", "Ahdsr").replace("pnl", "knb") + i;
+			local componentExists = Content.componentExists(id);
+			local knob = Content.addKnob(id);			
+			local props = {};
 
-			if (isDefined(options.knobHeight) && options.knobHeight < knobHeight)
-				knobHeight = options.knobHeight;
-				
-			if (isDefined(options.knobWidth) && options.knobWidth < knobWidth)
-				knobWidth = 62;
-
-			for (i = 0; i < knobProperties.length; i++)
+			for (x in properties[i])
 			{
-				knbAhdsr.push(Content.addKnob("knbAhdsr" + i));
+				if (componentExists && x == "defaultValue")
+					continue;
 
-				local props = knobProperties[i];
-				props.width = knobWidth;
-				props.height = knobHeight;
-				props.parentComponent = "pnlEnvelopeControls";
+				props[x] = properties[i][x];
+			}
+
+			props.width = knobWidth;
+			props.height = knobHeight;
+			props.parentComponent = parentPanel.getId();
+			props.saveInPreset = true;
+
+			if (!componentExists)
+			{
 				props.processorId = "ahdsrController";
 				props.parameterId = props.parameter;
 				props.pluginParameterName = props.parameter;
-				props.saveInPreset = true;
-
-				Content.setPropertiesFromJSON("knbAhdsr" + i, props);				
 			}
+			
+			Content.setPropertiesFromJSON(id, props);
+			
+			knob.setLocalLookAndFeel(laf);
+			
+			knobs.push(knob);			
 		}
 
-		for (x in knbAhdsr)
-			x.setLocalLookAndFeel(laf);
+		bcFloatingTileDrag.attachToModuleParameter("globalFlexAhdsr", PARAMETERS, "");
 
-		if (!isDefined(options.defaultLayout) || options.defaultLayout)
-			Container.createRow("pnlEnvelopeControls", [0, 0, 0, 0], -1, {});
-
-		panel.data.knobs = knbAhdsr;
-
-		bcpnlControlsMouse.attachToComponentMouseEvents(panel, "Clicks, Hover & Dragging", "");
-
-		bcpnlControlsMouse.addListener(knbAhdsr, "Alt click retort knob defaults.", function(component, event)
+		bcFloatingTileDrag.addListener(knobs, "update UI knobs", function(id, parameter, value)
 		{
-			if (!event.altDown || !event.clicked || event.rightClick || event.drag)
-				return;
+			var index = PARAMETERS.indexOf(parameter);
 
-			for (x in this)
+			if (isDefined(this[index]) && this[index].get("parameterId") == parameter)
 			{
-				x.setValue(x.get("defaultValue"));
-				x.changed();
+				this[index].setValue(value);
+				this[index].changed();
 			}
-		});		
+		});
 
-		return panel;
+		return knobs;
 	}
 	
 	inline function: ScriptObject createSliderPack(parentPanel: ScriptObject, numArticulations: number, options: JSON)
 	{
-		local componentExists = Content.componentExists("slpEnvelopeControls");
-		local sliderPack = Content.addSliderPack("slpEnvelopeControls", 0, 0);
+		local id = parentPanel.getId().replace("pnl", "slp");
+		local componentExists = Content.componentExists(id);
+		local sliderPack = Content.addSliderPack(id, 0, 0);
 
 		if (!componentExists)
 		{
-			Content.setPropertiesFromJSON("slpEnvelopeControls", {
+			Content.setPropertiesFromJSON(id, {
 				visible: 0,
 				showValueOverlay: false,
 				flashActive: false,
 			});
 		}
 
-		Content.setPropertiesFromJSON("slpEnvelopeControls", {
+		Content.setPropertiesFromJSON(id, {
 			parentComponent: parentPanel.getId(),
 			processorId: "ahdsrController",
 			SliderPackIndex: 0,
@@ -272,9 +313,6 @@ namespace Envelope
 			stepSize: 0.01,
 			sliderAmount: 8 * numArticulations
 		});
-		
-		if (!isDefined(options.sliderPack))
-			return sliderPack;
 
 		return sliderPack;
 	}
@@ -291,7 +329,7 @@ namespace Envelope
 	//! Look and Feel
 	const laf = Content.createLocalLookAndFeel();
 	
-	laf.registerFunction("drawAhdsrBackground", function(g, obj)
+	laf.registerFunction("drawFlexAhdsrBackground", function(g, obj)
 	{
 		if (isDefined(LookAndFeel.drawAhdsrBackground))
 			return LookAndFeel.drawAhdsrBackground();
@@ -300,30 +338,74 @@ namespace Envelope
 		g.fillRoundedRectangle(obj.area, 2);
 	});
 	
-	laf.registerFunction("drawAhdsrPath", function(g, obj)
+	laf.registerFunction("drawFlexAhdsrFullPath", function(g, obj)
 	{
-		if (isDefined(LookAndFeel.drawAhdsrPath))
-			return LookAndFeel.drawAhdsrPath();
+		if (isDefined(LookAndFeel.drawFlexAhdsrFullPath))
+			return LookAndFeel.drawFlexAhdsrFullPath();
 
 		var a = obj.area;
-		var pathColour = obj.itemColour;
 		var fillColour = Colours.withMultipliedAlpha(obj.itemColour2, obj.enabled ? 0.5 : 0.1);
 
 		g.setGradientFill([fillColour, a[2] / 2, a[1], Colours.withMultipliedAlpha(fillColour, 0.1), a[2] / 2, a[3]]);
-		
-		g.fillPath(obj.path, a);
-	
-		if (obj.isActive || !obj.enabled)
-			return;
-	
-		g.setColour(pathColour);
-		g.drawPath(obj.path, a, 2.0);
+		g.fillPath(obj.path, obj.pathArea);
+
+		g.setColour(Colours.withAlpha(obj.itemColour, obj.enabled ? 1.0 : 0.5));
+		g.drawPath(obj.path, obj.pathArea, 2.0);
 	});
 	
-	laf.registerFunction("drawAhdsrBall", function(g, obj)
+	laf.registerFunction("drawFlexAhdsrSegment", function(g, obj)
 	{
-		if (isDefined(LookAndFeel.drawAhdsrBall))
-			return LookAndFeel.drawAhdsrBall();
+		if (isDefined(LookAndFeel.drawFlexAhdsrSegment))
+			return LookAndFeel.drawFlexAhdsrSegment();
+
+		var a = obj.area;
+		var fillColour = Colours.withMultipliedAlpha(obj.itemColour2, 0.5);
+	
+		if (!obj.active)
+			return;
+	
+		g.setGradientFill([fillColour, a[2] / 2, a[1], Colours.withMultipliedAlpha(fillColour, 0.1), a[2] / 2, a[3]]);
+		g.fillPath(obj.path, obj.path.getBounds(1));
+	});
+	
+	laf.registerFunction("drawFlexAhdsrCurvePoint", function(g, obj)
+	{
+		if (isDefined(LookAndFeel.drawFlexAhdsrCurvePoint))
+			return LookAndFeel.drawFlexAhdsrCurvePoint();
+
+		if (!obj.hover)
+			return;
+
+		var a = Rectangle(obj.curvePoint[0] - 4, obj.curvePoint[1] - 4, 8, 8);
+				
+		g.setColour(Colours.withMultipliedBrightness(obj.itemColour, 1.2));
+		g.fillEllipse(a);
+	});
+	
+	laf.registerFunction("drawFlexAhdsrDragPoint", function(g, obj)
+	{
+		if (isDefined(LookAndFeel.drawFlexAhdsrDragPoint))
+			return LookAndFeel.drawFlexAhdsrDragPoint();
+
+		if (!obj.hover)
+			return;
+
+		var a = Rectangle(obj.dragPoint[0] - 4, obj.dragPoint[1] - 4, 8, 8);
+
+		g.setColour(Colours.withMultipliedBrightness(obj.itemColour, 1.2));
+		g.drawRect(a, 2);
+	});
+	
+	laf.registerFunction("drawFlexAhdsrPosition", function(g, obj)
+	{
+		if (isDefined(LookAndFeel.drawFlexAhdsrPosition))
+			return LookAndFeel.drawFlexAhdsrPosition();
+	});
+	
+	laf.registerFunction("drawFlexAhdsrBall", function(g, obj)
+	{
+		if (isDefined(LookAndFeel.drawFlexAhdsrBall))
+			return LookAndFeel.drawFlexAhdsrBall();
 	
 		if (!obj.enabled)
 			return;
@@ -337,6 +419,12 @@ namespace Envelope
 		g.fillEllipse(a.reduced(3));
 	});
 	
+	laf.registerFunction("drawFlexAhdsrText", function(g, obj)
+	{
+		if (isDefined(LookAndFeel.drawFlexAhdsrText))
+			return LookAndFeel.drawFlexAhdsrText();
+	});
+
 	laf.registerFunction("drawRotarySlider", function(g, obj)
 	{
 		if (isDefined(LookAndFeel.drawAhdsrKnob))
@@ -346,6 +434,9 @@ namespace Envelope
 	});
 	
 	//! Broadcasters
+	
+	//! bc floating tile drag
+	const bcFloatingTileDrag = Engine.createBroadcaster({id: "bcFloatingTileDrag", args: ["id", "parameter", "value"]});
 	
 	//! Bc panel mouse click
 	const bcpnlControlsMouse = Engine.createBroadcaster({id: "clickWatcher", args: ["component", "event"]});

@@ -16,11 +16,11 @@
 */
 
 Content.setWidth(700);
-Content.setHeight(125);
+Content.setHeight(175);
 
 //! Mods
-const globalAhdsr = Synth.getAllModulators("globalAhdsr")[0];
-const mods = Synth.getAllModulators("GainAhdsr");
+const globalFlexAhdsr = Synth.getAllModulators("globalFlexAhdsr")[0];
+const mods = Synth.getAllModulators("GainFlexAhdsr");
 const attributes = getAttributeList();
 
 //! knbAhdsr
@@ -34,7 +34,7 @@ inline function onAhdsrControl(component, value)
 }
 
 //! knbArticulation
-const knbArticulation = Content.addKnob("Articulation", 424, 60);
+const knbArticulation = Content.addKnob("Articulation", 10, 115);
 knbArticulation.setRange(0, 49, 1);
 knbArticulation.set("sendValueOnDrag", false);
 knbArticulation.setControlCallback(onknbArticulationControl);
@@ -45,7 +45,7 @@ inline function onknbArticulationControl(component, value)
 }
 
 //! btnLink
-const btnLink = Content.addButton("LinkArticulation", 562, 70);
+const btnLink = Content.addButton("LinkArticulation", 150, 125);
 btnLink.set("text", "Link Articulation");
 btnLink.set("tooltip", "When enabled, changing the value of a knob will affect all articulations");
 
@@ -86,8 +86,8 @@ inline function setModuleProperty(knobIndex: number, value: number)
 	for (x in mods)
 		x.setAttribute(attributes[knobIndex], value);
 
-	if (isDefined(globalAhdsr) && isDefined(attributes[knobIndex]))
-		globalAhdsr.setAttribute(attributes[knobIndex], value);
+	if (isDefined(globalFlexAhdsr) && isDefined(attributes[knobIndex]))
+		globalFlexAhdsr.setAttribute(attributes[knobIndex], value);
 }
 
 inline function setSliderPackValue(knobIndex: number, value: number)
@@ -129,8 +129,8 @@ inline function: Array createKnobs()
 		},
 		{
 			text: "Sustain",
-			mode: "Decibel",
-			defaultValue: -1,
+			mode: "NormalizedPercentage",
+			defaultValue: 1.0,
 		},
 		{
 			text: "Release",
@@ -139,8 +139,8 @@ inline function: Array createKnobs()
 		},
 		{
 			text: "AttackLevel",
-			mode: "Decibel",
-			defaultValue: 0,
+			mode: "NormalizedPercentage",
+			defaultValue: 1.0,
 		},
 		{
 			text: "AttackCurve",
@@ -150,7 +150,12 @@ inline function: Array createKnobs()
 		{
 			text: "DecayCurve",
 			mode: "NormalizedPercentage",
-			defaultValue: 1.0,
+			defaultValue: 0.5,
+		},
+		{
+			text: "ReleaseCurve",
+			mode: "NormalizedPercentage",
+			defaultValue: 0.5,
 		}
 	];
 
@@ -175,10 +180,12 @@ inline function: Array createKnobs()
 
 inline function: Array getAttributeList()
 {
+	local result = [];
+
 	if (!mods.length)
 		return [];
 
-	return [mods[0].Attack, mods[0].Hold, mods[0].Decay, mods[0].Sustain, mods[0].Release, mods[0].AttackLevel, mods[0].AttackCurve, mods[0].DecayCurve];
+	return [mods[0].Attack, mods[0].Hold, mods[0].Decay, mods[0].Sustain, mods[0].Release, mods[0].AttackLevel, mods[0].AttackCurve, mods[0].DecayCurve, mods[0].ReleaseCurve];
 }
 
 //! Global Cables
