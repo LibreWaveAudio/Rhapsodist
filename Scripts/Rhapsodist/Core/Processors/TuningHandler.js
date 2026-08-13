@@ -70,22 +70,22 @@ inline function updateTuning()
 function onNoteOn()
 {
 	local n = Message.getNoteNumber();
-	local transpose = 12 * knbOctave.getValue() + knbSemi.getValue();
+	local t = -(12 * knbOctave.getValue() + knbSemi.getValue());
 	
-	lastTranspose.setValue(n, transpose);
+	lastTranspose.setValue(n, t);
 
-	if (transpose != 0)
-		Message.setTransposeAmount(transpose);
+	if (t != 0)
+		Message.setTransposeAmount(t);
 }
 function onNoteOff()
 {
 	local n = Message.getNoteNumber();
-	local transpose = (12 * knbOctave.getValue() + knbSemi.getValue());
-	
-	transpose += (lastTranspose.getValue(n) - transpose);
+	local t = -((12 * knbOctave.getValue() + knbSemi.getValue()));
 
-	if (transpose != 0)
-		Message.setTransposeAmount(transpose);
+	t += (lastTranspose.getValue(n) - t);
+
+	if (t != 0)
+		Message.setTransposeAmount(t);
 }
 function onController()
 {

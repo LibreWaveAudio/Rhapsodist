@@ -18,6 +18,8 @@
 namespace ArticulationSwitcher
 {
 	const useUacc = isDefined(Manifest.useUacc) ? Manifest.useUacc : true;
+	
+	reg transposition = 0;
 
 	//! knbArticulation
 	const knbArticulation = Content.getComponent("knbArticulation");
@@ -37,7 +39,7 @@ namespace ArticulationSwitcher
 	inline function onNoteOn()
 	{
 		local n = Message.getNoteNumber();
-		local index = ArticulationDataManager.getArticulationIndexForKeyswitch(n);
+		local index = ArticulationDataManager.getArticulationIndexForKeyswitch(n - transposition);
 	
 		if (index == -1)
 			return;
@@ -58,4 +60,13 @@ namespace ArticulationSwitcher
 				changeArticulation(index);			
 		}
 	}
+	
+	//! Broadcasters
+	const bcTranposeChanged = Engine.createBroadcaster({id: "bcTranposeChanged", args: ["component", "value"]});
+	bcTranposeChanged.attachToComponentValue("knbTranspose", "");
+	
+	bcTranposeChanged.addListener(0, "Transposition value changed", function(component, value)
+	{
+		transposition = value;
+	});	
 }

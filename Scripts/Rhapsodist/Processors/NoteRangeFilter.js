@@ -25,7 +25,7 @@ btnTranspose.set("text", "Ignore Transpose");function onNoteOn()
     local t = btnTranspose.getValue() ? 0 : Message.getTransposeAmount();
 
 	if (n < knbLowNote.getValue() - t || n > knbHighNote.getValue() - t)
-        Message.ignoreEvent(true);
+		Message.ignoreEvent(true);        
 }
  function onNoteOff()
 {

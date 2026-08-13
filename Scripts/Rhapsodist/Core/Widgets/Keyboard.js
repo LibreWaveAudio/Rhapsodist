@@ -17,7 +17,10 @@
 
 namespace Keyboard
 {
-	const range = [];
+	reg transposition = 0;
+
+	const lowHiKey = [];
+	const keyRanges = {};
 	const style = CoreLookAndFeel.style.keyboard;
 	const laf = Content.createLocalLookAndFeel();
 
@@ -40,8 +43,8 @@ namespace Keyboard
 	inline function drawWhiteNote()
 	{
 		local a = obj.area.reduced(0.5, 0);
-		local isLowKey = obj.noteNumber == range[0];
-		local isHighKey = obj.noteNumber == range[1];
+		local isLowKey = obj.noteNumber == lowHiKey[0];
+		local isHighKey = obj.noteNumber == lowHiKey[1];
 		local roundEndKeys = style.roundEndKeys;
 		local radius = style.radius;
 		local useShadow = style.useShadow;
@@ -150,41 +153,49 @@ namespace Keyboard
 		return obj[key];
 	}
 	
-	inline function updateRange()
+	inline function updateVisibleRange()
 	{
-		range[0] = getDataProperty("LowKey");
-		range[1] = getDataProperty("HiKey");
+		lowHiKey[0] = getDataProperty("LowKey");
+		lowHiKey[1] = getDataProperty("HiKey");
 	}
 
-	inline function setKeyRanges(data: Array)
+	inline function setKeyRanges()
 	{
-		if (!data.length)
-			return;
-
 		local keyColours = style.colours;
 
-		for (x in data)
+		for (k in keyRanges)
 		{
-			if ((!isDefined(x.loKey) || !isDefined(x.hiKey)) && !isDefined(x.keys))
-				continue;
+			local data = keyRanges[k];
 
-			for (i = 0; i < 127; i++)
+			if (!data.length)
+				continue;	
+
+			for (x in data)
 			{
-				if (isDefined(x.keys) && !x.keys.contains(i))
+				if ((!isDefined(x.loKey) || !isDefined(x.hiKey)) && !isDefined(x.keys))
 					continue;
-
-				if ((isDefined(x.loKey) && isDefined(x.hiKey)) && (i < x.loKey || i > x.hiKey))
-					continue;
-
-				local isBlack = [1, 3, 6, 8, 10].contains(i % 12);
-				local c = keyColours[x.colour][isBlack];
-
-				if (!isDefined(c))
-					continue;
-
-				Engine.setKeyColour(i, c);
+	
+				for (i = 0; i < 127; i++)
+				{
+					if (isDefined(x.keys) && !x.keys.contains(i))
+						continue;
+	
+					if ((isDefined(x.loKey) && isDefined(x.hiKey)) && (i < x.loKey || i > x.hiKey))
+						continue;
+	
+					local note = i + transposition;
+					local isBlack = [1, 3, 6, 8, 10].contains(note % 12);
+					local c = keyColours[x.colour][isBlack];
+	
+					if (!isDefined(c))
+						continue;
+	
+					Engine.setKeyColour(note, c);
+				}
 			}
 		}
+		
+
 	}
 	
 	inline function resetKeyColours()
@@ -199,11 +210,14 @@ namespace Keyboard
 	}
 	
 	//! Function Calls
-	updateRange();
+	updateVisibleRange();
 	resetKeyColours();
 
 	if (isDefined(Manifest.keyranges))
-		setKeyRanges(Manifest.keyranges);
+	{
+		keyRanges.manifest = Manifest.keyranges;
+		setKeyRanges();
+	}		
 
 	//! Broadcasters
 	const bcPatchChanged = Engine.createBroadcaster({id: "keyboardPatchChanged", args: ["component", "value"]});
@@ -217,8 +231,9 @@ namespace Keyboard
 		if (!isDefined(patch.keyranges))
 			return;
 
+		keyRanges.patch = patch.keyranges;
 		resetKeyColours();
-		setKeyRanges(patch.keyranges);
+		setKeyRanges();
 	});
 
 	const bcArticulationChanged = Engine.createBroadcaster({id: "keyboardArticulationChanged", args: ["component", "value"]});
@@ -231,7 +246,18 @@ namespace Keyboard
 		if (!isDefined(articulation.keyranges))
 			return;
 
+		keyRanges.articulation = articulation.keyranges;
 		resetKeyColours();
-		setKeyRanges(articulation.keyranges);
+		setKeyRanges();
 	});
+
+	const bcTranposeChanged = Engine.createBroadcaster({id: "bcTranposeChanged", args: ["component", "value"]});
+	bcTranposeChanged.attachToComponentValue("knbTranspose", "");
+	
+	bcTranposeChanged.addListener(0, "Transposition value changed", function(component, value)
+	{
+		transposition = value;
+		resetKeyColours();
+		setKeyRanges();
+	});	
 }

@@ -375,7 +375,7 @@ inline function loadSampleMaps(data)
 		local s = samplers[samplerIds.indexOf(x.id)];		
 		local sampleMap = x.properties.SampleMap;
 
-		if (!isDefined(sampleMap))
+		if (!isDefined(s) || !isDefined(sampleMap))
 			continue;
 
 		s.setBypassed(false);
@@ -401,7 +401,8 @@ inline function enableMuters(mutersToEnable: Array)
 function onNoteOn()
 {
 	local n = Message.getNoteNumber();
-	local index = ArticulationDataManager.getArticulationIndexForKeyswitch(n);
+	local t = Message.getTransposeAmount();
+	local index = ArticulationDataManager.getArticulationIndexForKeyswitch(n - t);
 
 	if (index == -1)
 		return;
