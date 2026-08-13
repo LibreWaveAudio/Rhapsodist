@@ -35,7 +35,7 @@ namespace Footer
 			g.drawDropShadow([a[0], a[1], a[2], 35], Colours.withAlpha(Colours.black, 0.4), 8);
 
 		if (!isDefined(style.useNoise) || style.useNoise)
-			g.addNoise({alpha: 0.03, scaleFactor: 1.5, area: a, monochromatic: true});
+			g.addNoise({alpha: 0.025, scaleFactor: 2.0, area: a, monochromatic: true});
 	});
 	
 	//! pnlStatus
@@ -50,7 +50,7 @@ namespace Footer
 		g.fillAll(this.get("bgColour"));
 
 		if (!isDefined(style.useNoise) || style.useNoise)
-			g.addNoise({alpha: 0.03, scaleFactor: 1.5, area: a, monochromatic: true});
+			g.addNoise({alpha: 0.025, scaleFactor: 2.0, area: a, monochromatic: true});
 	});
 	
 	//! fltPerformanceLabel
