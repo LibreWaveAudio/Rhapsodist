@@ -19,6 +19,7 @@ namespace MicrotuningPanel
 {
 	const style = CoreLookAndFeel.style;
 	const fonts = style.fonts;
+	const laf = Content.createLocalLookAndFeel();
 
 	inline function: ScriptObject create(panelId: string, options: JSON)
 	{
@@ -84,7 +85,7 @@ namespace MicrotuningPanel
 		sliderpack.set("max", 100);
 		sliderpack.set("stepSize", 5);
 		sliderpack.setPosition(pnlMicrotune.getWidth() / 2 - width / 2, (pnlMicrotune.getHeight() - 10) / 2 - height / 2, width, height);
-		sliderpack.setLocalLookAndFeel(lafsliderpack);
+		sliderpack.setLocalLookAndFeel(laf);
 		
 		pnlMicrotune.data.sliderpackMouse = Engine.createBroadcaster({"id": "sliderpackClickWatcher", "args": ["component", "event"]});
 
@@ -163,12 +164,10 @@ namespace MicrotuningPanel
 			sliderpack.setSliderAtIndex(i, currentValues[i]);
 	}
 	
-	//! lafsliderpack
-	const lafsliderpack = Content.createLocalLookAndFeel();
+	//! Look and Feel	
+	laf.registerFunction("drawSliderPackBackground", function(g, obj) {});
 	
-	lafsliderpack.registerFunction("drawSliderPackBackground", function(g, obj) {});
-	
-	lafsliderpack.registerFunction("drawSliderPackTextPopup", function(g, obj)
+	laf.registerFunction("drawSliderPackTextPopup", function(g, obj)
 	{
 		if (isDefined(LookAndFeel.drawMicrotuningSliderPackTextPopup))
 			return LookAndFeel.drawMicrotuningSliderPackTextPopup();
@@ -185,7 +184,7 @@ namespace MicrotuningPanel
 		g.drawAlignedText(parseInt(obj.value), a, "centred");
 	});
 		
-	lafsliderpack.registerFunction("drawLinearSlider", function(g, obj)
+	laf.registerFunction("drawLinearSlider", function(g, obj)
 	{
 		if (isDefined(LookAndFeel.drawMicrotuningSlider))
 			return LookAndFeel.drawMicrotuningSlider();

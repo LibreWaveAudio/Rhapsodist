@@ -20,42 +20,6 @@ namespace VelocityTables
 	const style = CoreLookAndFeel.style;
 	const laf = Content.createLocalLookAndFeel();
 	
-	laf.registerFunction("drawTableBackground", function(g, obj)
-	{
-		if (isDefined(LookAndFeel.drawVelocityTableBackground))
-			return LookAndFeel.drawVelocityTableBackground();
-
-		var a = obj.area;
-		var c = Colours.withAlpha(obj.itemColour, 0.1);
-
-		if (isDefined(style.velocityTable.useGradientGrid) && style.velocityTable.useGradientGrid)
-			g.setGradientFill([c, a[2] / 2, a[3] / 2, 0x0, a[2], a[1], true]);
-		else
-			g.setColour(c);
-
-		g.drawHorizontalLine(a[3] / 2, a[0], a[2]);
-		g.drawHorizontalLine(a[3] / 4, a[0], a[2]);
-		g.drawHorizontalLine(a[3] - a[3] / 4, a[0], a[2]);		
-		g.drawVerticalLine(a[2] / 2, a[1], a[3]);
-		g.drawVerticalLine(a[2] / 4, a[1], a[3]);
-		g.drawVerticalLine(a[2] - a[2] / 4, a[1], a[3]);
-	});
-	
-	laf.registerFunction("drawTablePath", function(g, obj)
-	{
-		CoreLookAndFeel.drawTablePath();
-	});
-	
-	laf.registerFunction("drawTablePoint", function(g, obj)
-	{
-		CoreLookAndFeel.drawTablePoint();
-	});
-	
-	laf.registerFunction("drawTableRuler", function(g, obj)
-	{
-		CoreLookAndFeel.drawTableRuler();
-	});
-
 	inline function: ScriptObject create(panelId: string, numTables: int, options: JSON)
 	{
 		local panel = Content.getComponent(panelId);
@@ -155,6 +119,43 @@ namespace VelocityTables
 
 		return tblVelocity;
 	}
+	
+	//! Look and Feel
+	laf.registerFunction("drawTableBackground", function(g, obj)
+	{
+		if (isDefined(LookAndFeel.drawVelocityTableBackground))
+			return LookAndFeel.drawVelocityTableBackground();
+	
+		var a = obj.area;
+		var c = Colours.withAlpha(obj.itemColour, 0.1);
+	
+		if (isDefined(style.velocityTable.useGradientGrid) && style.velocityTable.useGradientGrid)
+			g.setGradientFill([c, a[2] / 2, a[3] / 2, 0x0, a[2], a[1], true]);
+		else
+			g.setColour(c);
+	
+		g.drawHorizontalLine(a[3] / 2, a[0], a[2]);
+		g.drawHorizontalLine(a[3] / 4, a[0], a[2]);
+		g.drawHorizontalLine(a[3] - a[3] / 4, a[0], a[2]);		
+		g.drawVerticalLine(a[2] / 2, a[1], a[3]);
+		g.drawVerticalLine(a[2] / 4, a[1], a[3]);
+		g.drawVerticalLine(a[2] - a[2] / 4, a[1], a[3]);
+	});
+	
+	laf.registerFunction("drawTablePath", function(g, obj)
+	{
+		CoreLookAndFeel.drawTablePath();
+	});
+	
+	laf.registerFunction("drawTablePoint", function(g, obj)
+	{
+		CoreLookAndFeel.drawTablePoint();
+	});
+	
+	laf.registerFunction("drawTableRuler", function(g, obj)
+	{
+		CoreLookAndFeel.drawTableRuler();
+	});
 
 	//! Broadcasters
 	const bctblVelocityReset = Engine.createBroadcaster({id: "tableClickWatcher", args: ["component", "event"]});
