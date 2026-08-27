@@ -108,10 +108,24 @@ namespace ZoomHandler
 	}
 
 	//! Broadcasters
-	const bcZoomPanelValue = Engine.createBroadcaster({id: "bcZoomPanelValue", args: ["component", "value"]});
-	bcZoomPanelValue.attachToComponentValue(pnlZoom, "");
+	
+	// bcpnlHeaderMouse
+	const bcpnlHeaderMouse = Engine.createBroadcaster({id: "bcpnlHeaderMouse", args: ["component", "event"]});
+	bcpnlHeaderMouse.attachToComponentMouseEvents("pnlHeader", "Clicks Only", "");
+	
+	bcpnlHeaderMouse.addComponentValueListener(cmbZoom, "Reset zoom level when library name double clicked", function(index, component, event)
+	{
+		if (event.doubleClick)
+			return 3;
 
-	bcZoomPanelValue.addComponentValueListener(cmbZoom, "If the zoom panel is used, set the zoom combo box to custom", function(index, component, value)
+		return this.getValue();
+	});	
+	
+	// bcpnlZoomValue
+	const bcpnlZoomValue = Engine.createBroadcaster({id: "bcpnlZoomValue", args: ["component", "value"]});
+	bcpnlZoomValue.attachToComponentValue(pnlZoom, "");
+
+	bcpnlZoomValue.addComponentValueListener(cmbZoom, "If the zoom panel is used, set the zoom combo box to custom", function(index, component, value)
 	{
 		if (zoomLevels.contains(value))
 			return zoomLevels.indexOf(value) + 1;
@@ -119,7 +133,7 @@ namespace ZoomHandler
 		return zoomLevels.length;
 	});
 
-	//! bccmbZoomValue
+	// bccmbZoomValue
 	const var bccmbZoomValue = Engine.createBroadcaster({id: "bccmbZoomValue", args: ["component", "value"]});
 	bccmbZoomValue.attachToComponentValue(cmbZoom, "");
 	bccmbZoomValue.setBypassed(true, false, false);
@@ -129,8 +143,5 @@ namespace ZoomHandler
 		return value - 1 < zoomLevels.length ? zoomLevels[value - 1] : this.getValue();
 	});
 	
-	bccmbZoomValue.setBypassed(false, false, false); 
-
-	//! Calls
-	pnlZoom.setValue(Settings.getZoomLevel());
+	bccmbZoomValue.setBypassed(false, false, false);
 }
