@@ -488,7 +488,6 @@ namespace Shell
 							"borderRadius": 2.0,
 							"text": "BPM",
 							"locked": "1",
-							"visible": "0",
 							"childComponents": [{
 								"type": "ScriptSlider",
 								"id": "knbGlobalBpm",
