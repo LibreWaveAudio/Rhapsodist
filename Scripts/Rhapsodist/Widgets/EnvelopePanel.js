@@ -26,20 +26,20 @@
 				Each sound generator you want to apply the envelope to should have a flex ahdsr in its gain chain. with "GainFlexAhdsr" in its ID.
 */
 
-namespace Envelope
+namespace EnvelopePanel
 {
 	const style = CoreLookAndFeel.style;
 	const fonts = style.fonts;
 
 	const PARAMETERS = ["Attack", "Hold", "Decay", "Sustain", "Release", "AttackLevel", "AttackCurve", "DecayCurve", "ReleaseCurve"];
 
-	inline function: ScriptObject create(panelId: string, numArticulations: int, options: JSON)
+	inline function: ScriptObject create(panelId: string, processorId: string, globalEnvelopeId: string, options: JSON)
 	{
 		local parentPanel = Content.getComponent(panelId);
 		local pnlEnvelope = createContainer(parentPanel, options);
-		local fltEnvelope = createFloatingTile(pnlEnvelope, options);
+		local fltEnvelope = createFloatingTile(pnlEnvelope, globalEnvelopeId, options);
 		local pnlEnvelopeControls = createControlPanel(pnlEnvelope, options);
-		local knbAhdsr = createControls(pnlEnvelopeControls, options);
+		local knbAhdsr = createControls(pnlEnvelopeControls, processorId, globalEnvelopeId, options);
 
 		if (!isDefined(options.defaultLayout) || options.defaultLayout)
 			Container.createRow(pnlEnvelopeControls.getId(), [0, 0, 0, 0], -1, {});
@@ -58,7 +58,7 @@ namespace Envelope
 			}
 		});
 
-		if (numArticulations < 2)
+		if (isDefined(options.singleArticulation))
 			return pnlEnvelope;
 
 		//! slpEnvelopeControls
@@ -103,7 +103,7 @@ namespace Envelope
 		return panel;
 	}
 		
-	inline function: ScriptObject createFloatingTile(parentPanel: ScriptObject, options: JSON)
+	inline function: ScriptObject createFloatingTile(parentPanel: ScriptObject, globalEnvelopeId: string, options: JSON)
 	{
 		local id = "fltEnvelope";
 		local componentExists = Content.componentExists(id);
@@ -119,7 +119,7 @@ namespace Envelope
 				parentComponent: parentPanel.getId(),
 				bgColour: 0x0,
 				ContentType: "FlexAHDSRGraph",
-				Data: "{\n  \"ProcessorId\": \"globalFlexAhdsr\",\n  \"Index\": -1,\n  \"FollowWorkspace\": false,\n  \"CurvePointTolerance\": 20,\n  \"UseOneDimensionDrag\": false,\n  \"ShowBall\": true\n}"
+				Data: "{\n  \"ProcessorId\": \"" + globalEnvelopeId + "\",\n  \"Index\": -1,\n  \"FollowWorkspace\": false,\n  \"CurvePointTolerance\": 20,\n  \"UseOneDimensionDrag\": false,\n  \"ShowBall\": true\n}"
 			});
 		}
 		
@@ -155,7 +155,7 @@ namespace Envelope
 		return panel;
 	}
 
-	inline function: Array createControls(parentPanel: ScriptObject, options: JSON)
+	inline function: Array createControls(parentPanel: ScriptObject, processorId: string, globalEnvelopeId: string, options: JSON)
 	{
 		local knobs = [];
 
@@ -269,7 +269,7 @@ namespace Envelope
 
 			if (!componentExists)
 			{
-				props.processorId = "ahdsrController";
+				props.processorId = processorId;
 				props.parameterId = props.parameter;
 				props.pluginParameterName = props.parameter;
 			}
@@ -281,7 +281,7 @@ namespace Envelope
 			knobs.push(knob);			
 		}
 
-		bcFloatingTileDrag.attachToModuleParameter("globalFlexAhdsr", PARAMETERS, "");
+		bcFloatingTileDrag.attachToModuleParameter(globalEnvelopeId, PARAMETERS, "");
 
 		bcFloatingTileDrag.addListener(knobs, "update UI knobs", function(id, parameter, value)
 		{
