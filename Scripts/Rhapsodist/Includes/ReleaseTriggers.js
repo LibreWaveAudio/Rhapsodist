@@ -35,7 +35,7 @@ namespace ReleaseTriggers
 		for (x in Core.samplers)
 		{
 			local obj = x.asSampler().getReleaseStartOptions();
-			obj[options] = value;
+			obj[option] = value;
 			x.asSampler().setReleaseStartOptions(obj);	
 		}
 	}

@@ -42,7 +42,7 @@ inline function transpose(index: number, currentTranspose: number)
 	if (value == 0)
 		return;
 
-	Message.setTransposeAmount(value + currentTranpose);
+	Message.setTransposeAmount(value + currentTranspose);
 }
 function onNoteOn()
 {
