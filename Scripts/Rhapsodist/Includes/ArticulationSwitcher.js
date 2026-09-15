@@ -46,7 +46,7 @@ namespace ArticulationSwitcher
 	inline function onNoteOn()
 	{
 		local n = Message.getNoteNumber();
-		local index = ArticulationDataManager.getArticulationIndexForKeyswitch(n - transposition);
+		local index = ArticulationDataManager.getArticulationIndexForKeyswitch(n + transposition);
 	
 		if (index == -1)
 			return;

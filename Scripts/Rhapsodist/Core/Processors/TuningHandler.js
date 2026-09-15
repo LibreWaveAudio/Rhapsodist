@@ -75,7 +75,7 @@ inline function updateTuning()
 function onNoteOn()
 {
 	local n = Message.getNoteNumber();
-	local t = -(12 * knbOctave.getValue() + knbSemi.getValue());
+	local t = (12 * knbOctave.getValue() + knbSemi.getValue());
 	
 	lastTranspose.setValue(n, t);
 

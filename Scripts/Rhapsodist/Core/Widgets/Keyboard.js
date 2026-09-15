@@ -189,7 +189,7 @@ namespace Keyboard
 					if ((isDefined(x.loKey) && isDefined(x.hiKey)) && (i < x.loKey || i > x.hiKey))
 						continue;
 	
-					local note = i + transposition;
+					local note = i - transposition;
 					local isBlack = [1, 3, 6, 8, 10].contains(note % 12);
 					local c = keyColours[x.colour][isBlack];
 	
