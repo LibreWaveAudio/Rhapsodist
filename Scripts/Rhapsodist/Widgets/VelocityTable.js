@@ -98,46 +98,6 @@ namespace VelocityTable
 		return table;
 	}
 	
-	inline function: Array createTables(parentPanel: ScriptObject, numTables: int)
-	{
-		local tblVelocity = Content.getAllComponents("tblVelocity\\d");
-
-		if (!tblVelocity.length)
-		{
-			local parentIsVertical = parentPanel.getHeight() > parentPanel.getWidth();
-
-			local widthHeight = parentIsVertical ? parentPanel.getWidth() - 40 : parentPanel.getHeight() - 40;
-			local x = parentPanel.getWidth() / 2 - widthHeight / 2;
-			local y = parentPanel.getHeight() / 2 - widthHeight / 2;
-
-			for (i = 0; i < numTables; i++)
-			{
-				tblVelocity.push(Content.addTable("tblVelocity" + i));
-
-				Content.setPropertiesFromJSON("tblVelocity" + i, {
-					x: x,
-					y: y,
-					width: widthHeight,
-					height: widthHeight,
-					parentComponent: parentPanel.getId(),
-					processorId: "velocityScaler"
-				});
-			}
-		}
-
-		for (i = 0; i < tblVelocity.length; i++)
-		{
-			tblVelocity[i].set("tableIndex", i);
-
-			if (isDefined(LookAndFeel.velocityTable))
-				tblVelocity[i].setLocalLookAndFeel(LookAndFeel.velocityTable);
-			else
-				tblVelocity[i].setLocalLookAndFeel(laf);
-		}
-
-		return tblVelocity;
-	}
-	
 	//! Look and Feel
 	laf.registerFunction("drawTableBackground", function(g, obj)
 	{
