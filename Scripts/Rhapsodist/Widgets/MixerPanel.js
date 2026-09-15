@@ -19,8 +19,7 @@
 @description: Creates a complete mixer UI with channel strips, pan, gain, gain meter, gain slider value, mute, solo, purge, output
 @entry: create()
 @dependencies: Container.js
-@usage: Build out the module tree first using MixerHandler.js (ID should be mixerHandler) and SimpleGain effects.
-@note: I'll adjust the signature to support passing in the mixer module ID at creation.
+@usage: Build out the module tree first using Mixer.js and SimpleGain effects.
 */
 
 namespace MixerPanel
@@ -28,7 +27,7 @@ namespace MixerPanel
 	const style = CoreLookAndFeel.style;
 	const fonts = style.fonts;
 
-	inline function: ScriptObject create(panelId: string, numChannels: int, options: JSON)
+	inline function: ScriptObject create(panelId: string, numChannels: int, processorId: string, options: JSON)
 	{
 		local parent = Content.getComponent(panelId);
 		local componentExists = Content.componentExists("pnlMixer");
@@ -55,7 +54,7 @@ namespace MixerPanel
 		{
 			local pnlChannel = createChannelPanel(pnlMixer, numChannels, i);
 
-			local knbPan = createPanKnob(pnlChannel, i);
+			local knbPan = createPanKnob(pnlChannel, processorId, i);
 			knbPan.setLocalLookAndFeel(lafMixer);
 
 			local gainSliderWidth = isDefined(options.gainSliderWidth) ? options.gainSliderWidth : 22;
@@ -67,20 +66,20 @@ namespace MixerPanel
 			pnlGain.set("width", pnlChannel.getWidth() * .75);
 			pnlGain.set("height", gainSliderHeight + 30);
 
-			local knbGain = createGainKnob(pnlGain, i, gainSliderWidth, gainSliderHeight);
+			local knbGain = createGainKnob(pnlGain, processorId, i, gainSliderWidth, gainSliderHeight);
 
 			local fltMeter = createMeter(pnlGain, i, numChannels, gainSliderHeight);			
 
 			local knbGainValue = createGainValueKnob(pnlGain, i);
 
-			local btnPurge = createPurgeButton(pnlChannel, i);
+			local btnPurge = createPurgeButton(pnlChannel, processorId, i);
 			btnPurge.setLocalLookAndFeel(lafMixer);
 		
-			local pnlMixerMuteSolo = createMuteSoloButtons(pnlChannel, i);
+			local pnlMixerMuteSolo = createMuteSoloButtons(pnlChannel, processorId, i);
 			muteButtons.push(pnlMixerMuteSolo.data.buttons[0]);
 			soloButtons.push(pnlMixerMuteSolo.data.buttons[1]);
 
-			local cmbOutput = createOutputMenu(pnlChannel, i, {});
+			local cmbOutput = createOutputMenu(pnlChannel, processorId, i, {});
 		}
 
 		addMuteSoloIsolateBroadcasters(pnlMixer, muteButtons, soloButtons);
@@ -134,11 +133,10 @@ namespace MixerPanel
 		return panel;
 	}
 	
-	inline function: ScriptObject createPanKnob(parentPanel: ScriptObject, index: number)
+	inline function: ScriptObject createPanKnob(parentPanel: ScriptObject, processorId: string, index: number)
 	{
 		local id = "knbMixerPan" + index;
 		local componentExists = Content.componentExists(id);
-
 		local knob = Content.addKnob(id);
 
 		if (!componentExists)
@@ -150,7 +148,7 @@ namespace MixerPanel
 				text: "",
 				tooltip: "Set the channel's pan.",
 				pluginParameterName: "Channel " + (index + 1) + " pan",
-				processorId: "mixerHandler",
+				processorId: processorId,
 				parameterId: "Pan" + index,
 				defaultValue: 0,
 				showTextBox: false
@@ -167,11 +165,10 @@ namespace MixerPanel
 		return knob;
 	}
 		
-	inline function: ScriptObject createGainKnob(parentPanel: ScriptObject, index: number, width: number, height: number)
+	inline function: ScriptObject createGainKnob(parentPanel: ScriptObject, processorId: string, index: number, width: number, height: number)
 	{
 		local id = "knbMixerGain" + index;
 		local componentExists = Content.componentExists(id);
-
 		local knob = Content.addKnob(id);
 
 		if (!componentExists)
@@ -183,7 +180,7 @@ namespace MixerPanel
 				text: "Channel " + (index + 1) + " Gain",
 				tooltip: "Set the channel's volume.",
 				pluginParameterName: "Channel " + (index + 1) + " gain",
-				processorId: "mixerHandler",
+				processorId: processorId,
 				parameterId: "Gain" + index,
 				defaultValue: 0,
 				showTextBox: false,
@@ -209,7 +206,6 @@ namespace MixerPanel
 	{
 		local id = "fltMixerMeter" + index;
 		local componentExists = Content.componentExists(id);
-
 		local floatingTile = Content.addFloatingTile(id);
 
 		if (!componentExists)
@@ -246,8 +242,7 @@ namespace MixerPanel
 	inline function: ScriptObject createGainValueKnob(parentPanel: ScriptObject, index: number)
 	{
 		local id = "knbMixerGainValue" + index;
-		local componentExists = Content.componentExists(id);
-		
+		local componentExists = Content.componentExists(id);		
 		local knob = Content.addKnob(id);
 
 		if (!componentExists)
@@ -274,11 +269,10 @@ namespace MixerPanel
 		return knob;
 	}
 		
-	inline function: ScriptObject createPurgeButton(parentPanel: ScriptObject, index: number)
+	inline function: ScriptObject createPurgeButton(parentPanel: ScriptObject, processorId: string, index: number)
 	{
 		local id = "btnMixerPurge" + index;
-		local componentExists = Content.componentExists(id);
-		
+		local componentExists = Content.componentExists(id);		
 		local button = Content.addButton(id);
 
 		if (!componentExists)
@@ -290,7 +284,7 @@ namespace MixerPanel
 				height: 18,
 				text: "Purge/Load",
 				tooltip: "Purge or load this channel's samples.",
-				processorId: "mixerHandler",
+				processorId: processorId,
 				parameterId: "Purge" + index
 			});
 		}
@@ -304,7 +298,7 @@ namespace MixerPanel
 		return button;
 	}
 	
-	inline function: ScriptObject createMuteSoloButtons(parentPanel: ScriptObject, index: number)
+	inline function: ScriptObject createMuteSoloButtons(parentPanel: ScriptObject, processorId: string, index: number)
 	{
 		local panelId = "pnlMixerMuteSolo" + index;
 		local panel = Container.createRow(panelId, [0, 0, 0, 0], -1, {});
@@ -337,7 +331,7 @@ namespace MixerPanel
 					height: 20,
 					text: i == 0 ? "M" : "S",
 					tooltip: name + " this channel.",
-					processorId: "mixerHandler",
+					processorId: processorId,
 					parameterId: i == 0 ? "Mute" + index : "Solo" + index
 				});
 			}
@@ -355,7 +349,7 @@ namespace MixerPanel
 		return panel;
 	}
 
-	inline function: ScriptObject createOutputMenu(parentPanel: ScriptObject, index: number, options: JSON)
+	inline function: ScriptObject createOutputMenu(parentPanel: ScriptObject, processorId: string, index: number, options: JSON)
 	{
 		local rootChainId = Synth.getIdList("Container")[0];
 		local rootMatrix = Synth.getRoutingMatrix(rootChainId);
@@ -381,7 +375,7 @@ namespace MixerPanel
 				height: 28,
 				text: "Output",
 				tooltip: "Set the channel's output.",
-				processorId: "mixerHandler",
+				processorId: processorId,
 				parameterId: "Output" + index
 			});
 		}

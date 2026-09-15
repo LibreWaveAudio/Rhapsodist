@@ -19,7 +19,6 @@
 @description: Creates an interactive UI for 12 tone microtuning.
 @entry: create()
 @usage: Microtuning should be handled by a separate script module such as Microtuner.js. 
-@note: I'll probably adjust the signature so that the microtuning module ID can be passed in during creation.
 */
 
 namespace MicrotuningPanel
@@ -28,21 +27,14 @@ namespace MicrotuningPanel
 	const fonts = style.fonts;
 	const laf = Content.createLocalLookAndFeel();
 
-	inline function: ScriptObject create(panelId: string, options: JSON)
+	inline function: ScriptObject create(panelId: string, processorId: string, options: JSON)
 	{
 		local panel = Content.getComponent(panelId);
-
-		//! pnlMicrotune
-		local pnlMicrotune;
+		local componentExists = Content.componentExists("pnlMicrotune");
+		local pnlMicrotune = Content.addPanel("pnlMicrotune");
 		
-		if (Content.componentExists("pnlMicrotune"))
+		if (!componentExists)
 		{
-			pnlMicrotune = Content.getComponent("pnlMicrotune");
-		}
-		else
-		{
-			pnlMicrotune = Content.addPanel("pnlMicrotune", 0, 0);
-			
 			Content.setPropertiesFromJSON("pnlMicrotune", {
 				width: panel.getWidth(),
 				height: panel.getHeight(),
@@ -91,11 +83,12 @@ namespace MicrotuningPanel
 		sliderpack.set("min", -100);
 		sliderpack.set("max", 100);
 		sliderpack.set("stepSize", 5);
+		sliderpack.set("processorId", processorId);
+		sliderpack.set("SliderPackIndex", 0);
 		sliderpack.setPosition(pnlMicrotune.getWidth() / 2 - width / 2, (pnlMicrotune.getHeight() - 10) / 2 - height / 2, width, height);
 		sliderpack.setLocalLookAndFeel(laf);
 		
 		pnlMicrotune.data.sliderpackMouse = Engine.createBroadcaster({"id": "sliderpackClickWatcher", "args": ["component", "event"]});
-
 		pnlMicrotune.data.sliderpackMouse.attachToComponentMouseEvents(sliderpack, "Clicks Only", "");
 		
 		pnlMicrotune.data.sliderpackMouse.addListener({}, "Alt click listener", function(component, event)
