@@ -1,41 +1,78 @@
 /*
-Author: David Healey
-Modified: 2020
-License: Public Domain Dedication (CC0)
-Filename: noteFilter.js
+    Copyright 2020, 2026 David Healey
 
-source: http://creativecommons.org/publicdomain/zero/1.0/
+    This file is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This file is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
-Content.setWidth(500);
+/*
+@description: Notes within the set range are allowed through or blocked. By default tranpositions are included, but can be ignored via a button.
+@usage: Place in a container or sound generator's MIDI processor chain.
+*/
 
-const knbLowNote = Content.addKnob("LowNote", 0, 0);
+Content.setWidth(750);
+Content.setHeight(100);
+
+//! btnMute
+const btnMute = Content.addButton("Mute", 10, 10);
+
+//! knbLowNote
+const knbLowNote = Content.addKnob("LowNote", 160, 0);
 knbLowNote.set("text", "Low Note");
 knbLowNote.setRange(0, 127, 1);
 
-const knbHighNote = Content.addKnob("HighNote", 150, 0);
+//! knbHighNote
+const knbHighNote = Content.addKnob("HighNote", 310, 0);
 knbHighNote.set("text", "High Note");
 knbHighNote.setRange(0, 127, 1);
 knbHighNote.set("defaultValue", 127);
 
-const btnTranspose = Content.addButton("IgnoreTranspose", 310, 10);
-btnTranspose.set("text", "Ignore Transpose");function onNoteOn()
-{
-    local n = Message.getNoteNumber();
-    local t = btnTranspose.getValue() ? 0 : Message.getTransposeAmount();
+//! btnBlock
+const btnBlock = Content.addButton("Block", 10, 60);
 
-	if (n < knbLowNote.getValue() - t || n > knbHighNote.getValue() - t)
-		Message.ignoreEvent(true);        
+//! btnRelease
+const btnRelease = Content.addButton("Release", 160, 60);
+btnRelease.set("tooltip", "When enabled note offs will also be filtered.");
+
+//! btnTranspose
+const btnTranspose = Content.addButton("IgnoreTranspose", 310, 60);
+btnTranspose.set("text", "Ignore Transpose");
+function onNoteOn()
+{
+	if (btnMute.getValue())
+		return;
+
+	local n = Message.getNoteNumber();
+	local t = btnTranspose.getValue() ? 0 : Message.getTransposeAmount();
+	local block = btnBlock.getValue();
+	local inRange = (n >= knbLowNote.getValue() + t && n <= knbHighNote.getValue() + t);
+
+	if ((inRange && block) || (!inRange && !block))
+		Message.ignoreEvent(true);
 }
  function onNoteOff()
 {
-    local n = Message.getNoteNumber();
-    local t = btnTranspose.getValue() ? 0 : Message.getTransposeAmount();
+	if (btnMute.getValue() || !btnRelease.getValue())
+		return;
 
-    if (n < knbLowNote.getValue() - t || n > knbHighNote.getValue() - t)
-        Message.ignoreEvent(true);
-}
- function onController()
+	local n = Message.getNoteNumber();
+	local t = btnTranspose.getValue() ? 0 : Message.getTransposeAmount();
+	local block = btnBlock.getValue();
+	local inRange = (n >= knbLowNote.getValue() + t && n <= knbHighNote.getValue() + t);
+
+	if ((inRange && block) || (!inRange && !block))
+		Message.ignoreEvent(true);
+}function onController()
 {
 	
 }
