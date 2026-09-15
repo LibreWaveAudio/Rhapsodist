@@ -15,6 +15,13 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: A card is a panel, used as a main UI layout element. Cards are automatically created from panels that have ids containing pnlCard.
+They can also be created manually, and there is a grid layout helper function for quickly creating card grids.
+Cards have styling automatically applied, including titles taken from the card text or build from panels within the cards.
+If a card contains two or more panels these will automatically be treated as tabs, with clickable links for controlling their visibility.
+*/
+
 namespace Card
 {
 	const style = CoreLookAndFeel.style;

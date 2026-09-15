@@ -15,6 +15,11 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Builds a list of articulation objects and their triggers from the Manifest.
+							Provides some utility "get" functions for accessing articulation data.
+*/
+
 namespace ArticulationDataManager
 {
 	const articulations = [];

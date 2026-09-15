@@ -15,6 +15,11 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Manages purging of samplers and lazy load functionality.
+@note: A sliderpack is used to represent purge state of each sampler, supports up to 50.
+*/
+
 Content.setHeight(100);
 
 const samplers = getSamplers();

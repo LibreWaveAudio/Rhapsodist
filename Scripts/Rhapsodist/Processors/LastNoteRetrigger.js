@@ -15,6 +15,11 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Set a keyswitch that when pressed will retrigger the last note played.
+@usage: Place in a sampler's MIDI Processor chain.
+*/
+
 reg lastNote;
 
 //! knbTrigger

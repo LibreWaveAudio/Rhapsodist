@@ -15,6 +15,14 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Adjusts the time stretch ratio to match the host tempo.
+@usage: Place in a sampler's MIDI processor chain.
+				Set the sampler's Timestretching mode to VoiceStart or TimeVariant.
+				Set the BPM knob to the BPM your samples were recorded at.
+@note: Samplers include a tempo sync mode, but it's weird to use so use this simple script instead.
+*/
+
 //! knbBpm
 const knbBpm = Content.addKnob("bpm", 0, 0);
 knbBpm.set("text", "BPM");
@@ -27,10 +35,11 @@ const samplerIds = Synth.getIdList("Sampler");
 const sampler = Synth.getSampler(samplerIds[0]);
 
 const th = Engine.createTransportHandler();
+th.setLinkBpmToSyncMode(true);
 th.setOnTempoChange(true, updateTimeStretchRatio);
 
 //! Time stretch options
-const var obj = sampler.getTimestretchOptions();
+const obj = sampler.getTimestretchOptions();
 obj.SkipLatency = true;
 sampler.setTimestretchOptions(obj);
 

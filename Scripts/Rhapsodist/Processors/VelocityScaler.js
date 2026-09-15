@@ -15,6 +15,11 @@
     along with this file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: A table for scaling MIDI velocity values. Unlike a modulator this will adjust the actual MIDI messages.
+@usage: Place in a sound generator or container's MIDI processor chain - I always place it in the master chain.
+*/
+
 Content.setHeight(200);
 
 const data = Engine.createAndRegisterTableData(0);

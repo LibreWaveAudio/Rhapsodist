@@ -15,6 +15,12 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Provides a UI in the Settings panel for managing MIDI CC, Macro, and MPE assignments.
+@note: Likely to change in the future.
+@dependencies: SwitcherPanel
+*/
+
 namespace Automation
 {
 	const style = CoreLookAndFeel.style;
@@ -248,7 +254,7 @@ namespace Automation
 	}
 
 	// MPE Watcher	
-	const var bcMpeBypassWatcher = Engine.createBroadcaster({id: "bcMpeBypassWatcher", args: ["processor", "parameter", "value"]});
+	const bcMpeBypassWatcher = Engine.createBroadcaster({id: "bcMpeBypassWatcher", args: ["processor", "parameter", "value"]});
 
 	// attach first listener
 	bcMpeBypassWatcher.addListener({}, "React to MPE mod bypass change", function(processor, parameter, value)

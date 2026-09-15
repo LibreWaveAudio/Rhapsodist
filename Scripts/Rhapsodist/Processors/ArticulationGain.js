@@ -15,6 +15,14 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Sets the gain for note on/off messages based on the current articulation.
+							The gain values are stored in a sliderpack, the Interface script should connect a persistent sliderpack to this one.
+@note: It's expected the per articulation gain will be controlled by the user from the Interface.
+			There is also an additional starting gain knob (knbGain) that can be set for each articulation in the Manifest for developer control.
+@note: The current articulation is tracked by a global cable. Patch is also tracked but unused.
+*/
+
 Content.setHeight(100);
 
 //! knbArticulation

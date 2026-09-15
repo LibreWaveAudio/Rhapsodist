@@ -15,6 +15,15 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Stores the values of a given panel's child components in a sliderpack.
+							The sliderpack can contain multiple values for each component separated into "groups".
+							The types of component whose values are stored is specified by the componentTypes array. This should contain strings of script component types.
+							A second "switcher" component is used to determine which "group" of stored values the component's should display.
+							For example you could have 3 knobs on the UI, and depending on the selected articulation they use different values.
+@note: Not currently used in my projects so might be removed in the future.
+*/
+
 namespace ComponentPack
 {
 	inline function: object create(panelId: string, switcherId: string, componentTypes: Array, numGroups: int, options: JSON)

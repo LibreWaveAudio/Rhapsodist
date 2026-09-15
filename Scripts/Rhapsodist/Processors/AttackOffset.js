@@ -15,6 +15,10 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Sets a sample start offset and gain fade the values scaled based on repetition speed and MIDI velocity.
+*/
+
 Content.setWidth(750);
 Content.setHeight(100);
 

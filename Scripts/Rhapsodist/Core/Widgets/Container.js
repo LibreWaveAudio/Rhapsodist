@@ -15,6 +15,10 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Functions for creating stack, row, and grid layouts of components within panels.
+*/
+
 namespace Container
 {
 	inline function: ScriptObject create(id: string, options: JSON)

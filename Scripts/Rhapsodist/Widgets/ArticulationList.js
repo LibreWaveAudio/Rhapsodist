@@ -15,6 +15,13 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Create a UI for displaying articulations in a list, along with keyswitches and per articulation volume control.
+@entry: create().
+@note: Module tree should contain ArticulationGain.js module with ID "articulationGain" - this is used by the gain sliders.
+@dependencies: ListPanel.js, ArticulationSwitcher.js
+*/
+
 namespace ArticulationList
 {
 	const style = CoreLookAndFeel.style;

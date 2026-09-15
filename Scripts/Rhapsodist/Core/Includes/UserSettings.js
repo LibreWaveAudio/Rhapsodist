@@ -15,6 +15,12 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Everything related to custom user settings, including UI components, styling, and store/restore behaviour.
+@note: Automation settings are handled by the Presets namespace.
+@note: Helper functions are provided to set and get custom settings. These can be scoped for individual projects.
+*/
+
 namespace UserSettings
 {
 	const style = CoreLookAndFeel.style;

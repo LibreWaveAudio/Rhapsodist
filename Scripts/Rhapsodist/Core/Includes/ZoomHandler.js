@@ -15,6 +15,10 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Handles UI scaling controls, including corner drag, combo box, and double clicking in the header
+*/
+
 namespace ZoomHandler
 {	
 	const interfaceSize = Content.getInterfaceSize();
@@ -115,7 +119,7 @@ namespace ZoomHandler
 	
 	bcpnlHeaderMouse.addComponentValueListener(cmbZoom, "Reset zoom level when library name double clicked", function(index, component, event)
 	{
-		if (event.doubleClick)
+		if (event.x > 40 && event.x < 300 && event.doubleClick)
 			return 3;
 
 		return this.getValue();
@@ -134,7 +138,7 @@ namespace ZoomHandler
 	});
 
 	// bccmbZoomValue
-	const var bccmbZoomValue = Engine.createBroadcaster({id: "bccmbZoomValue", args: ["component", "value"]});
+	const bccmbZoomValue = Engine.createBroadcaster({id: "bccmbZoomValue", args: ["component", "value"]});
 	bccmbZoomValue.attachToComponentValue(cmbZoom, "");
 	bccmbZoomValue.setBypassed(true, false, false);
 

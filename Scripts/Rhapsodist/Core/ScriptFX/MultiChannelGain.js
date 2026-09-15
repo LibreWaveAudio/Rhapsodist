@@ -2,8 +2,11 @@
  * Title: FX_MultiChannelGain.js
  * Author: David Healey
  * License: Public Domain
-*
-* This not a regular script. It's a script effect
+*/
+
+/*
+@important: This is a script effect, it is not a regular script. Load it through the Connect to External Script option.
+@description: Provides the same Gain, Smoothing, Width, and Balance controls as a simple gain, but supports multiple channels.
 */
 
 const core = Libraries.load("core");

@@ -15,6 +15,13 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Everything related to presets and the preset browser.
+@note: Automation assignments are stored in an external file.
+@note: Overrides are provided for most look and feel functions
+@note: Broadcasters are provided for preLoad and postLoad that can be listened to from other scripts.
+*/
+
 namespace Presets
 {
 	const style = CoreLookAndFeel.style;

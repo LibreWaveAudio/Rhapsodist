@@ -15,6 +15,10 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Manages unloading expansions and provides some useful "get" utility functions.
+*/
+
 namespace Expansions
 {
 	const eh = Engine.createExpansionHandler();

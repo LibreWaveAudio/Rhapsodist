@@ -15,6 +15,12 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Defines the components used to create the Rhapsodist UI shell and runs the Layout Builder.
+@dependencies: LayoutBuilder
+@note: The Layout Builder only runs within HISE, not the exported project.
+*/
+
 namespace Shell
 {
 	const style = CoreLookAndFeel.style;

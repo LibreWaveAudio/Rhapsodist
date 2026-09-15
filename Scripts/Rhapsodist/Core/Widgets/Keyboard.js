@@ -15,6 +15,12 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Handles display of on-screen keyboard, including key colours which are pulled from the Manifest or ArticulationDataManager.
+Key colours are updated with patch, articulation, or transposition changes.
+@dependencies: App/Manifest.js, ArticulationDataManager
+*/
+
 namespace Keyboard
 {
 	reg transposition = 0;

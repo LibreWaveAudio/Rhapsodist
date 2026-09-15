@@ -4,6 +4,13 @@
 * Last updated: 08/12/2024
 */
 
+/*
+@description: Constructs the shell UI from a given layout object.
+@note: Called from ShellLayout.js.
+@note: Only runs in HISE IDE.
+@note: When working on a UI it's often useful to prevent the layout being rebuilt. During development declare freezeUi = true at on init for this purpose.
+*/
+
 namespace LayoutBuilder
 {
 	const data = [];

@@ -15,6 +15,10 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Creates the header UI, including expansion name, pan and vol sliders, and peak meter.
+*/
+
 namespace Header
 {
 	const style = CoreLookAndFeel.style;

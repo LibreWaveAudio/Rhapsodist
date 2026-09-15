@@ -15,6 +15,13 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Creates an interactive UI for 12 tone microtuning.
+@entry: create()
+@usage: Microtuning should be handled by a separate script module such as Microtuner.js. 
+@note: I'll probably adjust the signature so that the microtuning module ID can be passed in during creation.
+*/
+
 namespace MicrotuningPanel
 {
 	const style = CoreLookAndFeel.style;

@@ -1,9 +1,26 @@
 /*
+    Copyright 2026 David Healey
+
+    This file is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This file is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with This file. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+/*
     Velocity Dynamics Modulator
     ---------------------------
     A "Script Time Variant Modulator" that reproduces the basics of the
     built-in Midi Controller modulator (smoothing, value, table) but is
-    driven by note velocity instead of a MIDI CC:
+    driven by note velocity in addition to MIDI CC:
 
     - Notes with velocity BELOW Value cause the output to head towards
       about half of that velocity, then ease back up at the Smooth Up

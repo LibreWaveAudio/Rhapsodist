@@ -15,6 +15,14 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: A multi-mode round robin script. Includes simple group RR, velocity based, and neighbour borrowing.
+              The interface provides lots of options and configurations.
+@usage: Place in a sampler's MIDI processor chain
+        Where you need to place it will depend on the method of RR you want to use and other scripts in the same chain.
+@note: This script can also work as a group filter - useful if you need RR for some articulations and a single group for others.
+*/
+
 Content.setHeight(250);
 Content.setWidth(750);
 

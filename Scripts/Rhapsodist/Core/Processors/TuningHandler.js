@@ -15,6 +15,11 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Provides controls for coarse and fine tuning, and octave and semi-tone transposition of MIDI message.
+@note: This is not continuous tuning, it takes effect at note onset.
+*/
+
 Content.setWidth(730);
 Content.setHeight(50);
 

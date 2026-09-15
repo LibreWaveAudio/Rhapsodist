@@ -15,6 +15,10 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Provides the preloading bar animation.
+*/
+
 namespace PreloadBar
 {
 	//! pnlPreload

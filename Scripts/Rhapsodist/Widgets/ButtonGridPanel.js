@@ -15,6 +15,12 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Creates a grid of buttons using an existing panel.
+@entry: create().
+@note: Signature might change in the future as I refine it.
+*/
+
 namespace ButtonGridPanel
 {
 	inline function: ScriptObject create(panelId: string, numCols: int, numRows: int, labels: Array, options: JSON)

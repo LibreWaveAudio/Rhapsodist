@@ -15,6 +15,11 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Provdes default styles and processes custom styles if provided.
+@note: Likely to change in the future.
+*/
+
 namespace StyleHandler
 {
 	const palette = {};

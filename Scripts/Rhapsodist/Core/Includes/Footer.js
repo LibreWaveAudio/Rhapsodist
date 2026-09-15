@@ -15,6 +15,10 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Create the footer, status bar, and MIDI panic button.
+*/
+
 namespace Footer
 {
 	const style = CoreLookAndFeel.style;

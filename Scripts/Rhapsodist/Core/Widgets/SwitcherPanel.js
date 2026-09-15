@@ -15,12 +15,19 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Controls the visibility of components (of the specified type) in a panel based on the value of a passed switcher component.
+@note: Child components with an empty text property are skipped
+*/
+
 namespace SwitcherPanel
 {
 	inline function: ScriptObject create(panelId: string, switcherId: string, componentType: string, options: JSON)
 	{
 		local panel = Content.getComponent(panelId);
-		local children = [];
+		panel.data.broadcasters = {};
+
+		local childIds = [];
 		
 		for (x in panel.getChildComponents())
 		{
@@ -34,14 +41,14 @@ namespace SwitcherPanel
 				continue;
 
 			if (componentType == "all" || componentType == x.get("type"))
-				children.push(x.getId());
+				childIds.push(x.getId());
 		}
 
 		// Broadcaster definition
-		panel.data.bc = Engine.createBroadcaster({id: panelId.replace("pnl") + "SwitcherPanel", args: ["component", "value"]});
-		panel.data.bc.attachToComponentValue(switcherId, "Value");
+		panel.data.broadcasters.switcherWatcher = Engine.createBroadcaster({id: panelId.replace("pnl") + "SwitcherWatcher", args: ["component", "value"]});
+		panel.data.broadcasters.switcherWatcher.attachToComponentValue(switcherId, "Value");
 
-		panel.data.bc.addComponentPropertyListener(children, "visible", "Change tab visibility", function(index, component, value)
+		panel.data.broadcasters.switcherWatcher.addComponentPropertyListener(childIds, "visible", "Change tab visibility", function(index, component, value)
 		{
 			return value == index || index == -1;
 		});

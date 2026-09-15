@@ -1,4 +1,11 @@
+// 2024
 // License: Public Domain
+
+/*
+@description: Blocks or only allows legato notes.
+@usage: Place in a sampler's MIDI Processor chain.
+@note: Haven't used this one in a while so might need some refinement.
+*/
 
 //! btnBlock
 const btnBlock = Content.addButton("Block", 10, 10);

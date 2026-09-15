@@ -15,6 +15,10 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Provides "hover" tooltips functionality for controls that include them.
+*/
+
 namespace Tooltips
 {
 	const style = CoreLookAndFeel.style;
@@ -72,7 +76,7 @@ namespace Tooltips
 	}
 	
 	//! Broadcaster	
-	const bcTooltipPanel = Engine.createBroadcaster({"id": "tooltip", "args": ["component", "event"]});
+	const bcTooltipPanel = Engine.createBroadcaster({id: "tooltip", args: ["component", "event"]});
 	bcTooltipPanel.attachToComponentMouseEvents(tooltipComponents, "All Callbacks", "");
 
 	inline function addRemoveListeners(state: number)

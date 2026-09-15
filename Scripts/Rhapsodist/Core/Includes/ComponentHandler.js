@@ -15,6 +15,10 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Sets component properties when the patch or articulation changes.
+*/
+
 namespace ComponentHandler
 {
 	const allComponents = getAllComponentsIndexed();

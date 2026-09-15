@@ -15,6 +15,12 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Default look and feel functions used throughout Rhapsodist. Including default fonts and icon fonts.
+							Most functions can be overriden by redeclaring them within a LookAndFeel namespace.
+@note: Subject to changes and refinements.
+*/
+
 namespace CoreLookAndFeel
 {
 	Engine.loadFontAs("{PROJECT_FOLDER}Fonts/Rhapsodist/Text/AtkinsonHyperlegibleMono-Regular.ttf", "monoRegular");

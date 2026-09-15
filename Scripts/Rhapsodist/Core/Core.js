@@ -15,6 +15,10 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Entry point for the Rhapsodist framework. Sets the UI size, some default states, grabs all sampler references, and includes all core includes.
+*/
+
 namespace Core
 {
 	Content.setWidth(1000);

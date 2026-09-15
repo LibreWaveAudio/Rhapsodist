@@ -15,6 +15,12 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Controls which sampler group is active using the knob.
+@usage: Place in a sampler's MIDI Processor chain.
+@note: Supports up to 100 groups.
+*/
+
 const sampler = Synth.getChildSynth(Synth.getIdList("Sampler")[0]);
 sampler.asSampler().enableRoundRobin(false);
 

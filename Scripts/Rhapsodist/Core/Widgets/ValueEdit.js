@@ -15,6 +15,10 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Uses a panel, knob, and look and feel to create a control with the appearance and functionality of a value edit box.
+*/
+
 namespace ValueEdit
 {
 	const style = CoreLookAndFeel.style;

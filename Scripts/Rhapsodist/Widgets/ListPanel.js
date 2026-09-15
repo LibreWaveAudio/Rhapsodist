@@ -15,6 +15,13 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Creates a scrollable and interactive list using a viewport and panel. Displaying the collection of passed items.
+							The parent panel is returned with sub-components accessible in its data object for attaching callbacks to.
+@entry: create()
+@note: Will probably add broadcasters to this in the future in addition to the callback support.
+*/
+
 namespace ListPanel
 {
 	inline function: object create(parentPanelId: string, items: Array, options: JSON)

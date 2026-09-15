@@ -15,6 +15,13 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Creates and styles an EQ panel connected to the passed parametric EQ effect.
+							Includes broadcasters for mouse interactions and value display.
+@entry: create().
+@note: Signature will probably be changed to bring it inline with other Widgets.
+*/
+
 namespace EqPanel
 {
 	const style = CoreLookAndFeel.style;

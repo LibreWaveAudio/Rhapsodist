@@ -15,6 +15,16 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Controls the knobs of all flex ahdsr envelopes in the project that contain "GainFlexAhdsr" in their ID.
+@note: The project should also contain a global flex envelope with the ID "globalFlexAhdsr".
+       This global mod can be connected to a UI floating tile to provide a display and interactivity.
+@note: Envelope settings are stored individually for each articulation, tracked by a global cable.
+       There is a link button if you want all envelopes to have the same settings, but it needs testing.
+       The script supports up to 50 articulations and relies on a sliderpack to store the values.
+       The sliderpack is not saved in the preset, is expected that the Interface contains a persistent sliderpack connected to this one.
+*/
+
 Content.setWidth(700);
 Content.setHeight(175);
 

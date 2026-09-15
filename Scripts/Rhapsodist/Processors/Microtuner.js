@@ -15,6 +15,13 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Provides microtuning functionality for 12 tones - not full Scala style microtuning.
+							For example, if you shift C by 10ct, every C across the keyboard will have the same shift applied.
+@usage: Place in a sampler's MIDI Processor chain.
+@note: Microtuning values are stored in a sliderpack, it is expected the Interface will connect a persistent sliderpack to this.
+*/
+
 Content.setHeight(125);
 
 const sliderPackData = Engine.createAndRegisterSliderPackData(0);

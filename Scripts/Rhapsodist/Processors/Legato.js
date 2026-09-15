@@ -15,6 +15,11 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Creates modelled legato, portamento, and retrigger transitions. Supports various methods, controlled by component settings.
+@usage: Place in a sampler's MIDI Processor chain.
+@note: Subject to change as I refine the algorithms.
+*/
 
 Content.setWidth(750);
 Content.setHeight(150);

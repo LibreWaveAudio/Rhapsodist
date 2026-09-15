@@ -15,6 +15,11 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Handles errors provided by HISE's error handler.
+@note: Likely to change in the future.
+*/
+
 namespace ErrorManager
 {
 	const eh = Engine.createErrorHandler();

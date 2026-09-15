@@ -15,6 +15,11 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Controls the layout of the components in the various user settings panels.
+@dependencies: ValueEdit.js
+*/
+
 namespace SettingsPanel
 {
 	const style = CoreLookAndFeel.style;

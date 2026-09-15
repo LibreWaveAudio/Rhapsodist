@@ -16,8 +16,9 @@
 */
 
 /*
-* This module is responsible for configuring all modules
-* when loading the project, changing patch, and changing articulation
+@description: Configures modules when loading the project, changing patch or articulation.
+@note: Uses global cables to report patch and articulation changes to other modules.
+@dependencies: App/Manifest.js, Rhapsodist/Core/Includes/ArticulationDataManager.js
 */
 
 include("App/Manifest.js");

@@ -15,6 +15,13 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Handles UI articulation changes - has no direct effect on sound, this is just UI.
+@note: The shell contains an invisible articulation knob (knbArticulation) which is stored in the preset
+			 and used to keep track of the current articulation throughout the entire Interface script.
+@usage: Call ArticulationSwitcher.onNoteOn() and ArticulationSwitcher.onController() from the corresponding callbacks.
+*/
+
 namespace ArticulationSwitcher
 {
 	const useUacc = isDefined(Manifest.useUacc) ? Manifest.useUacc : true;

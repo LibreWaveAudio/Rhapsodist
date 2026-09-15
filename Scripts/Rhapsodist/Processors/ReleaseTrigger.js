@@ -15,6 +15,14 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@important: When practicable, it's preferable to use the built in single sampler release trigger system instead of this script.
+@description: Triggers notes on key release (MIDI note off). Handles chords, legato intervals, and volume attenuation.
+@usage: Place in a sampler or container's MIDI processor chain.
+@note: Not to be confused with Includes/ReleaseTriggers.js
+@note: This script is a more advanced version of the hardcoded Release Trigger script.
+*/
+
 Content.setWidth(750);
 Content.setHeight(175);
 

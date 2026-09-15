@@ -15,6 +15,11 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Manages the release trigger state for all samplers in the project. Adds a toggle button in the instrument settings panel for user control.
+@note: Only include this script if the project uses release triggers.
+*/
+
 namespace ReleaseTriggers
 {
 	reg currentState;

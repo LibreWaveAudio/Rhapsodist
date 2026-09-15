@@ -15,6 +15,17 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Creates a flex ahdsr UI using a floating tile, knobs, and a sliderpack.
+							Knobs for attack level and the various curve controls are hidden by default as they are only need to store/restore values.
+							The user can set those values on the floating tile itself.
+							The sliderpack stores separated envelope values for each articulation, tracked via a broadcaster.
+@entry: create().
+@usage: The module tree should contain AhdsrController.js with ID ahdsrController.
+				There should be a global flex adhsr with ID globalFlexAhdsr - this is what the floating tile will connect to.
+				Each sound generator you want to apply the envelope to should have a flex ahdsr in its gain chain. with "GainFlexAhdsr" in its ID.
+*/
+
 namespace Envelope
 {
 	const style = CoreLookAndFeel.style;
