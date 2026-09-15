@@ -31,9 +31,9 @@ namespace HarpPedalPanel
 
 	reg transposer;
 
-	inline function: ScriptObject create(panelId: string, transposerId: string, options: JSON)
+	inline function: ScriptObject create(panelId: string, processorId: string, options: JSON)
 	{
-		transposer = Synth.getSliderPackProcessor(transposerId).getSliderPack(0);
+		transposer = Synth.getSliderPackProcessor(processorId).getSliderPack(0);
 
 		local panel = Content.getComponent(panelId);
 		local pnlHarp = createContainer(panel, options);
