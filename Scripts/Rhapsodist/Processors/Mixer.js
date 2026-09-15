@@ -15,6 +15,16 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: A complete mixer system. Supports up to 12 channels, with controls for gain, pan, purge, mute, solo, and output.
+@usage: Place in Main container's MIDI Processor chain.
+				Add a SimpleGain effect to the container for each mic. Use the ID "mixerGain" + the mic index, e.g. mixerGain0, mixerGain1, etc.
+				Use the SimpleGains' routine matrix to route each stereo pair to a separate output.
+				Connect controls on your Interface's mixer panel to this module's controls.
+@note: Does not handle volume/pan changes, these are managed through SimpleGain modules - see usage note.
+@note: Might add Delay and Width controls in the future.
+*/
+
 Content.setWidth(1920);
 Content.setHeight(300);
 

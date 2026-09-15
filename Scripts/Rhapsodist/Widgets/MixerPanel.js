@@ -15,7 +15,15 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
-namespace Mixer
+/*
+@description: Creates a complete mixer UI with channel strips, pan, gain, gain meter, gain slider value, mute, solo, purge, output
+@entry: create()
+@dependencies: Container.js
+@usage: Build out the module tree first using MixerHandler.js (ID should be mixerHandler) and SimpleGain effects.
+@note: I'll adjust the signature to support passing in the mixer module ID at creation.
+*/
+
+namespace MixerPanel
 {
 	const style = CoreLookAndFeel.style;
 	const fonts = style.fonts;

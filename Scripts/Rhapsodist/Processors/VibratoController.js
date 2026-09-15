@@ -15,6 +15,19 @@
     along with This file. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+@description: Controls the intensity and frequency of LFOs for simulating vibrato, flutter, or growl.
+@usage: Place in a container, use one instance of the script for each of the modes.
+				Add global LFOs to handle gain and pitch changes for the modes you're using (growl only requires pitch).
+				Name the LFOs as follows: vibratoGainLfo, vibratoPitchLfo, flutterGainLfo, flutterPitchLfo, growlPitchLfo
+				Add CC modulators to control the intensity and frequency of each LFO. Follow this naming convention vibratoGainLfoIntensityCc, etc.
+				Set the CC number to 94 for each of the CC mods, a number a user shouldn't use...
+				Add target global mods to gain, pitch, and sampler group xfade as needed. 
+				Adjust the parameters on the script, and modulators to get the desired result - lots of fun :)
+				Connect Interface knobs to the scripts knobs for user control.
+@note: Subject to change as I refine it.
+*/
+
 Content.setWidth(750);
 Content.setHeight(100);
 
