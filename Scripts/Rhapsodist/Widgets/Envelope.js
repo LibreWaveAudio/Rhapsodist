@@ -33,12 +33,9 @@ namespace Envelope
 
 	const PARAMETERS = ["Attack", "Hold", "Decay", "Sustain", "Release", "AttackLevel", "AttackCurve", "DecayCurve", "ReleaseCurve"];
 
-	inline function: ScriptObject create(parentPanelId: string, numArticulations: int, options: JSON)
+	inline function: ScriptObject create(panelId: string, numArticulations: int, options: JSON)
 	{
-		if (!Content.componentExists(parentPanelId))
-			return Console.print("!Envelope: Component " + parentPanelId + " does not exist.");
-
-		local parentPanel = Content.getComponent(parentPanelId);
+		local parentPanel = Content.getComponent(panelId);
 		local pnlEnvelope = createContainer(parentPanel, options);
 		local fltEnvelope = createFloatingTile(pnlEnvelope, options);
 		local pnlEnvelopeControls = createControlPanel(pnlEnvelope, options);
@@ -48,12 +45,12 @@ namespace Envelope
 			Container.createRow(pnlEnvelopeControls.getId(), [0, 0, 0, 0], -1, {});
 
 		bcpnlControlsMouse.attachToComponentMouseEvents([pnlEnvelopeControls, fltEnvelope], "Clicks, Hover & Dragging", "");
-		
+
 		bcpnlControlsMouse.addListener(knbAhdsr, "Alt click restore defaults.", function(component, event)
 		{
 			if (!event.altDown || !event.clicked || event.rightClick || event.drag)
 				return;
-		
+
 			for (x in this)
 			{
 				x.setValue(x.get("defaultValue"));
@@ -65,7 +62,7 @@ namespace Envelope
 			return pnlEnvelope;
 
 		//! slpEnvelopeControls
-		local slpEnvelopeControls = createSliderPack(pnlEnvelopeControls, numArticulations, options);
+		local slpEnvelopeControls = createSliderPack(pnlEnvelopeControls, options);
 
 		pnlEnvelope.data.graph = fltEnvelope;
 		pnlEnvelope.data.controlPanel = controlPanel;
@@ -300,11 +297,11 @@ namespace Envelope
 		return knobs;
 	}
 	
-	inline function: ScriptObject createSliderPack(parentPanel: ScriptObject, numArticulations: number, options: JSON)
+	inline function: ScriptObject createSliderPack(parentPanel: ScriptObject, options: JSON)
 	{
 		local id = parentPanel.getId().replace("pnl", "slp");
 		local componentExists = Content.componentExists(id);
-		local sliderPack = Content.addSliderPack(id, 0, 0);
+		local sliderPack = Content.addSliderPack(id);
 
 		if (!componentExists)
 		{
@@ -322,7 +319,7 @@ namespace Envelope
 			min: -100,
 			max: 20000,
 			stepSize: 0.01,
-			sliderAmount: 8 * numArticulations
+			sliderAmount: 400
 		});
 
 		return sliderPack;
