@@ -265,7 +265,7 @@ namespace EnvelopePanel
 			props.width = knobWidth;
 			props.height = knobHeight;
 			props.parentComponent = parentPanel.getId();
-			props.saveInPreset = true;
+			props.saveInPreset = false;
 
 			if (!componentExists)
 			{
