@@ -20,7 +20,7 @@
 @note: Only include this script if the project uses release triggers.
 */
 
-namespace ReleaseTriggers
+namespace ReleaseStartOptions
 {
 	reg currentState;
 
@@ -40,7 +40,7 @@ namespace ReleaseTriggers
 		}
 	}
 
-	inline function useDefaults()
+	inline function applyDefaults()
 	{
 		setOptions({
 			ReleaseFadeTime: "8192",
@@ -100,6 +100,7 @@ namespace ReleaseTriggers
 	
 	//! Calls
 	createReleaseTriggerButton();
+	applyDefaults();
 	
 	//! Broadcasters
 	const bcbtnReleaseTriggersValue = Engine.createBroadcaster({id: "bcbtnReleaseTriggersValue", args: ["component", "value"]});
