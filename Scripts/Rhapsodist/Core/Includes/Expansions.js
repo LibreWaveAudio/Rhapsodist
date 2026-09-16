@@ -84,6 +84,16 @@ namespace Expansions
 		return eh.getExpansionList().length;
 	}
 
+	inline function: string getCurrentExpansionVersion()
+	{
+		local e = eh.getCurrentExpansion();
+		
+		if (isDefined(e))
+			return e.getProperties().Version;
+			
+		return Engine.getVersion();
+	}
+
 	inline function getCurrentUserPresetsFolder()
 	{
 		if (Engine.isHISE())
