@@ -2,7 +2,7 @@
 
 <ProjectSettings>
   <Name value="Rhapsodist"/>
-  <Version value="0.7.1"/>
+  <Version value="0.7.7"/>
   <Description value=""/>
   <BundleIdentifier value="com.LibreWave.Rhapsodist"/>
   <PluginCode value="Lwrs"/>

@@ -17,21 +17,13 @@
 
 /*
 @description: Controls the knobs of all flex ahdsr envelopes in the project that contain "GainFlexAhdsr" in their ID.
-@note: The project should also contain a global flex envelope with the ID "globalFlexAhdsr".
-       This global mod can be connected to a UI floating tile to provide a display and interactivity.
-@note: Envelope settings are stored individually for each articulation, tracked by a global cable.
-       There is a link button if you want all envelopes to have the same settings, but it needs testing.
-       The script supports up to 50 articulations and relies on a sliderpack to store the values.
-       The sliderpack is not saved in the preset, is expected that the Interface contains a persistent sliderpack connected to this one.
 */
 
 Content.setWidth(700);
-Content.setHeight(175);
+Content.setHeight(110);
 
 //! Mods
-const globalFlexAhdsr = Synth.getAllModulators("globalFlexAhdsr")[0];
 const mods = Synth.getAllModulators("GainFlexAhdsr");
-const attributes = getAttributeList();
 
 //! knbAhdsr
 const knbAhdsr = createKnobs();
@@ -40,81 +32,18 @@ inline function onAhdsrControl(component, value)
 {
     local knobIndex = knbAhdsr.indexOf(component);
     setModuleProperty(knobIndex, value);
-    setSliderPackValue(knobIndex, value);
 }
-
-//! knbArticulation
-const knbArticulation = Content.addKnob("Articulation", 10, 115);
-knbArticulation.setRange(0, 49, 1);
-knbArticulation.set("sendValueOnDrag", false);
-knbArticulation.setControlCallback(onknbArticulationControl);
-
-inline function onknbArticulationControl(component, value)
-{
-	changeArticulation(value);
-}
-
-//! btnLink
-const btnLink = Content.addButton("LinkArticulation", 150, 125);
-btnLink.set("text", "Link Articulation");
-btnLink.set("tooltip", "When enabled, changing the value of a knob will affect all articulations");
-
-//! Sliderpack Data
-const slpAhdsrData = Engine.createAndRegisterSliderPackData(0);
-slpAhdsrData.setUsePreallocatedLength(400);
-
-//! slpAhdsr
-const slpAhdsr = Content.addSliderPack("Ahdsr", 0, 0);
-slpAhdsr.showControl(false);
-slpAhdsr.referToData(slpAhdsrData);
-slpAhdsr.set("sliderAmount", 400);
-slpAhdsr.set("min", -100);
-slpAhdsr.set("max", 20000);
-slpAhdsr.set("stepSize", 0.01);
 
 //! Functions
-inline function changeArticulation(index: number)
-{
-	if (!mods.length)
-		return;
-
-	knbArticulation.setValue(index);
-
-	for (i = 0; i < attributes.length; i++)
-	{
-		local value = slpAhdsr.getSliderValueAt(attributes.length * index + i);	
-		knbAhdsr[i].setValue(value);
-		setModuleProperty(i, value);
-	}
-}
-
 inline function setModuleProperty(knobIndex: number, value: number)
 {
 	if (!mods.length)
 		return;
 
+	local attributes = [mods[0].Attack, mods[0].Hold, mods[0].Decay, mods[0].Sustain, mods[0].Release, mods[0].AttackLevel, mods[0].AttackCurve, mods[0].DecayCurve, mods[0].ReleaseCurve];
+
 	for (x in mods)
 		x.setAttribute(attributes[knobIndex], value);
-
-	if (isDefined(globalFlexAhdsr) && isDefined(attributes[knobIndex]))
-		globalFlexAhdsr.setAttribute(attributes[knobIndex], value);
-}
-
-inline function setSliderPackValue(knobIndex: number, value: number)
-{
-	if (btnLink.getValue())
-	{	
-		for (i = 0; i <= knbArticulation.get("max"); i++)
-		{
-			local index = i * attributes.length + knobIndex;
-			slpAhdsr.setSliderAtIndex(index, value);
-		}
-
-		return;
-	}
-
-	local index = knbArticulation.getValue() * attributes.length + knobIndex;
-	slpAhdsr.setSliderAtIndex(index, value);
 }
 
 inline function: Array createKnobs()
@@ -172,9 +101,8 @@ inline function: Array createKnobs()
 	for (i = 0; i < knobProperties.length; i++)
 	{
 		local props = knobProperties[i];
-
 		local knob = Content.addKnob(props.text);
-		
+
 		props.x = 10 + ((i % 5) * (knob.getWidth() + 10));
 		props.y = Math.floor(i / 5) * (knob.getHeight() + 10);
 
@@ -187,27 +115,6 @@ inline function: Array createKnobs()
 
 	return result;
 }
-
-inline function: Array getAttributeList()
-{
-	local result = [];
-
-	if (!mods.length)
-		return [];
-
-	return [mods[0].Attack, mods[0].Hold, mods[0].Decay, mods[0].Sustain, mods[0].Release, mods[0].AttackLevel, mods[0].AttackCurve, mods[0].DecayCurve, mods[0].ReleaseCurve];
-}
-
-//! Global Cables
-const gm = Engine.getGlobalRoutingManager();
-
-const gcPatch = gm.getCable("patch");
-gcPatch.setRange(-1, 100);
-
-const gcArticulation = gm.getCable("articulation");
-gcArticulation.setRange(-1, 100);
-
-gcArticulation.registerCallback(changeArticulation, SyncNotification);
 function onNoteOn()
 {
 	

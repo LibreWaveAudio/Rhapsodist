@@ -16,36 +16,33 @@
 */
 
 /*
-@description: Creates a flex ahdsr UI using a floating tile, knobs, and a sliderpack.
-							Knobs for attack level and the various curve controls are hidden by default as they are only need to store/restore values.
-							The user can set those values on the floating tile itself.
-							The sliderpack stores separated envelope values for each articulation, tracked via a broadcaster.
+@description: Creates a flex ahdsr UI using a floating tile and knobs.
+              Knobs for attack level and the various curve parameters are hidden by default
+              as they are only needed for preset store/restore.
+              The user can set those values on the floating tile itself.
 @entry: create().
-@usage: The module tree should contain AhdsrController.js with ID ahdsrController.
-				There should be a global flex adhsr with ID globalFlexAhdsr - this is what the floating tile will connect to.
-				Each sound generator you want to apply the envelope to should have a flex ahdsr in its gain chain. with "GainFlexAhdsr" in its ID.
+@usage: The module tree should contain AhdsrController.js with the ID passed to the create function.
+		A flex envelope ID should be passed in, this is what the floating tile will display.
 */
 
 namespace EnvelopePanel
 {
 	const style = CoreLookAndFeel.style;
 	const fonts = style.fonts;
+	const parameters = ["Attack", "Hold", "Decay", "Sustain", "Release", "AttackLevel", "AttackCurve", "DecayCurve", "ReleaseCurve"];
 
-	const PARAMETERS = ["Attack", "Hold", "Decay", "Sustain", "Release", "AttackLevel", "AttackCurve", "DecayCurve", "ReleaseCurve"];
-
-	inline function: ScriptObject create(panelId: string, processorId: string, globalEnvelopeId: string, options: JSON)
+	inline function: ScriptObject create(panelId: string, processorId: string, flexEnvelopeId: string, options: JSON)
 	{
 		local parentPanel = Content.getComponent(panelId);
 		local pnlEnvelope = createContainer(parentPanel, options);
-		local fltEnvelope = createFloatingTile(pnlEnvelope, globalEnvelopeId, options);
+		local fltEnvelope = createFloatingTile(pnlEnvelope, flexEnvelopeId, options);
 		local pnlEnvelopeControls = createControlPanel(pnlEnvelope, options);
-		local knbAhdsr = createControls(pnlEnvelopeControls, processorId, globalEnvelopeId, options);
+		local knbAhdsr = createControls(pnlEnvelopeControls, processorId, flexEnvelopeId, options);
 
 		if (!isDefined(options.defaultLayout) || options.defaultLayout)
 			Container.createRow(pnlEnvelopeControls.getId(), [0, 0, 0, 0], -1, {});
 
 		bcpnlControlsMouse.attachToComponentMouseEvents([pnlEnvelopeControls, fltEnvelope], "Clicks, Hover & Dragging", "");
-
 		bcpnlControlsMouse.addListener(knbAhdsr, "Alt click restore defaults.", function(component, event)
 		{
 			if (!event.altDown || !event.clicked || event.rightClick || event.drag)
@@ -58,21 +55,9 @@ namespace EnvelopePanel
 			}
 		});
 
-		if (isDefined(options.singleArticulation))
-			return pnlEnvelope;
-
-		//! slpEnvelopeControls
-		local slpEnvelopeControls = createSliderPack(pnlEnvelopeControls, options);
-
 		pnlEnvelope.data.graph = fltEnvelope;
 		pnlEnvelope.data.controlPanel = controlPanel;
 		pnlEnvelope.data.controls = knbAhdsr;
-		pnlEnvelope.data.sliderPack = slpEnvelopeControls;
-
-		bcArticulationChanged.addListener({knobs: knbAhdsr, sliderPack: slpEnvelopeControls}, "Articulation change listener", function(component, value)
-		{
-			changeArticulation(this.knobs, this.sliderPack, value);
-		});
 
 		return pnlEnvelope;
 	}
@@ -103,25 +88,29 @@ namespace EnvelopePanel
 		return panel;
 	}
 		
-	inline function: ScriptObject createFloatingTile(parentPanel: ScriptObject, globalEnvelopeId: string, options: JSON)
+	inline function: ScriptObject createFloatingTile(parentPanel: ScriptObject, flexEnvelopeId: string, options: JSON)
 	{
 		local id = "fltEnvelope";
 		local componentExists = Content.componentExists(id);
 		local tile = Content.addFloatingTile(id);
+		local props = {};
 
 		if (!componentExists)
 		{
-			Content.setPropertiesFromJSON(id, {
+			props = {
 				x: 10,
 				y: 10,
 				width: parentPanel.getWidth() - 20,
 				height: (parentPanel.getHeight() / 2),
 				parentComponent: parentPanel.getId(),
-				bgColour: 0x0,
-				ContentType: "FlexAHDSRGraph",
-				Data: "{\n  \"ProcessorId\": \"" + globalEnvelopeId + "\",\n  \"Index\": -1,\n  \"FollowWorkspace\": false,\n  \"CurvePointTolerance\": 20,\n  \"UseOneDimensionDrag\": false,\n  \"ShowBall\": true\n}"
-			});
+				bgColour: 0x0
+			};
 		}
+
+		props.ContentType = "FlexAHDSRGraph";
+		props.Data = "{\n  \"ProcessorId\": \"" + flexEnvelopeId + "\",\n  \"Index\": -1,\n  \"FollowWorkspace\": false,\n  \"CurvePointTolerance\": 20,\n  \"UseOneDimensionDrag\": false,\n  \"ShowBall\": true\n}";
+
+		Content.setPropertiesFromJSON(id, props);
 		
 		tile.setLocalLookAndFeel(laf);
 
@@ -155,7 +144,7 @@ namespace EnvelopePanel
 		return panel;
 	}
 
-	inline function: Array createControls(parentPanel: ScriptObject, processorId: string, globalEnvelopeId: string, options: JSON)
+	inline function: Array createControls(parentPanel: ScriptObject, processorId: string, flexEnvelopeId: string, options: JSON)
 	{
 		local knobs = [];
 
@@ -265,75 +254,35 @@ namespace EnvelopePanel
 			props.width = knobWidth;
 			props.height = knobHeight;
 			props.parentComponent = parentPanel.getId();
-			props.saveInPreset = false;
+			props.saveInPreset = true;
+			props.processorId = processorId;
+			props.parameterId = props.parameter;
 
 			if (!componentExists)
-			{
-				props.processorId = processorId;
-				props.parameterId = props.parameter;
 				props.pluginParameterName = props.parameter;
-			}
-			
+
 			Content.setPropertiesFromJSON(id, props);
-			
-			knob.setLocalLookAndFeel(laf);
-			
+
+			knob.setLocalLookAndFeel(laf);			
 			knobs.push(knob);			
 		}
 
-		bcFloatingTileDrag.attachToModuleParameter(globalEnvelopeId, PARAMETERS, "");
-
-		bcFloatingTileDrag.addListener(knobs, "update UI knobs", function(id, parameter, value)
+		// Listeners
+		bcFloatingTileDrag.attachToModuleParameter(flexEnvelopeId, parameters, "");
+		bcFloatingTileDrag.addListener(knobs, "Update ahdsr knobs", function(moduleId, parameter, value)
 		{
-			var index = PARAMETERS.indexOf(parameter);
+			var index = parameters.indexOf(parameter);
 
-			if (isDefined(this[index]) && this[index].get("parameterId") == parameter)
-			{
-				this[index].setValue(value);
-				this[index].changed();
-			}
+			if (!isDefined(this[index]))
+				return;
+
+			this[index].setValue(value);
+			this[index].changed();
 		});
 
 		return knobs;
 	}
-	
-	inline function: ScriptObject createSliderPack(parentPanel: ScriptObject, options: JSON)
-	{
-		local id = parentPanel.getId().replace("pnl", "slp");
-		local componentExists = Content.componentExists(id);
-		local sliderPack = Content.addSliderPack(id);
 
-		if (!componentExists)
-		{
-			Content.setPropertiesFromJSON(id, {
-				visible: 0,
-				showValueOverlay: false,
-				flashActive: false,
-			});
-		}
-
-		Content.setPropertiesFromJSON(id, {
-			parentComponent: parentPanel.getId(),
-			processorId: "ahdsrController",
-			SliderPackIndex: 0,
-			min: -100,
-			max: 20000,
-			stepSize: 0.01,
-			sliderAmount: 400
-		});
-
-		return sliderPack;
-	}
-
-	inline function changeArticulation(knobs: Array, sliderPack: ScriptObject, index: number)
-	{
-		for (i = 0; i < knobs.length; i++)
-		{
-			local value = sliderPack.getSliderValueAt(knobs.length * index + i);
-			knobs[i].setValue(value);
-		}
-	}
-	
 	//! Look and Feel
 	const laf = Content.createLocalLookAndFeel();
 	
@@ -442,14 +391,10 @@ namespace EnvelopePanel
 	});
 	
 	//! Broadcasters
+		
+	//! bcFloatingTileDrag
+	const bcFloatingTileDrag = Engine.createBroadcaster({id: "envelopeFloatingTileDrag", args: ["id", "parameter", "value"]});
 	
-	//! bc floating tile drag
-	const bcFloatingTileDrag = Engine.createBroadcaster({id: "bcFloatingTileDrag", args: ["id", "parameter", "value"]});
-	
-	//! Bc panel mouse click
+	//! bcpnlControlsMouse
 	const bcpnlControlsMouse = Engine.createBroadcaster({id: "clickWatcher", args: ["component", "event"]});
-	
-	// bcArticulationChanged
-	const bcArticulationChanged = Engine.createBroadcaster({id: "envelopeArticulationChanged", args: ["component", "value"]});
-	bcArticulationChanged.attachToComponentValue("knbArticulation", "");
 }
