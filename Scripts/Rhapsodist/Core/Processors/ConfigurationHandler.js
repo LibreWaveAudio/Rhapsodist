@@ -33,6 +33,17 @@ gcPatch.setRange(-1, 100);
 const gcArticulation = gm.getCable("articulation");
 gcArticulation.setRange(-1, 100);
 
+reg samplerData;
+const tmrSampleLoading = Engine.createTimerObject();
+
+tmrSampleLoading.setTimerCallback(function()
+{
+	if (isDefined(samplerData))
+		loadSampleMaps(samplerData);
+
+	this.stopTimer();
+});
+
 //! Scripts
 const scriptIds = Synth.getIdList("Script Processor");
 scriptIds.concat(Synth.getIdList("Legato with Retrigger"));
@@ -112,7 +123,7 @@ inline function changePatch(index: number)
 	setAttributes(samplers, samplerIds, samplerAttributeIds, patch.samplers);
 	enableMuters(isDefined(patch.muters) ? patch.muters : []);
 
-	local samplerData = isDefined(Manifest.samplers) ? Manifest.samplers.clone() : [];
+	samplerData = isDefined(Manifest.samplers) ? Manifest.samplers.clone() : [];
 
 	if (isDefined(patch.samplers))
 		samplerData.concat(patch.samplers);
@@ -120,7 +131,7 @@ inline function changePatch(index: number)
 	if (Engine.isHISE())
 		Engine.extendTimeOut(60000);
 
-	loadSampleMaps(samplerData);
+	tmrSampleLoading.startTimer(50);
 
 	if (!effectIds.contains("patchGain"))
 		return;
