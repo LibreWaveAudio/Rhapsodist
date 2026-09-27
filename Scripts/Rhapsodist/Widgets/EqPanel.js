@@ -41,7 +41,7 @@ namespace EqPanel
 		local dbs = Synth.getDisplayBufferSource(effectId);
 		Engine.addModuleStateToUserPreset(effectId);
 
-		setEqProperties(dbs, isDefined(options.displayBufferProperties) ? displayBufferProperties : {});
+		setEqProperties(dbs, isDefined(options.displayBufferProperties) ? options.displayBufferProperties : {});
 		
 		panel.data.bc = addBroadcasters(displayPanel, tile.getId(), effect);		
 		panel.data.tile = tile;

@@ -278,23 +278,9 @@ namespace ListPanel
 		panel.repaint();
 	}
 
-	inline function setOption(panel: ScriptObject, key: string, value: NotUndefined)
-	{
-		panel.data[key] = value;
-		resize(panel);
-	}
-	
-	inline function setOptionsFromJSON(panel: ScriptObject, values: JSON)
-	{
-		for (x in values)
-			panel.data[x] = values[x];
-
-		resize(panel);
-	}
-
 	inline function setIcons(panel: ScriptObject, icons: Array)
 	{
-		panel.data.icons = iconsObj;		
+		panel.data.icons = icons;
 		panel.repaint();
 	}
 	
