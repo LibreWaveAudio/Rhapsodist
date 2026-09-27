@@ -26,8 +26,6 @@ namespace ValueEdit
 
 	inline function create(panelId: string, options: JSON)
 	{
-		local styleSheetPrefix = isDefined(options.styleSheetPrefix) ? (options.styleSheetPrefix + "_") : "";
-
 		local panel = Content.getComponent(panelId);
 		panel.set("bgColour", style.inputBox.bgColour);
 		panel.set("borderSize", isDefined(style.inputBox.borderSize) ? style.inputBox.borderSize : 0);
