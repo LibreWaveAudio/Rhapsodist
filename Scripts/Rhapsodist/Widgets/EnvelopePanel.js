@@ -232,9 +232,6 @@ namespace EnvelopePanel
 
 		if (isDefined(options.knobHeight) && options.knobHeight < knobHeight)
 			knobHeight = options.knobHeight;
-			
-		if (isDefined(options.knobWidth) && options.knobWidth < knobWidth)
-			knobWidth = 62;
 
 		for (i = 0; i < properties.length; i++)
 		{
