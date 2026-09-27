@@ -24,7 +24,7 @@ namespace ValueEdit
 	const style = CoreLookAndFeel.style;
 	const fonts = style.fonts;
 
-	inline function create(panelId: string, options: JSON)
+	inline function: ScriptObject create(panelId: string, options: JSON)
 	{
 		local panel = Content.getComponent(panelId);
 		panel.set("bgColour", style.inputBox.bgColour);
@@ -88,7 +88,7 @@ namespace ValueEdit
 		return panel;
 	}
 	
-	inline function createButtons(panel: ScriptObject)
+	inline function: Array createButtons(panel: ScriptObject)
 	{
 		local result = [];
 		

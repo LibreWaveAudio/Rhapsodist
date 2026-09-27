@@ -113,7 +113,7 @@ namespace EqPanel
 		return panel;
 	}
 	
-	inline function addBroadcasters(displayPanel: ScriptObject, tileId: string, effect: ScriptObject)
+	inline function: ScriptObject addBroadcasters(displayPanel: ScriptObject, tileId: string, effect: ScriptObject)
 	{		
 		local bcEqWatcher = Engine.createBroadcaster({id: tileId.replace("flt") + "EqWatcher", args: ["eventType", "value"]});
 		bcEqWatcher.attachToEqEvents(effect.getId(), ["BandMoved", "QChanged", "MouseOver"], "");

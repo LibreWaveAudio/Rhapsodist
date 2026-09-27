@@ -49,7 +49,7 @@ slpGain.set("width", 275);
 slpGain.set("height", 80);
 
 //! Functions
-inline function getArticulationGain(index)
+inline function: number getArticulationGain(index)
 {
 	local v = slpGain.getSliderValueAt(index);
 	return knbGain.getValue() + (v * 24 + -24);

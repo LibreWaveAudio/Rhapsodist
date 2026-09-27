@@ -26,7 +26,7 @@ namespace ComponentHandler
 	reg currentPatch;
 
 	//! Functions
-	inline function getAllComponentsIndexed()
+	inline function: object getAllComponentsIndexed()
 	{
 		local result = {};
 	

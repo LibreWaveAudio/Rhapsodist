@@ -158,7 +158,7 @@ inline function onknbOutputControl(component, value)
 }
 
 //! Functions
-inline function getAllSamplers()
+inline function: Array getAllSamplers()
 {
 	local samplerIds = Synth.getIdList("Sampler");
 	local result = [];

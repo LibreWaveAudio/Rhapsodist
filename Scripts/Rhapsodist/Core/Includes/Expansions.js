@@ -41,7 +41,7 @@ namespace Expansions
 	}
 
 	//! Functions	
-	inline function getCurrentExpansionName()
+	inline function: string getCurrentExpansionName()
 	{
 		local e = eh.getCurrentExpansion();
 		

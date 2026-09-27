@@ -149,7 +149,7 @@ inline function updateSmootherCoefficients()
     smootherXDown = timeToCoefficient(smoothDownMs);
 }
 
-inline function timeToCoefficient(timeMs)
+inline function: number timeToCoefficient(timeMs)
 {
     if (timeMs <= 0.0)
         return 0.0;

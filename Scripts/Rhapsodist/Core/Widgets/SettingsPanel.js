@@ -25,7 +25,7 @@ namespace SettingsPanel
 	const style = CoreLookAndFeel.style;
 	const fonts = style.fonts;
 
-	inline function create(panelId: string, rowHeight: number, options: JSON)
+	inline function: ScriptObject create(panelId: string, rowHeight: number, options: JSON)
 	{
 		local panel = Content.getComponent(panelId);
 		panel.data.rowHeight = rowHeight;		
