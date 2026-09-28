@@ -126,7 +126,7 @@ namespace Card
 			paintRoutine();
 		});
 
-		if (isNewpanel)
+		if (isNewPanel)
 		{
 			Content.setPropertiesFromJSON(panelId, {
 				borderSize: 0,			

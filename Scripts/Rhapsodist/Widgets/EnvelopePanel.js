@@ -56,7 +56,7 @@ namespace EnvelopePanel
 		});
 
 		pnlEnvelope.data.graph = fltEnvelope;
-		pnlEnvelope.data.controlPanel = controlPanel;
+		pnlEnvelope.data.controlPanel = pnlEnvelopeControls;
 		pnlEnvelope.data.controls = knbAhdsr;
 
 		return pnlEnvelope;

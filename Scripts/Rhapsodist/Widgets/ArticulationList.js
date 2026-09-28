@@ -314,7 +314,7 @@ namespace ArticulationList
 			}
 		
 			if (isDefined(LookAndFeel.drawArticulationListItem))
-				return LookAndFeel.drawArticulationListItem(item[i], a, hover, selected);
+				return LookAndFeel.drawArticulationListItem(items[i], a, hover, selected);
 
 			if (isDefined(LookAndFeel.drawSelectedArticulationIndicator))
 			{
