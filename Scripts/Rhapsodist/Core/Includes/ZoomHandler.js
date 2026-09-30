@@ -100,7 +100,7 @@ namespace ZoomHandler
 		local result = [];
 		local level = 0.5;
 
-		while(level <= maxZoom || level >= 4)
+		while(level <= maxZoom)
 		{
 			result.push(level);
 			level += 0.25;
