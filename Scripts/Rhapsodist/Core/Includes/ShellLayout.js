@@ -377,6 +377,7 @@ namespace Shell
 			"childComponents": [{
 				"type": "ScriptPanel",
 				"id": "pnlSettings",
+				"text": "SETTINGS",
 				"x": 200.0,
 				"y": 142.0,
 				"width": 600.0,
