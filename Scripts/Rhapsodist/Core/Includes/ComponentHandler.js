@@ -84,7 +84,7 @@ namespace ComponentHandler
 	const bcArticulationChanged = Engine.createBroadcaster({id: "componentHandlerArticulationChanged", args: ["component", "value"]});
 	bcArticulationChanged.setEnableQueue(true);
 	bcArticulationChanged.attachToComponentValue("knbArticulation", "");
-	
+
 	bcArticulationChanged.addListener(0, "Articulation change listener", function(component, value)
 	{
 		if (isDefined(currentPatch.components))
@@ -92,7 +92,7 @@ namespace ComponentHandler
 
 		var articulation = ArticulationDataManager.getArticulation(value);
 
-		if (isDefined(articulation) && isDefined(articulation.components))
+		if (isDefined(articulation.components))
 			setComponentProperties(articulation.components);
 	});
 }

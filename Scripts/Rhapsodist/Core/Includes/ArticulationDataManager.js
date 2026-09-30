@@ -168,9 +168,14 @@ namespace ArticulationDataManager
 	    return typeof(variable) == "object" && !Array.isArray(variable);
 	}
 	
-	inline function: ScriptObject getArticulation(index: number)
+	inline function: object getArticulation(index: number)
 	{
-		return articulations[index];
+		local result = articulations[index];
+
+		if (isDefined(result))
+			return result;
+
+		return {};
 	}
 
 	inline function: Array getAllArticulations()
