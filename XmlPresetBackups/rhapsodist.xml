@@ -12,16 +12,109 @@
             <Control type="ScriptSlider" id="knbPatch" value="0.0"/>
             <Control type="ScriptSlider" id="knbArticulation" value="0.0"/>
             <Control type="ScriptSlider" id="knbMasterPan" value="0.0"/>
-            <Control type="ScriptSlider" id="knbMasterVolume" value="0.0"/>
-            <Control type="ScriptedViewport" id="vptEngineSettings" value="0.0"/>
-            <Control type="ScriptButton" id="btnTooltips" value="1.0"/>
+            <Control type="ScriptSlider" id="knbMasterVolume" value="-3.0"/>
             <Control type="ScriptSlider" id="knbCoarseTune" value="0.0"/>
             <Control type="ScriptSlider" id="knbFineTune" value="0.0"/>
             <Control type="ScriptSlider" id="knbTranspose" value="0.0"/>
-            <Control type="ScriptButton" id="btnLazyLoad" value="0.0"/>
-            <Control type="ScriptButton" id="btnReleaseTriggers" value="0.0"/>
+            <Control type="ScriptedViewport" id="vptMpe" value="0.0"/>
           </Content>
           <UIData Source="rhapsodistUIData"/>
+        </Processor>
+        <Processor Type="ScriptProcessor" ID="configurationHandler" Bypassed="0"
+                   Script="{EXTERNAL_SCRIPT}{PROJECT_FOLDER}Rhapsodist/Core/Processors/ConfigurationHandler.js">
+          <ChildProcessors/>
+          <Content>
+            <Control type="ScriptSlider" id="Patch" value="0.0"/>
+            <Control type="ScriptSlider" id="Articulation" value="0.0"/>
+          </Content>
+          <UIData>
+            <ContentProperties DeviceType="Desktop">
+              <Component type="ScriptSlider" id="Patch" x="10" y="0" style="Knob" middlePosition="disabled"
+                         stepSize="1.0" min="-1.0" max="100.0" suffix="" filmstripImage="Use default skin"
+                         linkedTo=""/>
+              <Component type="ScriptSlider" id="Articulation" x="160" y="0" style="Knob"
+                         middlePosition="disabled" stepSize="1.0" min="-1.0" max="100.0"
+                         suffix="" filmstripImage="Use default skin" linkedTo=""/>
+            </ContentProperties>
+          </UIData>
+        </Processor>
+        <Processor Type="ScriptProcessor" ID="velocityScaler" Bypassed="0" NumTables="1"
+                   Script="{EXTERNAL_SCRIPT}{PROJECT_FOLDER}Rhapsodist/Processors/VelocityScaler.js">
+          <ChildProcessors/>
+          <Content>
+            <Control type="ScriptTable" id="Velocity" value="0.0" data=""/>
+          </Content>
+          <UIData>
+            <ContentProperties DeviceType="Desktop">
+              <Component type="ScriptTable" id="Velocity" x="10" y="10" width="250" height="180"/>
+            </ContentProperties>
+          </UIData>
+        </Processor>
+        <Processor Type="ScriptProcessor" ID="ahdsrController" Bypassed="0" Script="{EXTERNAL_SCRIPT}{PROJECT_FOLDER}Rhapsodist/Processors/AhdsrController.js">
+          <ChildProcessors/>
+          <Content>
+            <Control type="ScriptSlider" id="Attack" value="2.0"/>
+            <Control type="ScriptSlider" id="Hold" value="10.0"/>
+            <Control type="ScriptSlider" id="Decay" value="300.0"/>
+            <Control type="ScriptSlider" id="Sustain" value="1.0"/>
+            <Control type="ScriptSlider" id="Release" value="5000.0"/>
+            <Control type="ScriptSlider" id="AttackLevel" value="1.0"/>
+            <Control type="ScriptSlider" id="AttackCurve" value="0.5"/>
+            <Control type="ScriptSlider" id="DecayCurve" value="0.5"/>
+            <Control type="ScriptSlider" id="ReleaseCurve" value="0.5"/>
+          </Content>
+          <UIData>
+            <ContentProperties DeviceType="Desktop">
+              <Component type="ScriptSlider" id="Attack" x="10" y="0" style="Knob" middlePosition="1000.0"
+                         stepSize="1.0" max="20000.0" suffix=" ms" filmstripImage="Use default skin"
+                         linkedTo="" mode="Time" defaultValue="2.0"/>
+              <Component type="ScriptSlider" id="Hold" x="148" y="0" style="Knob" middlePosition="1000.0"
+                         stepSize="1.0" max="20000.0" suffix=" ms" filmstripImage="Use default skin"
+                         linkedTo="" mode="Time" defaultValue="10.0"/>
+              <Component type="ScriptSlider" id="Decay" x="286" y="0" style="Knob" middlePosition="1000.0"
+                         stepSize="1.0" max="20000.0" suffix=" ms" filmstripImage="Use default skin"
+                         linkedTo="" mode="Time" defaultValue="300.0"/>
+              <Component type="ScriptSlider" id="Sustain" x="424" y="0" style="Knob" middlePosition="0.5"
+                         suffix="%" filmstripImage="Use default skin" linkedTo="" mode="NormalizedPercentage"
+                         defaultValue="1.0"/>
+              <Component type="ScriptSlider" id="Release" x="562" y="0" style="Knob" middlePosition="1000.0"
+                         stepSize="1.0" max="20000.0" suffix=" ms" filmstripImage="Use default skin"
+                         linkedTo="" mode="Time" defaultValue="5000.0"/>
+              <Component type="ScriptSlider" id="AttackLevel" x="10" y="58" style="Knob"
+                         middlePosition="0.5" suffix="%" filmstripImage="Use default skin"
+                         linkedTo="" mode="NormalizedPercentage" defaultValue="1.0"/>
+              <Component type="ScriptSlider" id="AttackCurve" x="148" y="58" style="Knob"
+                         middlePosition="0.5" suffix="%" filmstripImage="Use default skin"
+                         linkedTo="" mode="NormalizedPercentage" defaultValue="0.5"/>
+              <Component type="ScriptSlider" id="DecayCurve" x="286" y="58" style="Knob"
+                         middlePosition="0.5" suffix="%" filmstripImage="Use default skin"
+                         linkedTo="" mode="NormalizedPercentage" defaultValue="0.5"/>
+              <Component type="ScriptSlider" id="ReleaseCurve" x="424" y="58" style="Knob"
+                         middlePosition="0.5" suffix="%" filmstripImage="Use default skin"
+                         linkedTo="" mode="NormalizedPercentage" defaultValue="0.5"/>
+            </ContentProperties>
+          </UIData>
+        </Processor>
+        <Processor Type="ScriptProcessor" ID="articulationGain" Bypassed="0" NumSliderPacks="1"
+                   Script="{EXTERNAL_SCRIPT}{PROJECT_FOLDER}Rhapsodist/Processors/ArticulationGain.js">
+          <ChildProcessors/>
+          <Content>
+            <Control type="ScriptSlider" id="Articulation" value="0.0"/>
+            <Control type="ScriptSlider" id="Gain" value="0.0"/>
+            <Control type="ScriptSliderPack" id="slpGain" value="-1.0" data="400....f+....9C...3O...f+....9C...3O...f+....9C...3O...f+....9C...3O...f+....9C...3O...f+....9C...3O...f+....9C...3O...f+....9C...3O...f+....9C...3O...f+....9C...3O...f+....9C...3O...f+....9C...3O...f+....9C...3O...f+....9C...3O...f+....9C...3O...f+....9C...3O...f+....9C...3O...f+....9C...3O...f+....9C...3O...f+....9C...3O...f+....9C...3O...f+....9C...3O...f+....9C...3O...f+....9C...3O...f+....9C...3O...f+....9C...3O...f+....9C...3O...f+....9C...3O...f+....9C...3O...f+....9C...3O...f+....9C...3O...f+....9C...3O...f+....9C...3O...f+."/>
+          </Content>
+          <UIData>
+            <ContentProperties DeviceType="Desktop">
+              <Component type="ScriptSlider" id="Articulation" x="10" y="0" style="Knob"
+                         middlePosition="disabled" stepSize="1.0" max="100.0" suffix=""
+                         filmstripImage="Use default skin" linkedTo=""/>
+              <Component type="ScriptSlider" id="Gain" x="160" y="0" style="Knob" middlePosition="0.0"
+                         stepSize="1.0" min="-24.0" max="24.0" suffix=" dB" filmstripImage="Use default skin"
+                         linkedTo="" mode="Decibel" tooltip="Starting gain that will be applied to notes before articulation gain."/>
+              <Component type="ScriptSliderPack" id="slpGain" x="310" y="10" sliderAmount="100"
+                         width="275" height="80"/>
+            </ContentProperties>
+          </UIData>
         </Processor>
       </ChildProcessors>
     </Processor>
@@ -32,7 +125,194 @@
       <ChildProcessors/>
     </Processor>
     <Processor Type="EffectChain" ID="FX" Bypassed="0">
-      <ChildProcessors/>
+      <ChildProcessors>
+        <Processor Type="ScriptFX" ID="masterGain" Bypassed="0" Script="{EXTERNAL_SCRIPT}{PROJECT_FOLDER}Rhapsodist/Core/ScriptFX/MultiChannelGain.js">
+          <ChildProcessors/>
+          <RoutingMatrix NumSourceChannels="2" Channel0="0" Send0="-1" Channel1="1" Send1="-1"/>
+          <Content>
+            <Control type="ScriptSlider" id="Gain" value="-3.0"/>
+            <Control type="ScriptSlider" id="Smoothing" value="250.0"/>
+            <Control type="ScriptSlider" id="Width" value="100.0"/>
+            <Control type="ScriptSlider" id="Balance" value="0.0"/>
+          </Content>
+          <UIData>
+            <ContentProperties DeviceType="Desktop">
+              <Component type="ScriptSlider" id="Gain" x="10" y="0" style="Knob" middlePosition="-18"
+                         stepSize="0.1" min="-100.0" max="12.0" suffix=" dB" filmstripImage="Use default skin"
+                         linkedTo="" mode="Decibel" defaultValue="-3.0"/>
+              <Component type="ScriptSlider" id="Smoothing" x="160" y="0" style="Knob"
+                         middlePosition="disabled" stepSize="0.1" max="1000.0" suffix=""
+                         filmstripImage="Use default skin" linkedTo="" defaultValue="250.0"
+                         mode="Time"/>
+              <Component type="ScriptSlider" id="Width" x="310" y="0" style="Knob" middlePosition="100"
+                         max="200.0" suffix="" filmstripImage="Use default skin" linkedTo=""
+                         defaultValue="100.0"/>
+              <Component type="ScriptSlider" id="Balance" x="460" y="0" style="Knob" middlePosition="0.0"
+                         stepSize="1.0" min="-100.0" max="100.0" suffix="L" filmstripImage="Use default skin"
+                         linkedTo="" mode="Pan"/>
+            </ContentProperties>
+          </UIData>
+        </Processor>
+        <Processor Type="ScriptFX" ID="patchGain" Bypassed="0" Script="{EXTERNAL_SCRIPT}{PROJECT_FOLDER}Rhapsodist/Core/ScriptFX/MultiChannelGain.js">
+          <ChildProcessors/>
+          <RoutingMatrix NumSourceChannels="2" Channel0="0" Send0="-1" Channel1="1" Send1="-1"/>
+          <Content>
+            <Control type="ScriptSlider" id="Gain" value="-3.0"/>
+            <Control type="ScriptSlider" id="Smoothing" value="250.0"/>
+            <Control type="ScriptSlider" id="Width" value="100.0"/>
+            <Control type="ScriptSlider" id="Balance" value="0.0"/>
+          </Content>
+          <UIData>
+            <ContentProperties DeviceType="Desktop">
+              <Component type="ScriptSlider" id="Gain" x="10" y="0" style="Knob" middlePosition="-18"
+                         stepSize="0.1" min="-100.0" max="12.0" suffix=" dB" filmstripImage="Use default skin"
+                         linkedTo="" mode="Decibel" defaultValue="-3.0"/>
+              <Component type="ScriptSlider" id="Smoothing" x="160" y="0" style="Knob"
+                         middlePosition="disabled" stepSize="0.1" max="1000.0" suffix=""
+                         filmstripImage="Use default skin" linkedTo="" defaultValue="250.0"
+                         mode="Time"/>
+              <Component type="ScriptSlider" id="Width" x="310" y="0" style="Knob" middlePosition="100"
+                         max="200.0" suffix="" filmstripImage="Use default skin" linkedTo=""
+                         defaultValue="100.0"/>
+              <Component type="ScriptSlider" id="Balance" x="460" y="0" style="Knob" middlePosition="0.0"
+                         stepSize="1.0" min="-100.0" max="100.0" suffix="L" filmstripImage="Use default skin"
+                         linkedTo="" mode="Pan"/>
+            </ContentProperties>
+          </UIData>
+        </Processor>
+      </ChildProcessors>
+    </Processor>
+    <Processor Type="GlobalModulatorContainer" ID="globalModulationContainer"
+               Bypassed="0" Gain="0.25" Balance="0.0" VoiceLimit="256.0" KillFadeTime="20.0"
+               IconColour="0">
+      <ChildProcessors>
+        <Processor Type="MidiProcessorChain" ID="Midi Processor" Bypassed="0">
+          <ChildProcessors/>
+        </Processor>
+        <Processor Type="ModulatorChain" ID="Global Modulators" Bypassed="0" Intensity="1.0">
+          <ChildProcessors>
+            <Processor Type="FlexAHDSR" ID="globalGainFlexAhdsr" Bypassed="0" Monophonic="0.0"
+                       Retrigger="1.0" Bipolar="0" Intensity="1.0" Attack="2.0" Hold="10.0"
+                       Decay="300.0" Sustain="1.0" Release="5000.0" Mode="1.0" AttackLevel="1.0"
+                       AttackCurve="0.5" DecayCurve="0.5" ReleaseCurve="0.5">
+              <ChildProcessors>
+                <Processor Type="ModulatorChain" ID="Attack Time" Bypassed="0" Intensity="1.0">
+                  <ChildProcessors/>
+                </Processor>
+                <Processor Type="ModulatorChain" ID="Attack Level" Bypassed="0" Intensity="1.0">
+                  <ChildProcessors/>
+                </Processor>
+                <Processor Type="ModulatorChain" ID="Decay Time" Bypassed="0" Intensity="1.0">
+                  <ChildProcessors/>
+                </Processor>
+                <Processor Type="ModulatorChain" ID="Sustain Level" Bypassed="0" Intensity="1.0">
+                  <ChildProcessors/>
+                </Processor>
+                <Processor Type="ModulatorChain" ID="Release Time" Bypassed="0" Intensity="1.0">
+                  <ChildProcessors/>
+                </Processor>
+              </ChildProcessors>
+            </Processor>
+            <Processor Type="Velocity" ID="velocity" Bypassed="0" Intensity="1.0" Bipolar="0"
+                       UseTable="0.0" Inverted="0.0" DecibelMode="0.0">
+              <ChildProcessors/>
+            </Processor>
+          </ChildProcessors>
+        </Processor>
+        <Processor Type="ModulatorChain" ID="PitchModulation" Bypassed="0" Intensity="0.0">
+          <ChildProcessors/>
+        </Processor>
+        <Processor Type="EffectChain" ID="FX" Bypassed="0">
+          <ChildProcessors/>
+        </Processor>
+      </ChildProcessors>
+      <RoutingMatrix NumSourceChannels="2" Channel0="0" Send0="-1" Channel1="1" Send1="-1"/>
+      <MatrixData/>
+    </Processor>
+    <Processor Type="SynthChain" ID="container0" Bypassed="0" Gain="1.0" Balance="0.0"
+               VoiceLimit="256.0" KillFadeTime="20.0" IconColour="0">
+      <ChildProcessors>
+        <Processor Type="MidiProcessorChain" ID="Midi Processor" Bypassed="0">
+          <ChildProcessors>
+            <Processor Type="ScriptProcessor" ID="noteRangeFilter" Bypassed="0" Script="{EXTERNAL_SCRIPT}{PROJECT_FOLDER}Rhapsodist/Processors/NoteRangeFilter.js">
+              <ChildProcessors/>
+              <Content>
+                <Control type="ScriptButton" id="Mute" value="0.0"/>
+                <Control type="ScriptSlider" id="LowNote" value="0.0"/>
+                <Control type="ScriptSlider" id="HighNote" value="127.0"/>
+                <Control type="ScriptButton" id="Block" value="0.0"/>
+                <Control type="ScriptButton" id="Release" value="0.0"/>
+                <Control type="ScriptButton" id="IgnoreTranspose" value="0.0"/>
+              </Content>
+              <UIData>
+                <ContentProperties DeviceType="Desktop">
+                  <Component type="ScriptButton" id="Mute" x="10" y="10"/>
+                  <Component type="ScriptSlider" id="LowNote" x="160" y="0" style="Knob" middlePosition="disabled"
+                             stepSize="1.0" max="127.0" suffix="" filmstripImage="Use default skin"
+                             linkedTo="" text="Low Note"/>
+                  <Component type="ScriptSlider" id="HighNote" x="310" y="0" style="Knob"
+                             middlePosition="disabled" stepSize="1.0" max="127.0" suffix=""
+                             filmstripImage="Use default skin" linkedTo="" text="High Note"
+                             defaultValue="127.0"/>
+                  <Component type="ScriptButton" id="Block" x="10" y="60"/>
+                  <Component type="ScriptButton" id="Release" x="160" y="60" tooltip="When enabled note offs will also be filtered."/>
+                  <Component type="ScriptButton" id="IgnoreTranspose" x="310" y="60" text="Ignore Transpose"/>
+                </ContentProperties>
+              </UIData>
+            </Processor>
+            <Processor Type="ScriptProcessor" ID="tuningHandler" Bypassed="0" Script="{EXTERNAL_SCRIPT}{PROJECT_FOLDER}Rhapsodist/Core/Processors/TuningHandler.js">
+              <ChildProcessors/>
+              <Content>
+                <Control type="ScriptSlider" id="FineTune" value="0.0"/>
+                <Control type="ScriptSlider" id="CoarseTune" value="0.0"/>
+                <Control type="ScriptSlider" id="OctaveTranspose" value="0.0"/>
+                <Control type="ScriptSlider" id="SemiToneTranspose" value="0.0"/>
+              </Content>
+              <UIData>
+                <ContentProperties DeviceType="Desktop">
+                  <Component type="ScriptSlider" id="FineTune" x="10" y="0" style="Knob" middlePosition="0"
+                             stepSize="1.0" min="-100.0" max="100.0" suffix="ct" filmstripImage="Use default skin"
+                             linkedTo="" text="Fine Tune"/>
+                  <Component type="ScriptSlider" id="CoarseTune" x="160" y="0" style="Knob"
+                             middlePosition="0" stepSize="1.0" min="-12.0" max="12.0" suffix="st"
+                             filmstripImage="Use default skin" linkedTo="" text="Coarse Tune"/>
+                  <Component type="ScriptSlider" id="OctaveTranspose" x="310" y="0" style="Knob"
+                             middlePosition="0" stepSize="1.0" min="-2.0" max="2.0" suffix=""
+                             filmstripImage="Use default skin" linkedTo="" text="Octave Transpose"/>
+                  <Component type="ScriptSlider" id="SemiToneTranspose" x="460" y="0" style="Knob"
+                             middlePosition="0" stepSize="1.0" min="-12.0" max="12.0" suffix=""
+                             filmstripImage="Use default skin" linkedTo="" text="Semi Tone Transpose"/>
+                </ContentProperties>
+              </UIData>
+            </Processor>
+            <Processor Type="ScriptProcessor" ID="samplerPurgeHandler" Bypassed="0"
+                       NumSliderPacks="1" Script="{EXTERNAL_SCRIPT}{PROJECT_FOLDER}Rhapsodist/Core/Processors/SamplerPurgeHandler.js">
+              <ChildProcessors/>
+              <Content>
+                <Control type="ScriptButton" id="LazyLoad" value="0.0"/>
+                <Control type="ScriptSliderPack" id="PurgeState" value="-1.0" data="64....f+....9C...3O...f+....9C...3O...f+....9C...3O...f+....9C...3O...f+....9C...3O...f+."/>
+              </Content>
+              <UIData>
+                <ContentProperties DeviceType="Desktop">
+                  <Component type="ScriptButton" id="LazyLoad" x="10" y="10" text="Lazy Load"/>
+                  <Component type="ScriptSliderPack" id="PurgeState" x="160" y="10" width="414"
+                             height="78" sliderAmount="50" stepSize="1"/>
+                </ContentProperties>
+              </UIData>
+            </Processor>
+          </ChildProcessors>
+        </Processor>
+        <Processor Type="ModulatorChain" ID="GainModulation" Bypassed="0" Intensity="1.0">
+          <ChildProcessors/>
+        </Processor>
+        <Processor Type="ModulatorChain" ID="PitchModulation" Bypassed="1" Intensity="0.0">
+          <ChildProcessors/>
+        </Processor>
+        <Processor Type="EffectChain" ID="FX" Bypassed="0">
+          <ChildProcessors/>
+        </Processor>
+      </ChildProcessors>
+      <RoutingMatrix NumSourceChannels="2" Channel0="0" Send0="-1" Channel1="1" Send1="-1"/>
     </Processor>
   </ChildProcessors>
   <RoutingMatrix NumSourceChannels="2" Channel0="0" Send0="-1" Channel1="1" Send1="-1"/>
@@ -45,6 +325,30 @@
     <macro name="Macro 6" value="0.0" midi_cc="-1"/>
     <macro name="Macro 7" value="0.0" midi_cc="-1"/>
     <macro name="Macro 8" value="0.0" midi_cc="-1"/>
+    <macro name="Macro 9" value="0.0" midi_cc="-1"/>
+    <macro name="Macro 10" value="0.0" midi_cc="-1"/>
+    <macro name="Macro 11" value="0.0" midi_cc="-1"/>
+    <macro name="Macro 12" value="0.0" midi_cc="-1"/>
+    <macro name="Macro 13" value="0.0" midi_cc="-1"/>
+    <macro name="Macro 14" value="0.0" midi_cc="-1"/>
+    <macro name="Macro 15" value="0.0" midi_cc="-1"/>
+    <macro name="Macro 16" value="0.0" midi_cc="-1"/>
+    <macro name="Macro 17" value="0.0" midi_cc="-1"/>
+    <macro name="Macro 18" value="0.0" midi_cc="-1"/>
+    <macro name="Macro 19" value="0.0" midi_cc="-1"/>
+    <macro name="Macro 20" value="0.0" midi_cc="-1"/>
+    <macro name="Macro 21" value="0.0" midi_cc="-1"/>
+    <macro name="Macro 22" value="0.0" midi_cc="-1"/>
+    <macro name="Macro 23" value="0.0" midi_cc="-1"/>
+    <macro name="Macro 24" value="0.0" midi_cc="-1"/>
+    <macro name="Macro 25" value="0.0" midi_cc="-1"/>
+    <macro name="Macro 26" value="0.0" midi_cc="-1"/>
+    <macro name="Macro 27" value="0.0" midi_cc="-1"/>
+    <macro name="Macro 28" value="0.0" midi_cc="-1"/>
+    <macro name="Macro 29" value="0.0" midi_cc="-1"/>
+    <macro name="Macro 30" value="0.0" midi_cc="-1"/>
+    <macro name="Macro 31" value="0.0" midi_cc="-1"/>
+    <macro name="Macro 32" value="0.0" midi_cc="-1"/>
   </macro_controls>
   <MidiAutomation/>
   <MPEData Enabled="0"/>

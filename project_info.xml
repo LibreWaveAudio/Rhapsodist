@@ -2,20 +2,20 @@
 
 <ProjectSettings>
   <Name value="Rhapsodist"/>
-  <Version value="0.7.7"/>
+  <Version value="0.7.9"/>
   <Description value=""/>
   <BundleIdentifier value="com.LibreWave.Rhapsodist"/>
   <PluginCode value="Lwrs"/>
   <EmbedAudioFiles value="Yes"/>
   <EmbedImageFiles value="Yes"/>
-  <SupportFullDynamicsHLAC value="No"/>
+  <SupportFullDynamicsHLAC value="1"/>
   <AdditionalDspLibraries value=""/>
   <OSXStaticLibs value=""/>
   <WindowsStaticLibFolder value=""/>
-  <ExtraDefinitionsWindows value="AUDIOFFT_FFTW3=1&#10;HISE_USE_EXTENDED_TEMPO_VALUES=1&#10;HISE_ENABLE_FULL_CONTROL_RATE_PITCH_MOD=1&#10;HISE_USE_SVF_FOR_CURVE_EQ=1 &#10;HISE_USE_OPENGL_FOR_PLUGIN=1&#10;HISE_DEFAULT_OPENGL_VALUE=0&#10;HISE_DEACTIVATE_OVERLAY=1&#10;CONFIRM_PRESET_OVERWRITE=0&#10;ENABLE_ALL_PEAK_METERS=1&#10;HISE_OVERWRITE_OLD_USER_PRESETS =1&#10;HISE_USE_MOUSE_WHEEL_FOR_TABLE_CURVE=1&#10;HISE_USE_SCRIPT_RECTANGLE_OBJECT=1&#10;HISE_MACROS_ARE_PLUGIN_PARAMETERS=1&#10;HISE_NUM_MACROS=32"/>
-  <ExtraDefinitionsOSX value="HISE_USE_EXTENDED_TEMPO_VALUES=1&#10;HISE_ENABLE_FULL_CONTROL_RATE_PITCH_MOD=1&#10;HISE_USE_SVF_FOR_CURVE_EQ=1 &#10;HISE_USE_OPENGL_FOR_PLUGIN=1&#10;HISE_DEFAULT_OPENGL_VALUE=0&#10;HISE_DEACTIVATE_OVERLAY=1&#10;CONFIRM_PRESET_OVERWRITE=0&#10;ENABLE_ALL_PEAK_METERS=1&#10;HISE_OVERWRITE_OLD_USER_PRESETS =1&#10;HISE_USE_MOUSE_WHEEL_FOR_TABLE_CURVE=1&#10;HISE_USE_SCRIPT_RECTANGLE_OBJECT=1&#10;JUCE_DISABLE_COREGRAPHICS_FONT_SMOOTHING=1&#10;HISE_MACROS_ARE_PLUGIN_PARAMETERS=1&#10;HISE_NUM_MACROS=32"/>
+  <ExtraDefinitionsWindows value=""/>
+  <ExtraDefinitionsOSX value=""/>
   <ExtraDefinitionsIOS value=""/>
-  <ExtraDefinitionsLinux value="AUDIOFFT_FFTW3=1&#10;HISE_USE_EXTENDED_TEMPO_VALUES=1&#10;HISE_ENABLE_FULL_CONTROL_RATE_PITCH_MOD=1&#10;HISE_USE_SVF_FOR_CURVE_EQ=1 &#10;HISE_USE_OPENGL_FOR_PLUGIN=1&#10;HISE_DEFAULT_OPENGL_VALUE=0&#10;HISE_DEACTIVATE_OVERLAY=1&#10;CONFIRM_PRESET_OVERWRITE=0&#10;ENABLE_ALL_PEAK_METERS=1&#10;HISE_OVERWRITE_OLD_USER_PRESETS =1&#10;HISE_USE_MOUSE_WHEEL_FOR_TABLE_CURVE=1&#10;HISE_USE_SCRIPT_RECTANGLE_OBJECT=1&#10;USE_LINUX_FONT_HANDLER=1&#10;HISE_MACROS_ARE_PLUGIN_PARAMETERS=1&#10;HISE_NUM_MACROS=32"/>
+  <ExtraDefinitionsLinux value=""/>
   <ExtraDefinitionsNetworkDll value=""/>
   <AppGroupID value=""/>
   <RedirectSampleFolder value=""/>
@@ -28,7 +28,7 @@
   <VST3Support value="Yes"/>
   <UseRawFrontend value="No"/>
   <ExpansionType value="Disabled"/>
-  <EncryptionKey value=""/>
+  <EncryptionKey value="1234"/>
   <LinkExpansionsToProject value="No"/>
   <ReadOnlyFactoryPresets value="No"/>
   <ForceStereoOutput value="No"/>

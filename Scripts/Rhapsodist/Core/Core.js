@@ -21,8 +21,7 @@
 
 namespace Core
 {
-	Content.setWidth(1000);
-	Content.setHeight(710);
+	Content.makeFrontInterface(1000, 710);
 
 	Synth.deferCallbacks(true);
 	Engine.setAllowDuplicateSamples(false);

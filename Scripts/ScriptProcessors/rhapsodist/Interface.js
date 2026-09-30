@@ -1,11 +1,9 @@
 Content.makeFrontInterface(600, 600);
 
 include("App/Manifest.js");
-include("App/Style.js");
 include("App/LookAndFeel.js");
 include("Rhapsodist/Core/Core.js");
 include("App/App.js");
-
 function onNoteOn()
 {
 	
