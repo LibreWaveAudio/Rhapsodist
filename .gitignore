@@ -7,7 +7,10 @@ Samples/
 PooledResources/
 AdditionalSourceCode/
 Packaging/
-Scripts/App
+Scripts/App/
+Scripts/ScriptProcessors/
+UserPresets/
+expansion_info.xml
 *.kantban
 *build
 *dev
