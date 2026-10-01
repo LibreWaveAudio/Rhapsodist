@@ -1,9 +1,9 @@
 {
   "PositiveWildcard": [
-    "Rhapsodist",
-    "Fonts/Rhapsodist"
+    "Scripts/Rhapsodist",
+    "Images/Fonts/Rhapsodist"
   ],
-  "NegativeWildcard": [],
+  "NegativeWildcard": ["License.txt", "README.md"],
   "Preprocessors": [],
   "FileTypes": [
     "Scripts/",
