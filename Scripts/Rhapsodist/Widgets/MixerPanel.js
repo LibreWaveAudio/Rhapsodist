@@ -52,9 +52,9 @@ namespace MixerPanel
 
 		for (i = 0; i < numChannels; i++)
 		{
-			local pnlChannel = createChannelPanel(pnlMixer, numChannels, i);
+			local pnlChannel = createChannelPanel(pnlMixer, numChannels, i, options);
 
-			local knbPan = createPanKnob(pnlChannel, processorId, i);
+			local knbPan = createPanKnob(pnlChannel, processorId, i, options);
 			knbPan.setLocalLookAndFeel(lafMixer);
 
 			local gainSliderWidth = isDefined(options.gainSliderWidth) ? options.gainSliderWidth : 22;
@@ -66,7 +66,7 @@ namespace MixerPanel
 			pnlGain.set("width", pnlChannel.getWidth() * .75);
 			pnlGain.set("height", gainSliderHeight + 30);
 
-			local knbGain = createGainKnob(pnlGain, processorId, i, gainSliderWidth, gainSliderHeight);
+			local knbGain = createGainKnob(pnlGain, processorId, i, [gainSliderWidth, gainSliderHeight], options);
 
 			local fltMeter = createMeter(pnlGain, i, numChannels, gainSliderHeight);			
 
@@ -87,11 +87,12 @@ namespace MixerPanel
 		return pnlMixer;
 	}
 
-	inline function: ScriptObject createChannelPanel(parentPanel: ScriptObject, numChannels: int, index: number)
+	inline function: ScriptObject createChannelPanel(parentPanel: ScriptObject, numChannels: int, index: number, options: JSON)
 	{
 		local id = "pnlMixerChannel" + index;
 		local componentExists = Content.componentExists(id);		
 		local panel = Container.createStack(id, [50, 0, 30, 0], -1, {});
+		local channelName = isDefined(options.channelNames[index]) ? options.channelNames[index] : "Channel " + (index + 1);
 
 		if (!componentExists)
 		{
@@ -100,7 +101,7 @@ namespace MixerPanel
 			Content.setPropertiesFromJSON(id, {
 				y: 0,
 				height: parentPanel.getHeight(),
-				text: "Channel " + (index + 1),
+				text: channelName,
 				itemColour: parentPanel.get("itemColour"),
 				textColour: parentPanel.get("textColour")
 			});
@@ -133,11 +134,12 @@ namespace MixerPanel
 		return panel;
 	}
 	
-	inline function: ScriptObject createPanKnob(parentPanel: ScriptObject, processorId: string, index: number)
+	inline function: ScriptObject createPanKnob(parentPanel: ScriptObject, processorId: string, index: number, options: JSON)
 	{
 		local id = "knbMixerPan" + index;
 		local componentExists = Content.componentExists(id);
 		local knob = Content.addKnob(id);
+		local channelName = isDefined(options.channelNames[index]) ? options.channelNames[index] : "Channel " + (index + 1);
 
 		if (!componentExists)
 		{
@@ -147,7 +149,7 @@ namespace MixerPanel
 				height: 70,
 				text: "",
 				tooltip: "Set the channel's pan.",
-				pluginParameterName: "Channel " + (index + 1) + " pan",
+				pluginParameterName: channelName.toLowerCase().capitalize() + " Pan",
 				processorId: processorId,
 				parameterId: "Pan" + index,
 				defaultValue: 0,
@@ -165,21 +167,22 @@ namespace MixerPanel
 		return knob;
 	}
 		
-	inline function: ScriptObject createGainKnob(parentPanel: ScriptObject, processorId: string, index: number, width: number, height: number)
+	inline function: ScriptObject createGainKnob(parentPanel: ScriptObject, processorId: string, index: number, size: Array, options: JSON)
 	{
 		local id = "knbMixerGain" + index;
 		local componentExists = Content.componentExists(id);
 		local knob = Content.addKnob(id);
+		local channelName = isDefined(options.channelNames[index]) ? options.channelNames[index] : "Channel " + (index + 1);
 
 		if (!componentExists)
 		{			
 			Content.setPropertiesFromJSON(id, {
 				y: 0,
-				width: width,
-				height: height,
-				text: "Channel " + (index + 1) + " Gain",
+				width: size[0],
+				height: size[1],
+				text: channelName.toLowerCase().capitalize() + " Gain",
 				tooltip: "Set the channel's volume.",
-				pluginParameterName: "Channel " + (index + 1) + " gain",
+				pluginParameterName: channelName.toLowerCase().capitalize() + " Gain",
 				processorId: processorId,
 				parameterId: "Gain" + index,
 				defaultValue: 0,
