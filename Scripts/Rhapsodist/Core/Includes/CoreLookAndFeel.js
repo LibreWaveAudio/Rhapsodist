@@ -1121,7 +1121,7 @@ namespace CoreLookAndFeel
 
 		local a = obj.area;
 
-		g.setFont("phosphor", a[2] < 20 ? a[2] : 20);
+		g.setFont(obj.id == "btnRhapsody" ? "phosphorBold" : "phosphor", a[2] < 20 ? a[2] : 20);
 
 		local c;
 
