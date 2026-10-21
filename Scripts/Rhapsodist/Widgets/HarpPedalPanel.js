@@ -26,7 +26,6 @@ namespace HarpPedalPanel
 	const style = CoreLookAndFeel.style;
 	const fonts = style.fonts;
 	const laf = Content.createLocalLookAndFeel();
-	const sliderWidths = [0, 0.125, 0.25, 0.4375, 0.625, 0.75, 0.875, 1];
 	const scales = buildScaleTable();
 
 	reg transposer;
@@ -37,36 +36,36 @@ namespace HarpPedalPanel
 
 		local panel = Content.getComponent(panelId);
 		local pnlHarp = createContainer(panel, options);
-		local sliderPack = createSliderPack(pnlHarp, options);
+		local sliders = createSliders(pnlHarp, options);		
 		local cmbHarpPedalKey = createKeyComboBox(pnlHarp, options);
 		local cmbHarpPedalScale = createScalesComboBox(pnlHarp, options);
 
-		pnlHarp.data.sliderPack = sliderPack;
+		pnlHarp.data.sliders = sliders;
 
 		// Broadcasters
 		pnlHarp.data.broadcasters.bcScaleChanged = Engine.createBroadcaster({id: "harpPedalScaleChanged", args: ["component", "value"]});
 		pnlHarp.data.broadcasters.bcScaleChanged.attachToComponentValue([cmbHarpPedalKey, cmbHarpPedalScale], "");
 
-		pnlHarp.data.broadcasters.bcScaleChanged.addListener({panel: pnlHarp, sliderPack: sliderPack, key: cmbHarpPedalKey, scale: cmbHarpPedalScale}, "Update the pedal values based on the selected scale", function(component, value)
+		pnlHarp.data.broadcasters.bcScaleChanged.addListener({panel: pnlHarp, sliders: sliders, key: cmbHarpPedalKey, scale: cmbHarpPedalScale}, "Update the pedal values based on the selected scale", function(component, value)
 		{
-			setScale(this.sliderPack, this.key.getValue() - 1, this.scale.getValue() - 1);
+			setScale(this.sliders, this.key.getValue() - 1, this.scale.getValue() - 1);
 			this.panel.repaint();
 		});
 		
-		pnlHarp.data.broadcasters.sliderPackMouse = Engine.createBroadcaster({id: "harpPedalSliderPackMouse", args: ["component", "event"]});
-		pnlHarp.data.broadcasters.sliderPackMouse.attachToComponentMouseEvents(sliderPack, "Clicks Only", "");
-		pnlHarp.data.broadcasters.sliderPackMouse.addListener(cmbHarpPedalScale, "Alt click listener", function(component, event)
+		pnlHarp.data.broadcasters.sliderMouse = Engine.createBroadcaster({id: "harpPedalSliderMouse", args: ["component", "event"]});
+		pnlHarp.data.broadcasters.sliderMouse.attachToComponentMouseEvents(sliders, "Clicks Only", "");
+		pnlHarp.data.broadcasters.sliderMouse.addListener(cmbHarpPedalScale, "Alt click listener", function(component, event)
 		{
 			if (!event.altDown || !event.clicked || event.rightClick)
 				return;
-				
+
 			this.setValue(1);
 			this.changed();
 		});
-		
-		bcslpPedalValue.addListener({key: cmbHarpPedalKey, scale: cmbHarpPedalScale}, "Reset combo box when sliderpack changed", function(component, index, value)
+
+		bcPedalValue.addListener({key: cmbHarpPedalKey, scale: cmbHarpPedalScale, sliders: sliders}, "Reset combo box when sliderpack changed", function(component, index, value)
 		{
-			this.scale.setValue(getScaleIndex(this.key.getValue() - 1, component) + 1);
+			this.scale.setValue(getScaleIndex(this.key.getValue() - 1, this.sliders) + 1);
 		});
 
 		return pnlHarp;
@@ -90,7 +89,7 @@ namespace HarpPedalPanel
 				text: "",
 				bgColour: 0x0,
 				itemColour: 0x0,
-				itemColour2: 0x0,
+				itemColour2: style.palette.accent,
 				borderRadius: 0,
 				borderSize: 0
 			});
@@ -99,102 +98,101 @@ namespace HarpPedalPanel
 		panel.setPaintRoutine(function(g)
 		{
 			var a = this.getLocalBounds(0);
-			var sliderPack = this.data.sliderPack;
+			var sliders = this.data.sliders;
 			var noteNames = ["D", "C", "B", "E", "F", "G", "A"];
+			var sliderWidth = sliders[0].getWidth();
 			
 			g.setColour(this.get("textColour"));
 			g.setFont(fonts.medium, 18 + fonts.size);
 
-			for (i = 0; i < noteNames.length; i++)
+			for (i = 0; i < sliders.length; i++)
 			{
-				var x = sliderPack.getWidth() * sliderWidths[i];
+				var x = sliders[i].get("x");
 				var h = 40;
-				var y = sliderPack.get("y") - h;
-				var w = sliderPack.getWidth() * (sliderWidths[i + 1] - sliderWidths[i]);
-				var centreX = sliderPack.get("x") + x + w * getSliderCenterFraction(i);
-				var value = sliderPack.getSliderValueAt(i);
-				
+				var y = sliders[i].get("y") - h;
+				var w = sliderWidth;
+				var value = sliders[i].getValue();				
 				var accidental = value == 0 ? "" : (value == -1 ? "#" : "b");
 
-				g.drawAlignedText(noteNames[i] + accidental, [centreX - w / 2, y, w, h], "centred");
+				g.drawAlignedText(noteNames[i] + accidental, [x, y, w, h], "centred");
 			}
+			
+			g.setColour(this.get("itemColour2"));
+			
+			var x0 = sliders[0].get("x") - sliderWidth / 2;
+			var x1 = sliders[6].get("x") + sliderWidth + sliderWidth / 2;
+			var y = sliders[0].get("y") + sliders[0].getHeight() / 2;
+			
+			g.drawLine(x0, x1, y, y, 2);			
+
+			x0 = (sliders[2].get("x") + sliders[3].get("x") + sliderWidth) / 2 - 1;
+			
+			g.drawLine(x0, x0, sliders[0].get("y") + 10, sliders[0].get("y") + sliders[0].getHeight() - 10, 2);
 		});
 	
-		bcslpPedalValue.addComponentRefreshListener(panel, "repaint", "Repaint panel when sliderpack changed");
+		bcPedalValue.addComponentRefreshListener(panel, "repaint", "Repaint panel when a slider changes");
 	
 		return panel;
 	}
 	
-	inline function: ScriptObject createSliderPack(parentPanel: ScriptObject, options: JSON)
+	inline function: Array createSliders(parentPanel: ScriptObject, options: JSON)
 	{
-		local id = "slpHarpPedals";
+		local result = [];
+		
 		local width = isDefined(options.width) ? options.width : parentPanel.getWidth() - 80;
 		local height = isDefined(options.height) ? options.height : 100;
-		local componentExists = Content.componentExists(id);
 
-		local sliderPack = Content.addSliderPack(id);
-		sliderPack.setControlCallback(onslpHarpPedalsControl);
-
-		if (!componentExists)
+		for (i = 0; i < 7; i++)
 		{
+			local x = (width / 7 + width / 7 * i) + (20 * (i > 2));
+			local id = "knbHarpPedal" + i;
+			local componentExists = Content.componentExists(id);
+			local slider = Content.addKnob(id);
+
+			if (!componentExists)
+			{
+				Content.setPropertiesFromJSON(id, {		
+					pluginParameterName: "Pedal" + (i + 1)
+				});
+			}
+
 			Content.setPropertiesFromJSON(id, {
-				x: parentPanel.getWidth() / 2 - width / 2,
+				x: x,
 				y: 85,
-				width: width,
-				height: height,
+				width: 20,
+				height: height,	
 				parentComponent: parentPanel.getId(),
-				flashActive: false,
-				showValueOverlay: false
+				isPluginParameter: true,		
+				defaultValue: 0.0,
+				min: -1.0,
+				max: 1.0,
+				stepSize: 1.0,
+				style: "Vertical"
 			});
+			
+			slider.setControlCallback(onknbHarpPedalControl);
+			slider.setLocalLookAndFeel(laf);
+			result.push(slider);
 		}
 
-		Content.setPropertiesFromJSON(id, {
-			defaultValue: 0,
-			sliderAmount: 7,
-			min: -1,
-			max: 1,
-			stepSize: 1
-		});
-		
-		sliderPack.setAllValueChangeCausesCallback(false);
-		sliderPack.setWidthArray(sliderWidths);		
-		sliderPack.setLocalLookAndFeel(laf);
-
-		return sliderPack;
+		return result;
 	}
-	
-	inline function onslpHarpPedalsControl(component, value)
+
+	inline function onknbHarpPedalControl(component, value)
 	{
-		if (typeof value != "number")
-			return;
-
-		local sliderValue = component.getSliderValueAt(value);
-
-		setTransposer(value, sliderValue);	
-		bcslpPedalValue.sendSyncMessage([component, value, sliderValue]);
+		local index = component.getId().getTrailingIntValue();
+	
+		setTransposer(index, value);
+		bcPedalValue.sendSyncMessage([component, index, value]);
 	}
-	
-	inline function: number getSliderCenterFraction(index: number)
-	{
-		local normalWidth = sliderWidths[1] - sliderWidths[0];
-		local sliderWidth = sliderWidths[index + 1] - sliderWidths[index];
 
-		if (sliderWidth <= normalWidth * 1.001)
-			return 0.5;
-
-		if (index == 3 - 1)
-			return 0.5 * normalWidth / sliderWidth;
-	
-		return 1.0 - 0.5 * normalWidth / sliderWidth;
-	}
-	
 	inline function: ScriptObject createKeyComboBox(parentPanel: ScriptObject, options: JSON)
 	{
 		local id = "cmbHarpPedalKey";
 		local items = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 		local componentExists = Content.componentExists(id);
 		local comboBox = Content.addComboBox(id);
-		
+
 		if (!componentExists)
 		{
 			Content.setPropertiesFromJSON(id, {
@@ -204,6 +202,7 @@ namespace HarpPedalPanel
 				height: 30,
 				parentComponent: parentPanel.getId(),
 				text: "Key",
+				enableMidiLearn: true,
 				bgColour: 0x0,
 				itemColour: 0x0,
 				itemColour2: 0x0,
@@ -234,7 +233,7 @@ namespace HarpPedalPanel
 				height: 30,
 				parentComponent: parentPanel.getId(),
 				text: "Scale",
-				saveInPreset: false,
+				enableMidiLearn: true,
 				bgColour: 0x0,
 				itemColour: 0x0,
 				itemColour2: 0x0,
@@ -249,12 +248,12 @@ namespace HarpPedalPanel
 		return comboBox;
 	}
 	
-	inline function: number getScaleIndex(key: number, sliderPack: ScriptObject)
+	inline function: number getScaleIndex(key: number, sliders: Array)
 	{
 		local values = [];
 
-		for (i = 0; i < sliderPack.getNumSliders(); i++)
-			values.push(sliderPack.getSliderValueAt(i));
+		for (i = 0; i < sliders.length; i++)
+			values.push(sliders[i].getValue());
 
 		for (i = 0; i < scales[key].length; i++)
 		{
@@ -265,17 +264,17 @@ namespace HarpPedalPanel
 		return -1;
 	}
 
-	inline function setScale(sliderPack: ScriptObject, key: number, scaleIndex: number)
+	inline function setScale(sliders: Array, key: number, scaleIndex: number)
 	{
 		if (scaleIndex < 0)
 			return;
 
 		local scale = scales[key][scaleIndex];
 
-		for (i = 0; i < sliderPack.getNumSliders(); i++)
+		for (i = 0; i < sliders.length; i++)
 		{
 			setTransposer(i, scale[i]);
-			sliderPack.setSliderAtIndex(i, scale[i]);
+			sliders[i].setValue(scale[i]);
 		}			
 	}
 	
@@ -330,26 +329,7 @@ namespace HarpPedalPanel
 		return result;
 	}
 		
-	//! Look and Feel	
-	laf.registerFunction("drawSliderPackBackground", function(g, obj)
-	{
-		if (isDefined(LookAndFeel.drawHarpPedalSliderPackBackground))
-			return LookAndFeel.drawHarpPedalSliderPackBackground();
-			
-		var a = obj.area;
-		var labelHeight = 30;
-		
-		g.setColour(obj.itemColour2);
-		g.drawLine(a[0], a[2], a[3] / 2 - 1, a[3] / 2 - 1, 2);		
-		g.drawLine(a[2] / 2.285, a[2] / 2.285, a[1] + 10, a[3] - 10, 2);
-	});
-	
-	laf.registerFunction("drawSliderPackTextPopup", function(g, obj)
-	{
-		if (isDefined(LookAndFeel.drawHarpPedalSliderPackTextPopup))
-			return LookAndFeel.drawHarpPedalSliderPackTextPopup();
-	});
-		
+	//! Look and Feel		
 	laf.registerFunction("drawLinearSlider", function(g, obj)
 	{
 		if (isDefined(LookAndFeel.drawHarpPedalSlider))
@@ -359,7 +339,7 @@ namespace HarpPedalPanel
 		var radius = isDefined(style.harpPanel.sliderRadius) ? style.harpPanel.sliderRadius : 1;
 		var h = a[3] / 3;
 		var w = 8;
-		var x = a[2] * getSliderCenterFraction(parseInt(obj.id)) - w / 2;
+		var x = a[0] + a[2] / 2 - w / 2;
 		var y = (a[3] - h) * (1 - obj.valueNormalized);
 	
 		g.setColour(obj.itemColour2);
@@ -367,5 +347,5 @@ namespace HarpPedalPanel
 	});
 	
 	//! Broadcasters
-	const bcslpPedalValue = Engine.createBroadcaster({id: "slpPedalValue", args: ["component", "index", "value"]});	
+	const bcPedalValue = Engine.createBroadcaster({id: "PedalValue", args: ["component", "index", "value"]});	
 }
