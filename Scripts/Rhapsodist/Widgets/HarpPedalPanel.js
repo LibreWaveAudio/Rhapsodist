@@ -234,6 +234,7 @@ namespace HarpPedalPanel
 				parentComponent: parentPanel.getId(),
 				text: "Scale",
 				enableMidiLearn: true,
+				saveInPreset: false,
 				bgColour: 0x0,
 				itemColour: 0x0,
 				itemColour2: 0x0,
