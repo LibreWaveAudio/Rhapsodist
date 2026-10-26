@@ -24,7 +24,7 @@ namespace ZoomHandler
 	const interfaceSize = Content.getInterfaceSize();
 	const screenBounds = Content.getScreenBounds(false);
 	const minZoom = 0.5;
-	const maxZoom = Math.floor(screenBounds[3] / interfaceSize[1] * 4) / 4;
+	const maxZoom = 3;
 	const zoomStep = 0.05;
 	const zoomLevels = getZoomLevels();
 
