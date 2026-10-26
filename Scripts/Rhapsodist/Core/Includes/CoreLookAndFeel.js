@@ -227,19 +227,24 @@ namespace CoreLookAndFeel
 
 		local a = obj.area;
 		local radius = style.peakMeter.radius;
-		local peaks = [];
-		local maxPeaks = [];
+		local peaks = [0, 0];
+		local maxPeaks = [0, 0];
 
 		for (i = 0; i < obj.peaks.length; i++)
 		{
-			peaks[i % 2 == 1] += obj.peaks[i];
-			maxPeaks[i % 2 == 1] += obj.maxPeaks[i];
+			if (obj.peaks[i] == 0)
+				continue;
+
+			local side = i % 2;
+
+			peaks[side] += obj.peaks[i];
+			maxPeaks[side] += obj.maxPeaks[i];
 		}
 
 		for (i = 0; i < peaks.length; i++)
 		{
-			peaks[i] /= (obj.peaks.length / 2);
-			maxPeaks[i] /= (obj.maxPeaks.length / 2);
+			peaks[i] /= (peaks.length / 2);
+			maxPeaks[i] /= (peaks.length / 2);
 
 			g.setColour(obj.bgColour);
 
