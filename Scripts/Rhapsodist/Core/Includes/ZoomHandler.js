@@ -1,5 +1,5 @@
 /*
-    Copyright 2024, 2025 David Healey
+    Copyright 2024, 2025, 2026 David Healey
 
     This file is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@
 namespace ZoomHandler
 {	
 	const interfaceSize = Content.getInterfaceSize();
-	const screenBounds = Content.getScreenBounds(false);
 	const minZoom = 0.5;
 	const maxZoom = 3;
 	const zoomStep = 0.05;
@@ -75,6 +74,7 @@ namespace ZoomHandler
 		else
 			dragPixel = (event.dragY * currentZoom) / interfaceSize[1];
 		
+		var screenBounds = Content.getScreenBounds(false);
 		var maxScaleFactor = screenBounds[3] / interfaceSize[1];
 		var diagonalDrag = this.data.zoomStart + dragPixel;
 		
