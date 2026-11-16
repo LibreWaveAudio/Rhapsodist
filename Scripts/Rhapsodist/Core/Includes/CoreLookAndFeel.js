@@ -866,7 +866,7 @@ namespace CoreLookAndFeel
 		{
 			value = steps[Math.floor((steps.length - 1) / obj.max * obj.value)];
 
-			if (value.startsWith("u+e"));
+			if (value.startsWith("u+e"))
 				value = String.fromCharCode(value.substring(2));
 		}			
 
