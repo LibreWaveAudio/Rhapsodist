@@ -31,7 +31,7 @@ namespace MixerPanel
 	{
 		local parent = Content.getComponent(panelId);
 		local componentExists = Content.componentExists("pnlMixer");
-		local pnlMixer = Container.createRow("pnlMixer", [0, 10, 0, 10], -1, {});
+		local pnlMixer = Container.createRow("pnlMixer", [0, 0, 0, 0], -1, {});
 
 		if (!componentExists)
 		{
@@ -91,7 +91,7 @@ namespace MixerPanel
 	{
 		local id = "pnlMixerChannel" + index;
 		local componentExists = Content.componentExists(id);		
-		local panel = Container.createStack(id, [50, 0, 30, 0], -1, {});
+		local panel = Container.createStack(id, [50, 0, 20, 0], -1, {});
 		local channelName = isDefined(options.channelNames[index]) ? options.channelNames[index] : "Channel " + (index + 1);
 
 		if (!componentExists)
@@ -99,15 +99,19 @@ namespace MixerPanel
 			clearComponentColours(id);
 
 			Content.setPropertiesFromJSON(id, {
-				y: 0,
-				height: parentPanel.getHeight(),
-				text: channelName,
 				itemColour: parentPanel.get("itemColour"),
 				textColour: parentPanel.get("textColour")
 			});
 		}
 
-		panel.set("parentComponent", parentPanel.getId());
+		Content.setPropertiesFromJSON(id, {
+			y: 0,
+			width: parentPanel.getWidth() / numChannels,
+			height: parentPanel.getHeight(),
+			parentComponent: parentPanel.getId(),
+			text: channelName
+		});
+
 		panel.data.numChannels = numChannels;
 		panel.data.index = index;
 		
