@@ -798,8 +798,8 @@ namespace CoreLookAndFeel
 			return LookAndFeel.drawBigKnob();
 
 		local a = Rectangle(obj.area[0], obj.area[1], obj.area[2], obj.area[2]).reduced(14);
-		local valueFont = style.fonts.regular;
-		local valueFontSize = 18 + style.fonts.size;
+		local valueFont = isDefined(style[obj.id].valueFont) ? style[obj.id].valueFont : style.fonts.regular;
+		local valueFontSize = isDefined(style[obj.id].valueFontSize) ? style[obj.id].valueFontSize : 18 + style.fonts.size;
 		local labelFont = style.fonts.medium;
 		local labelFontSize = 18 + style.fonts.size;
 		local thickness = 4;	
@@ -808,7 +808,8 @@ namespace CoreLookAndFeel
 		local isBidirectional = -1.0 * obj.min == obj.max;
 		local strokeStyle = {EndCapStyle: "rounded", Thickness: thickness};
 		local diameter = obj.area[2] - thickness;
-		
+		local steps = style[obj.id].steps;
+
 		// Value arc
 		local p = Content.createPath();
 		p.addArc([0, 0, 1, 1], -offset, offset);
@@ -859,9 +860,19 @@ namespace CoreLookAndFeel
 			g.drawEllipse(a, 2);
 		
 		// Value
+		local value = Math.round(obj.valueNormalized * 100);
+		
+		if (isDefined(steps))
+		{
+			value = steps[Math.floor((steps.length - 1) / obj.max * obj.value)];
+
+			if (value.startsWith("u+e"));
+				value = String.fromCharCode(value.substring(2));
+		}			
+
 		g.setFont(valueFont, valueFontSize);		
 		g.setColour(Colours.withAlpha(obj.textColour, obj.enabled ? 1.0 : style.mode == "dark" ? 0.8 : 0.6));
-		g.drawAlignedText(Math.round(obj.valueNormalized * 100), a, "centred");
+		g.drawAlignedText(value, a, "centred");
 
 		// Label
 		g.setFont(labelFont, labelFontSize);
