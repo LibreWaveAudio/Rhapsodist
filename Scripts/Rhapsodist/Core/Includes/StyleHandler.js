@@ -159,7 +159,7 @@ namespace StyleHandler
 		});
 	}
 
-	inline function setComponentColours(properties: JSON)
+	inline function setComponentProperties(properties: JSON)
 	{
 		local components = Content.getAllComponents("");
 
@@ -285,8 +285,15 @@ namespace StyleHandler
 
 			if (isDefined(properties[id]))
 			{
+				CoreLookAndFeel.style[id] = properties[id];
+
+				local validProperties = c.getAllProperties();
+
 				for (x in properties[id])
 				{
+					if (!validProperties.contains(x))
+						continue;
+
 					c.set(x, properties[id][x]);
 				}				
 			}
@@ -363,7 +370,7 @@ namespace StyleHandler
 
 		setPalette(properties);
 		setLookAndFeelStyle(properties);
-		setComponentColours(properties);
+		setComponentProperties(properties);
 	}
 
 	setStyle(0);
